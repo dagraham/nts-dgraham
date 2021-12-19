@@ -72,10 +72,10 @@ Tag View:
             + note a (red, green) 3-1
             + note c (red, blue) 3-2
 
-When the display contains more lines than will fit in the terminal
-window, the "left" and "right" cursor keys can be used to change pages.
+    when the display contains more lines than will fit in the terminal
+    window, the "left" and "right" cursor keys can be used to change pages.
 
-Interacting with nts uses the following commands. In each case, enter
+interacting with nts uses the following commands. in each case, enter
 the command up to the ")" at the ">" prompt and then press "return".
 
 ? or H) toogle this help/info display
@@ -94,19 +94,24 @@ i IDENTIFIER) inspect the item corresponding to "IDENTIFIER"
     relevant item.
 
     In the tag view example, entering "i 1" at the prompt would display
-    this path view:
+    this PATH view:
 
         red 1
             + note a (red, blue) 1-1
             + note c (red, green) 1-2
 
-    while entering "i 3-2" at the prompt would display
+    while entering "i 3-2" at the prompt would display this LEAF view
 
         + note c (red, green)
             And the body of note c here
 
     In path view, entering "i 3", on the other hand, would display the
-    entire "grandchiid.tex" file.
+    entire "grandchiid.tex" file again as a LEAF view.
+
+    The term LEAF view is used in the last two cases because the display
+    shows either a part or the entirety of a file rather than an outline.
+
+s) switch between the most recent PATH and LEAF views
 
 e IDENTIFIER) edit the item corresponding to "IDENTIFIER"
 
@@ -573,14 +578,17 @@ def session():
     bindings = KeyBindings()
     session = PromptSession(key_bindings=bindings)
     list_view = ListView()
+    list_index = 0
     help_view = ListView(helplines)
     leaf_view = ListView()
+    leaf_index = 0
     current_view = 'list'
     logger.info("Opened session")
 
     @Condition
     def is_showing_list():
         return current_view == 'list'
+        # return Data.showingNodes
 
     @Condition
     def is_showing_help():
@@ -590,6 +598,17 @@ def session():
     def is_showing_leaf():
         return current_view == 'leaf'
 
+    # @bindings.add('<', filter=is_showing_leaf)
+    # def _(event):
+    #     def back():
+    #         list_view.show_page()
+    #     run_in_terminal(back)
+
+    # @bindings.add('>', filter=is_showing_list)
+    # def _(event):
+    #     def back():
+    #         leaf_view.show_page()
+    #     run_in_terminal(back)
 
     @bindings.add('right', filter=is_showing_leaf)
     def _(event):
@@ -687,17 +706,29 @@ def session():
             list_view.set_pages(lines)
             list_view.show_page()
 
+        elif text == 's':
+            if current_view == 'list':
+                shortcuts.clear()
+                current_view = 'leaf'
+                leaf_view.show_page()
+            elif current_view == 'leaf':
+                shortcuts.clear()
+                current_view = 'list'
+                list_view.show_page()
+
         elif text.startswith("i"):
             shortcuts.clear()
             lineid = text[1:].strip()
             Data.showID(lineid)
             if Data.showingNodes:
                 current_view = 'list'
+                list_index = list_view.current_page
                 lines = Data.nodelines
                 list_view.set_pages(lines)
                 list_view.show_page()
             else:
                 current_view = 'leaf'
+                leaf_index = leaf_view.current_page
                 lines = Data.notelines
                 leaf_view.set_pages(lines)
                 leaf_view.show_page()
@@ -724,13 +755,11 @@ def session():
             list_view.set_find(regx)
             leaf_view.set_find(regx)
             if Data.showingNodes:
-                leaf_index = leaf_view.current_page
                 lines = Data.nodelines
                 list_view.set_pages(lines)
                 list_view.set_page(list_index)
                 list_view.show_page()
             else:
-                list_index = list_view.current_page
                 lines = Data.notelines
                 leaf_view.set_pages(lines)
                 leaf_view.set_page(leaf_index)
@@ -738,7 +767,7 @@ def session():
 
         elif text:
             shortcuts.clear()
-            print(f"You said: {text}")
+            print(f"unrecognized command: '{text}'")
 
         else:
             shortcuts.clear()
