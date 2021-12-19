@@ -73,7 +73,7 @@ Tag View:
             + note c (red, blue) 3-2
 
 When the display contains more lines than will fit in the terminal
-window, the "up" and "down" cursor keys can be used to change pages.
+window, the "left" and "right" cursor keys can be used to change pages.
 
 Interacting with nts uses the following commands. In each case, enter
 the command up to the ")" at the ">" prompt and then press "return".
@@ -337,7 +337,7 @@ class ListView(object):
         if self.num_pages < 2:
             return [('class:plain', f"{columns*'_'}")]
         page_num = self.page_numbers[self.current_page]
-        prompt = "Change pages with the up and down cursor keys"
+        prompt = "Use the left and right cursor keys to change pages"
         return [('class:plain', f"{columns*'_'}\n"),
                 ('class:plain', f"Page {page_num}/{self.num_pages}. {prompt}.")]
 
@@ -586,26 +586,42 @@ def session():
     def is_showing_help():
         return current_view == 'help'
 
+    @Condition
+    def is_showing_leaf():
+        return current_view == 'leaf'
 
-    @bindings.add('down', filter=is_showing_list)
+
+    @bindings.add('right', filter=is_showing_leaf)
+    def _(event):
+        def down():
+            leaf_view.scroll_down()
+        run_in_terminal(down)
+
+    @bindings.add('left', filter=is_showing_leaf)
+    def _(event):
+        def up():
+            leaf_view.scroll_up()
+        run_in_terminal(up)
+
+    @bindings.add('right', filter=is_showing_list)
     def _(event):
         def down():
             list_view.scroll_down()
         run_in_terminal(down)
 
-    @bindings.add('up', filter=is_showing_list)
+    @bindings.add('left', filter=is_showing_list)
     def _(event):
         def up():
             list_view.scroll_up()
         run_in_terminal(up)
 
-    @bindings.add('down', filter=is_showing_help)
+    @bindings.add('right', filter=is_showing_help)
     def _(event):
         def down():
             help_view.scroll_down()
         run_in_terminal(down)
 
-    @bindings.add('up', filter=is_showing_help)
+    @bindings.add('left', filter=is_showing_help)
     def _(event):
         def up():
             help_view.scroll_up()
@@ -676,10 +692,12 @@ def session():
             lineid = text[1:].strip()
             Data.showID(lineid)
             if Data.showingNodes:
+                current_view = 'list'
                 lines = Data.nodelines
                 list_view.set_pages(lines)
                 list_view.show_page()
             else:
+                current_view = 'leaf'
                 lines = Data.notelines
                 leaf_view.set_pages(lines)
                 leaf_view.show_page()
@@ -703,18 +721,19 @@ def session():
 
             arg = text[1:]
             regx = arg if arg else None
-            page_index = list_view.current_page
             list_view.set_find(regx)
             leaf_view.set_find(regx)
             if Data.showingNodes:
+                leaf_index = leaf_view.current_page
                 lines = Data.nodelines
                 list_view.set_pages(lines)
-                list_view.set_page(page_index)
+                list_view.set_page(list_index)
                 list_view.show_page()
             else:
+                list_index = list_view.current_page
                 lines = Data.notelines
                 leaf_view.set_pages(lines)
-                leaf_view.set_page(0)
+                leaf_view.set_page(leaf_index)
                 leaf_view.show_page()
 
         elif text:
