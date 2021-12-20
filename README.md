@@ -1,74 +1,84 @@
 <img src="https://raw.githubusercontent.com/dagraham/nts-dgraham/master/ntslogo.png" alt="nts" title="note taking simplified" width="200px" />
 
-This is the etm user manual. Further information about etm is available at [github](https://github.com/dagraham/nts-dgraham) and in the nts discussion group at [groups.io](https://groups.io/g/nts).
+This is the nts user manual. Further information about nts is available at [github](https://github.com/dagraham/nts-dgraham) and in the nts discussion group at [groups.io](https://groups.io/g/nts).
 
 
-Features
-----------
+# Note Taking Simplified
 
-* Pure python with plain text note files. Both the GUI and command line versions run on any platform that supports python.
+Suppose, for example, that the nts "data" directory has a single
+subdirectory "parent" which contains a single subdirectory "child"
+which contains a single file `grandchild.txt` with these lines:
 
-* Quickly enter notes using a simple, intuitive format:
+    ---------------- grandchild.txt begins ---------------
+    + note a (red, blue)
+        The body of note a goes here
 
-        ------------------- begin note file ---------------------
-        + note title (optional comma-separated list of tags)
-        note body on one or more lines
+    + note b (blue, green)
+        The body of note b here
 
-        + another note title (possibly with tags)
-        and its body
+    + note c (red, green)
+        And the body of note c here
+    ---------------- grandchild.txt ends -----------------
 
-        ...
-        --------------------- end note file ---------------------
+nts provides two main **views** of this data.
 
-* View items sorted by file path or tag.
+* Path View:
 
-* Limit the display to items whose path, tags and/or text match regular expression search strings.
+		└── parent 1
+			└── child 2
+				└── grandchild.txt 3
+						+ note a (red, green) 3-1
+						+ note b (blue, green) 3-2
+						+ note c (red, blue) 3-3
 
-* Start typing in the left-hand tree panel of the gui to expose and jump to
-  matching notes.
+* Tag View:
 
-* Edit notes internally or externally with your favorite editor.
+		├── blue 1
+		│       + note b (blue, green) 1-1
+		│       + note c (red, blue) 1-2
+		├── green 2
+		│       + note a (red, green) 2-1
+		│       + note b (blue, green) 2-2
+		└── red 3
+				+ note a (red, green) 3-1
+				+ note c (red, blue) 3-2
 
-* Display selected items as HTML with an option to print.
+And two ways ot interacting with the data.
 
-* Use standard markdown or restructured text markup in note bodies.
+* Command mode
+  Here a command is added at the command line, e.g.,
 
-* Export selected items in md (markdown) or rst (restructured text) format.
+		$ nts.py -o p
 
-* Full support for unicode.
+	would display the path view in the terminal window and
 
-* Optional base 64 encoding for selected note files.
+		$ ntp.py -o p | less
 
-Configuration
------------------
+	would pipe the output to less for scrolling.
 
-If the current working directory when you start nts has a file named 'rc' in
-it, then that file will be used as the nts configuration file even if it is
-empty. Otherwise, '~/.nts/rc' will be used and, if necessary, created. Missing
-settings will be added with default values.
+* Session mode
 
-This configuration file is self-documented and can be freely edited. If you make changes you don't like you can simply erase the offending part, or even the entire file, and it will be recreated with defaults the next time you run either *n.py* or *n.pyw*.
+## Configuration
 
-Note file format
-------------------
+If the current working directory when you start nts has a file named 'nts.yaml' in it, then that file will be used as the nts configuration file even if it is empty. Otherwise, '~/nts/nts.yaml' will be used and, if necessary, created. A subdirectory called 'data' will be created if necessary in the same directory as 'nts.yaml'.
 
-Notes files by default have either the extension '.txt' (plain text) or the
-extension '.enc' (base 64 encoded) and are located in or below 'ntsdata'. The
-data directory 'ntsdata' and the file extensions 'ntstxt' for plain text and
-'ntsenc' for base 64 encrypted are set in your rc file. Note that the base 64
-encoding is intended to provide only VERY LIGHT WEIGHT protection.
+This configuration file is self-documented and can be freely edited.
 
-Both the plain text and encoded file types support unicode characters with
-normal, readable display both in the GUI and in command line output.
+## Note file format
+
+Notes files have the extension '.txt' (plain text) and are located in or below './nts/data'.
 
 Each notes file can contain one or more notes using the following format
-for each::
+for each:
 
-    + note title (optional tags)
-    one or more lines containing
+    + note title (optional comma separated tags)
+    One or more lines containing
        the body of the note
 
     with all white space preserved.
+
+	+ another note title (optional tags)
+	with its body on subequent lines
 
 The first line of the note file must contain a note title. In this and other
 note titles, the '+' must be in the first column. If given, tags must be comma
@@ -78,13 +88,12 @@ and continues until another note title or the end of the file is reached.
 treated as part of the note body and not as a new note title.) White space in
 the note body is preserved but whitespace between notes is ignored.
 
-Note file hierarchy
---------------------
+## Note file hierarchy
 
 The directory structure in your ntsdata directory provides the hierarchy for
 your notes. E.g., suppose you have the notes file::
 
-        ~/.nts/data/parent/child/grandchild.txt
+        ~/nts/data/parent/child/grandchild.txt
 
 with the following content::
 
@@ -96,7 +105,7 @@ with the following content::
     the body of my second note
     ----------- end grandchild.txt ------------------------
 
-Then when outlining by **path** you would see::
+Then when outlining by **path** you would see:
 
     parent
         child
@@ -104,7 +113,7 @@ Then when outlining by **path** you would see::
                 note a
                 note b
 
-and when outlining by **tag** you would see::
+and when outlining by **tag** you would see:
 
     tag 1
         note a
@@ -114,22 +123,11 @@ and when outlining by **tag** you would see::
     tag 3
         note b
 
-Multiple note collections
----------------------------
+## Multiple note collections
 
-You can have as many rc files as you like, each with its own ntsdata
-directory, and thus as many separate notes hierarchies as you like.
+You can have as many rc files as you like, each with its own ntsdata directory, and thus as many separate notes hierarchies as you like.
 
-Suppose, for example, I have a directory '~/Documents/Research' with
-subdirectories corresponding to my research projects. I can place an empty rc
-file in this directory, say by changing to this directory in a terminal and
-then running 'touch rc'. When I next run 'n.py' from the same directory, nts
-will fill the empty rc file with defaults and with this directory as the value
-of ntsdata. If I already have files with the extension '.txt' in or below this
-directory, I could change the 'ntstxt' entry to, say, '.nts', to avoid
-conflicts. Now I can put notes files anywhere I like within this directory and
-its sub-directories. To make life even more convenient I could create a shell
-script::
+Suppose, for example, I have a directory '~/Documents/Research' with subdirectories corresponding to my research projects. I can place an empty rc file in this directory, say by changing to this directory in a terminal and then running 'touch rc'. When I next run 'n.py' from the same directory, nts will fill the empty rc file with defaults and with this directory as the value of ntsdata. If I already have files with the extension '.txt' in or below this directory, I could change the 'ntstxt' entry to, say, '.nts', to avoid conflicts. Now I can put notes files anywhere I like within this directory and its sub-directories. To make life even more convenient I could create a shell script:
 
         --------------begin research.sh-----------------------
         #!/bin/sh

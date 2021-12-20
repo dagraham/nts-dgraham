@@ -405,7 +405,12 @@ class NodeData(object):
         self.notelines = [] # leaf display lines
         # populated with showNotes generates lines
 
+        self.findlines = [] # find display lines
+        # populated with find() generates lines
+
+        self.notedetails = {}
         self.shownotes = True
+        self.shownodes = True
         self.sessionMode = False
 
         self.setStart()
@@ -413,6 +418,7 @@ class NodeData(object):
         self.getNodes()
         self.setMode('p')
         self.showingNodes = True
+        self.tagnodes = {}
 
     def setMaxLevel(self, maxlevel=None):
         self.maxlevel = None if maxlevel == 0 else maxlevel
@@ -420,6 +426,15 @@ class NodeData(object):
 
     def toggleShowNotes(self):
         self.shownotes = not self.shownotes
+        # if notes are hidden, make sure nodes are not hidden
+        if not self.shownotes:
+            self.shownodes = True
+
+    def toggleShowNodes(self):
+        self.shownodes = not self.shownodes
+        # if nodes are hidden, make sure notes are not hidden
+        if not self.shownodes:
+            self.shownotes = True
 
     def setMode(self, mode):
         if mode not in ['p', 't']:
@@ -438,6 +453,8 @@ class NodeData(object):
 
         """
         taghash = {}
+        self.tagnodes = {}
+        self.notedetails = {}
         for root, dirs, files in os.walk(self.rootdir):
             relroot = splitall(os.path.relpath(root, self.rootdir))
             if relroot[0] != '.':
@@ -461,13 +478,15 @@ class NodeData(object):
                     #  x: [title, [tags], linenum, [body]]
                     titlestr = f"+ {x[0]}"
                     tagstr = f" ({', '.join(x[1])})" if x[1] else ""
-                    # TODO: shorten title in show
-                    # title = textwrap.shorten(titleline, width=columns-20)
+                    tmp = [f"{titlestr}{tagstr}"]
+                    tmp.extend(x[3])
+                    self.notedetails[(filepath, x[2])] = tmp
                     notelines.append([titlestr, tagstr,  (filepath, x[2])])
                     for tag in x[1]:
                         taghash.setdefault(tag, []).append([titlestr, tagstr, (filepath, x[2])])
                 self.pathnodes[f"{key}{separator}{file}{separator}notes"] = Node('notes', self.pathnodes[f"{key}{separator}{file}"], lines=notelines)
 
+        # pprint(self.notedetails)
 
         self.tagnodes['.'] = Node('.')
         for key, values in taghash.items():
@@ -502,12 +521,15 @@ class NodeData(object):
                         # titlestr, tagstring,  (filepath, linenum)
                         title = textwrap.shorten(line[0], width=columns-20)
                         notenum += 1
-                        output_lines.append(f"{fill}{title}{line[1]} {id}-{notenum}")
+                        if self.shownodes:
+                            output_lines.append(f"{fill}{title}{line[1]} {id}-{notenum}")
+                        else:
+                            output_lines.append(f"{title}{line[1]} {id}-{notenum}")
                         id2info[(id, notenum)] = line[2]
                 else:
                     id2info[(id,)] = (pathstr, None)
 
-                    if id > 0:
+                    if id > 0 and self.shownodes:
                         output_lines.append(f"{pre}{node.name}{idstr}")
             else:
                 if hasattr(node, 'lines'):
@@ -516,7 +538,7 @@ class NodeData(object):
                 else:
                     # id2info[id] = pathstr
                     id2info[(id,)] = (pathstr, None)
-                    if id > 0:
+                    if id > 0 and self.shownodes:
                         output_lines.append(f"{pre}{node.name}{idstr}")
 
         self.id2info = id2info
@@ -532,17 +554,46 @@ class NodeData(object):
         if linenum is None:
             for line in lines:
                 line = line.rstrip()
-                output_lines.extend(textwrap.wrap(line, width=columns, subsequent_indent="    ", initial_indent="    "))
+                output_lines.extend(textwrap.wrap(line, width=columns-4, subsequent_indent="  ", initial_indent="  "))
         else:
             output_lines.append(lines[linenum].rstrip())
             for line in lines[linenum+1:]:
                 if line.startswith('+'):
                     break
-                output_lines.extend(textwrap.wrap(line, width=columns, subsequent_indent="    ", initial_indent="    "))
+                output_lines.extend(textwrap.wrap(line, width=columns-4, subsequent_indent="  ", initial_indent="  "))
 
         self.notelines = output_lines
 
 
+    def find(self, find):
+        matching_keys = []
+        output_lines = []
+        self.find_lines = []
+        if not find:
+            return output_lines
+        regex = re.compile(r'%s' % find, re.IGNORECASE)
+        for key, lines in self.notedetails.items():
+            match = False
+            for line in lines:
+                match = regex.search(line)
+                if match:
+                    break
+            if match:
+                matching_keys.append(key)
+        # print(f"matching_keys: {matching_keys}")
+        if matching_keys:
+            columns, rows = shutil.get_terminal_size()
+            for identifier, key in self.id2info.items():
+                # print(f"checking identifier: {identifier}; keys: {keys}")
+                if key in matching_keys:
+                    lines = self.notedetails.get(key, [])
+                    idstr = "-".join([str(x) for x in identifier])
+                    output_lines.append(f"{lines[0]} {idstr}")
+                    for line in lines[1:]:
+                        output_lines.extend(textwrap.wrap(line, width=columns-4,
+                            subsequent_indent="  ", initial_indent="  "))
+                    output_lines.append('')
+        self.findlines = output_lines
 
     def showID(self, idstr="0"):
         shortcuts.clear()
@@ -582,8 +633,12 @@ def session():
     help_view = ListView(helplines)
     leaf_view = ListView()
     leaf_index = 0
+    find_view = ListView()
+    find_index = 0
     current_view = 'list'
     logger.info("Opened session")
+    # print("id2info")
+    # pprint(Data.id2info)
 
     @Condition
     def is_showing_list():
@@ -597,6 +652,10 @@ def session():
     @Condition
     def is_showing_leaf():
         return current_view == 'leaf'
+
+    @Condition
+    def is_showing_find():
+        return current_view == 'find'
 
     # @bindings.add('<', filter=is_showing_leaf)
     # def _(event):
@@ -646,6 +705,18 @@ def session():
             help_view.scroll_up()
         run_in_terminal(up)
 
+    @bindings.add('right', filter=is_showing_find)
+    def _(event):
+        def down():
+            find_view.scroll_down()
+        run_in_terminal(down)
+
+    @bindings.add('left', filter=is_showing_find)
+    def _(event):
+        def up():
+            find_view.scroll_up()
+        run_in_terminal(up)
+
     # @bindings.add('<', filter=is_showing_help)
     # def _(event):
     #     def back():
@@ -692,6 +763,7 @@ def session():
 
         elif text == 'p':
             shortcuts.clear()
+            current_view = 'list'
             Data.setMode('p')
             Data.showID()
             lines = Data.nodelines if Data.showingNodes else Data.notelines
@@ -700,6 +772,7 @@ def session():
 
         elif text == 't':
             shortcuts.clear()
+            current_view = 'list'
             Data.setMode('t')
             Data.showID()
             lines = Data.nodelines if Data.showingNodes else Data.notelines
@@ -715,6 +788,22 @@ def session():
                 shortcuts.clear()
                 current_view = 'list'
                 list_view.show_page()
+
+        elif text.startswith('f'):
+            current_view = 'find'
+            shortcuts.clear()
+            find = text[1:].strip()
+            regx = find if find else None
+            # pprint(Data.id2info)
+            Data.find(find)
+            lines = Data.findlines
+            if lines:
+                list_view.set_find(find)
+                leaf_view.set_find(find)
+                find_view.set_find(find)
+            find_view.set_pages(lines)
+            find_view.set_page(find_index)
+            find_view.show_page()
 
         elif text.startswith("i"):
             shortcuts.clear()
@@ -736,6 +825,19 @@ def session():
         elif text == 'n':
             shortcuts.clear()
             Data.toggleShowNotes()
+            Data.showID()
+            if Data.showingNodes:
+                lines = Data.nodelines
+                list_view.set_pages(lines)
+                list_view.show_page()
+            else:
+                lines = Data.notelines
+                leaf_view.set_pages(lines)
+                leaf_view.show_page()
+
+        elif text == 'N':
+            shortcuts.clear()
+            Data.toggleShowNodes()
             Data.showID()
             if Data.showingNodes:
                 lines = Data.nodelines
@@ -782,14 +884,23 @@ def main():
                         action="store_true")
     parser.add_argument("-n",  "--notes", help="suppress notes",
                         action="store_true")
+    parser.add_argument("-N",  "--nodes", help="suppress nodes",
+                        action="store_true")
     parser.add_argument("-o", "--outline", type=str, choices=['p', 't'],
                     help="outline by path or tags", default='p')
 
     parser.add_argument("-i", "--id", type=str, help="show output for the node/leaf corresponding to ID", default="0")
+    parser.add_argument("-f", "--find", type=str, help="show notes containing a match for FIND")
     shortcuts.clear()
     args = parser.parse_args()
     if args.notes:
         Data.toggleShowNotes()
+    if args.nodes:
+        Data.toggleShowNodes()
+    if args.find:
+        Data.find(args.find)
+        for line in Data.findlines:
+            print(line)
 
     mode = args.outline
 
