@@ -15,6 +15,7 @@ from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.application import run_in_terminal
 from prompt_toolkit.filters import Condition
 
+
 from prompt_toolkit import print_formatted_text
 # from prompt_toolkit.styles.named_colors import NAMED_COLORS
 import textwrap
@@ -625,6 +626,7 @@ class NodeData(object):
 
 def session():
 
+
     Data.sessionMode = True
     bindings = KeyBindings()
     session = PromptSession(key_bindings=bindings)
@@ -717,17 +719,6 @@ def session():
             find_view.scroll_up()
         run_in_terminal(up)
 
-    # @bindings.add('<', filter=is_showing_help)
-    # def _(event):
-    #     def back():
-    #         global current_view
-    #         current_view = 'list'
-    #         list_view.show_page()
-    #     run_in_terminal(back)
-
-
-
-
     shortcuts.clear()
     message = [("class:prompt", 'nts session. Enter ? or h (help), q (quit) or another command at the > prompt\nand press "return"')]
     regx = ""
@@ -745,7 +736,6 @@ def session():
 
         if text == 'q':
             shortcuts.clear()
-            print("bye ...")
             break
 
         elif text in ['?', 'h']:
