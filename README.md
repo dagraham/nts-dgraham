@@ -54,7 +54,8 @@ The numeric identifiers appended to the lines in both views are provided by *nts
 *nts* provides two interfaces for interacting with the data.
 
 * Command mode
-  Commands are entered at the terminal prompt, e.g.,
+
+    Commands are entered at the terminal prompt, e.g.,
 
 		$ nts.py -o p
 
@@ -64,15 +65,16 @@ The numeric identifiers appended to the lines in both views are provided by *nts
 
 
 * Session mode
-  Here nts is started in command mode with the `-s` argument:
+
+    Start *nts* in command mode with the `-s` argument to begin session mode:
 
 		$ nts.py -s
 
-	This begins a session in which data is loaded into memory and remains available for subsequent interaction. In this mode, *nts* assumes command of the terminal window and provides its own `>` command prompt. E.g.,
+	This begins a session in which data is loaded into memory and remains available for subsequent interaction. In this mode, *nts* assumes command of the terminal window and provides its own `>` command prompt. Then, e.g., entering
 
 		> p
 
-	displays the path view but with several features not available in command mode. E.g., when there are more lines to display than will fit in the terminal window, the lines are divided into pages with the left and right cursor keys used to change the page.
+	would display the path view but with several features not available in command mode. E.g., when there are more lines to display than will fit in the terminal window, the lines are divided into pages with the left and right cursor keys used to change pages.
 
 #### Command Summary
 
