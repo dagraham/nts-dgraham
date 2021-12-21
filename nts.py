@@ -418,7 +418,6 @@ class NodeData(object):
         self.getNodes()
         self.setMode('p')
         self.showingNodes = True
-        self.tagnodes = {}
 
     def setMaxLevel(self, maxlevel=None):
         self.maxlevel = None if maxlevel == 0 else maxlevel
@@ -486,7 +485,6 @@ class NodeData(object):
                         taghash.setdefault(tag, []).append([titlestr, tagstr, (filepath, x[2])])
                 self.pathnodes[f"{key}{separator}{file}{separator}notes"] = Node('notes', self.pathnodes[f"{key}{separator}{file}"], lines=notelines)
 
-        # pprint(self.notedetails)
 
         self.tagnodes['.'] = Node('.')
         for key, values in taghash.items():
@@ -572,6 +570,7 @@ class NodeData(object):
         if not find:
             return output_lines
         regex = re.compile(r'%s' % find, re.IGNORECASE)
+        # print(f"find: {regex}")
         for key, lines in self.notedetails.items():
             match = False
             for line in lines:
@@ -581,6 +580,7 @@ class NodeData(object):
             if match:
                 matching_keys.append(key)
         # print(f"matching_keys: {matching_keys}")
+        # print(self.id2info.keys())
         if matching_keys:
             columns, rows = shutil.get_terminal_size()
             for identifier, key in self.id2info.items():
@@ -893,14 +893,16 @@ def main():
     parser.add_argument("-f", "--find", type=str, help="show notes containing a match for FIND")
     shortcuts.clear()
     args = parser.parse_args()
+    if args.find:
+        Data.showNodes()
+        Data.find(args.find)
+        for line in Data.findlines:
+            print(line)
+        return
     if args.notes:
         Data.toggleShowNotes()
     if args.nodes:
         Data.toggleShowNodes()
-    if args.find:
-        Data.find(args.find)
-        for line in Data.findlines:
-            print(line)
 
     mode = args.outline
 

@@ -1,13 +1,15 @@
-<img src="https://raw.githubusercontent.com/dagraham/nts-dgraham/master/ntslogo.png" alt="nts" title="note taking simplified" width="200px" />
-
-This is the nts user manual. Further information about nts is available at [github](https://github.com/dagraham/nts-dgraham) and in the nts discussion group at [groups.io](https://groups.io/g/nts).
+<figure>
+	<img src="https://raw.githubusercontent.com/dagraham/nts-dgraham/master/ntslogo.png" alt="nts"  width="180px" />
+</figure>
 
 
 # Note Taking Simplified
 
-Suppose, for example, that the nts "data" directory has a single
-subdirectory "parent" which contains a single subdirectory "child"
-which contains a single file `grandchild.txt` with these lines:
+Suppose, e.g., that the *nts* data directory contains this single file
+
+	~/nts/data/parent/child/grandchild.txt
+
+with this content:
 
     ---------------- grandchild.txt begins ---------------
     + note a (red, blue)
@@ -20,7 +22,7 @@ which contains a single file `grandchild.txt` with these lines:
         And the body of note c here
     ---------------- grandchild.txt ends -----------------
 
-nts provides two main **views** of this data.
+*nts* provides two main **views** of this data.
 
 * Path View:
 
@@ -43,20 +45,55 @@ nts provides two main **views** of this data.
 				+ note a (red, green) 3-1
 				+ note c (red, blue) 3-2
 
-And two ways ot interacting with the data.
+Note that *nts* appends numeric identifiers to the lines in both views. These are single numbers for the *nodes* in the outline branches that have children and hyphenated numbers for the *leaves*, e.g., the "3" appended to the "grandchild.txt" node in the path view and the "2-1" appended to "+ note a (red, green)" in the tag view. The first of the two numbers in the leaf identifiers is the indentifier of the parent node. These identifiers are used in various commands discussed below.
+
+*nts* provides two interfaces for interacting with the data.
 
 * Command mode
-  Here a command is added at the command line, e.g.,
+  Commands are entered at the terminal prompt, e.g.,
 
 		$ nts.py -o p
 
-	would display the path view in the terminal window and
+	displays the path view in the terminal window. The output can be piped in the standard way, e.g.,
 
 		$ ntp.py -o p | less
 
-	would pipe the output to less for scrolling.
 
 * Session mode
+  Here nts is started in command mode with the `-s` argument:
+
+		$ nts.py -s
+
+	This begins a session in which data is loaded into memory and remains available for subsequent interaction. In this mode, *nts* assumes command of the terminal window and provides its own `>` command prompt. E.g.,
+
+		> p
+
+	displays the path view but with features not available in command mode. E.g., when there are more lines to display than will fit in the terminal window, the output is divided into pages with scrolling using the left and right cursor keys.
+
+## Commands
+
+Action          | Command Mode | Session Mode | Notes
+---|---|---|---
+help            |  -h      |  h or ?    |   1
+start session   |  -s      |  ~         |   ~
+end session     |    ~     |  q         |   ~
+path view       |  -o p    |  p         |   ~
+tags view       |  -o t    |  t         |   ~
+highlight REGEX |          |  / REGEX   |   2
+find REGEX      | -f REGEX | f REGEX    |   3
+inspect IDENT   | -i IDENT | i IDENT    |   4
+edit IDENT      | -e IDENT | e IDENT    |   5
+switch views    |    ~     | s          |   6
+
+
+1. In session mode, entering h or ? toggles the display between the active and the help displays.
+2. Highlight displayed lines that contain a match for the case-insensitive regular expression REGEX.
+3. Display complete notes that contain a match in the title, tags or body for the case-insensitive regular expression REGEX.
+4. If IDENT is the 2-number identifier for a note, then display that note. Else if IDENT is the identifier for a ".txt" file, then display the contents of that file. Otherwise limit the display to that part of the outline which starts from the corresponding node. In session mode, display the output page by page when necessary.
+5. If IDENT corresponds to either a note or a ".txt" file, then open that file for editing and, in the case of a note, scroll to the correponding line. Otherwise, ignore the command.
+6. Switch back and forth between the most recent path or tag view and the most recent detail view of a file or note.
+
+Further information about nts is available at [github](https://github.com/dagraham/nts-dgraham) and in the nts discussion group at [groups.io](https://groups.io/g/nts).
 
 ## Configuration
 
