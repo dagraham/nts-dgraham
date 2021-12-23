@@ -46,24 +46,24 @@ with this content:
 
 * Path View:
 
-		└── parent 1
-			└── child 2
-				└── grandchild.txt 3
-						+ note a (red, green) 3-1
-						+ note b (blue, green) 3-2
-						+ note c (red, blue) 3-3
+        └── parent 1
+            └── child 2
+                └── grandchild.txt 3
+                        + note a (red, green) 3-1
+                        + note b (blue, green) 3-2
+                        + note c (red, blue) 3-3
 
 * Tag View:
 
-		├── blue 1
-		│       + note b (blue, green) 1-1
-		│       + note c (red, blue) 1-2
-		├── green 2
-		│       + note a (red, green) 2-1
-		│       + note b (blue, green) 2-2
-		└── red 3
-				+ note a (red, green) 3-1
-				+ note c (red, blue) 3-2
+        ├── blue 1
+        │       + note b (blue, green) 1-1
+        │       + note c (red, blue) 1-2
+        ├── green 2
+        │       + note a (red, green) 2-1
+        │       + note b (blue, green) 2-2
+        └── red 3
+                + note a (red, green) 3-1
+                + note c (red, blue) 3-2
 
 Both views are outlines with branches that end with note title lines. In path view, the nodes along the branches correspond to directory or file names and there can be many of these. In tag view, on the other hand, the nodes correspond to tag names and there can only be one of these in each branch.
 
