@@ -74,7 +74,7 @@ Tag View:
             + note c (red, blue) 3-2
 
     when the display contains more lines than will fit in the terminal
-    window, the "left" and "right" cursor keys can be used to change pages.
+    window, the "up" and "down" cursor keys can be used to change pages.
 
 interacting with nts uses the following commands. in each case, enter
 the command up to the ")" at the ">" prompt and then press "return".
@@ -271,7 +271,7 @@ class ListView(object):
 
     def __init__(self, lines=[]):
         columns, rows = shutil.get_terminal_size()
-        self.rows = rows -3 # integer number of allowed display rows
+        self.rows = rows - 4 # integer number of allowed display rows
         self.find = None
         self.lines = lines
         self.pages = {}
@@ -343,7 +343,7 @@ class ListView(object):
         if self.num_pages < 2:
             return [('class:plain', f"{columns*'_'}")]
         page_num = self.page_numbers[self.current_page]
-        prompt = "Use the left and right cursor keys to change pages"
+        prompt = "Use the up and down cursor keys to change pages"
         return [('class:plain', f"{columns*'_'}\n"),
                 ('class:plain', f"Page {page_num}/{self.num_pages}. {prompt}.")]
 
@@ -630,6 +630,7 @@ def session():
     Data.sessionMode = True
     bindings = KeyBindings()
     session = PromptSession(key_bindings=bindings)
+    multiline_prompt = False
     list_view = ListView()
     list_index = 0
     help_view = ListView(helplines)
@@ -641,6 +642,15 @@ def session():
     logger.info("Opened session")
     # print("id2info")
     # pprint(Data.id2info)
+
+    def prompt_continuation(width, line_number, is_soft_wrap):
+        # return '.' * width
+        return f"{'.'*(width-1)} "
+        # return [('', '.' * width)]
+
+    # prompt('multiline input> ', multiline=True,
+    #     prompt_continuation=prompt_continuation)
+
 
     @Condition
     def is_showing_list():
@@ -671,49 +681,49 @@ def session():
     #         leaf_view.show_page()
     #     run_in_terminal(back)
 
-    @bindings.add('right', filter=is_showing_leaf)
+    @bindings.add('down', filter=is_showing_leaf)
     def _(event):
         def down():
             leaf_view.scroll_down()
         run_in_terminal(down)
 
-    @bindings.add('left', filter=is_showing_leaf)
+    @bindings.add('up', filter=is_showing_leaf)
     def _(event):
         def up():
             leaf_view.scroll_up()
         run_in_terminal(up)
 
-    @bindings.add('right', filter=is_showing_list)
+    @bindings.add('down', filter=is_showing_list)
     def _(event):
         def down():
             list_view.scroll_down()
         run_in_terminal(down)
 
-    @bindings.add('left', filter=is_showing_list)
+    @bindings.add('up', filter=is_showing_list)
     def _(event):
         def up():
             list_view.scroll_up()
         run_in_terminal(up)
 
-    @bindings.add('right', filter=is_showing_help)
+    @bindings.add('down', filter=is_showing_help)
     def _(event):
         def down():
             help_view.scroll_down()
         run_in_terminal(down)
 
-    @bindings.add('left', filter=is_showing_help)
+    @bindings.add('up', filter=is_showing_help)
     def _(event):
         def up():
             help_view.scroll_up()
         run_in_terminal(up)
 
-    @bindings.add('right', filter=is_showing_find)
+    @bindings.add('down', filter=is_showing_find)
     def _(event):
         def down():
             find_view.scroll_down()
         run_in_terminal(down)
 
-    @bindings.add('left', filter=is_showing_find)
+    @bindings.add('up', filter=is_showing_find)
     def _(event):
         def up():
             find_view.scroll_up()
@@ -726,12 +736,21 @@ def session():
 
     run = True
     while run:
-        highlight = f"/'{regx}'" if regx else ""
-        hidden = "" if Data.shownotes else "notes hidden"
+        highlight = f"highlighting '{regx}'" if regx else ""
+        if Data.shownodes:
+            hidden = "" if Data.shownotes else "leaf notes hidden - toggle with n"
+        else:
+            hidden = "branch nodes hidden - toggle with N"
         conj = "; " if hidden and highlight else ""
         spc = " " if hidden or highlight else ""
-        message = [("class:prompt", f"{hidden}{conj}{highlight}{spc}> ")]
-        text = session.prompt(message, style=style)
+        message_str = f"{hidden}{conj}{highlight}{spc}"
+        message =  [("class:prompt", f"{message_str}\n> ")] if message_str else [("class:prompt", f"> ")]
+        # message = [("class:prompt", f"{hidden}{conj}{highlight}{spc}> ")]
+        # message = [("class:prompt", f"> ")]
+        # bottom_toolbar = [("class:toolbar", f"{hidden}{conj}{highlight}{spc}")]
+        text = session.prompt(message, style=style,
+                multiline=multiline_prompt,
+                prompt_continuation=prompt_continuation)
         text = text.strip()
 
         if text == 'q':
@@ -811,6 +830,9 @@ def session():
                 lines = Data.notelines
                 leaf_view.set_pages(lines)
                 leaf_view.show_page()
+
+        elif text == 'm':
+            multiline_prompt = not multiline_prompt
 
         elif text == 'n':
             shortcuts.clear()
