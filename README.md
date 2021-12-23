@@ -145,7 +145,7 @@ The first line of the note file must contain a note title. In this and other not
 
 ### Configuration
 
-In the current, preliminary version of *nts* there are no user configurable options. *nts* will use "~/nts" as its home directory and will store its data files in and below "~/nts/data".
+In the current, preliminary version of *nts* there are no user configurable options. *nts* will use "\~/nts" as its home directory and will store its data files in and below "\~/nts/data".
 
 ### License
 
