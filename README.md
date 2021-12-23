@@ -65,7 +65,7 @@ with this content:
                 + note a (red, green) 3-1
                 + note c (red, blue) 3-2
 
-Both views are outlines with branches that end with note title lines. In path view, the nodes along the branches correspond to directory or file names and there can be many of these. In tag view, on the other hand, the nodes correspond to tag names and there can only be one of these in each branch.
+Both views are outlines with branches that end with note title lines. In path view, the nodes along the branches correspond to directory or file names and there can be many of these in each branch. In tag view, on the other hand, the nodes correspond to tag names and there can only be one of these in each branch.
 
 The numeric identifiers appended to the lines in both views are provided by *nts*. These are single numbers for the *nodes* in the outline branches that have children and hyphenated numbers for the *leaves*, e.g., the "3" appended to the "grandchild.txt" node in the path view and the "2-1" appended to "+ note a (red, green)" in the tag view. The first of the two numbers in the leaf identifier is the indentifier of the parent node. These identifiers are used in various ways that are explained below.
 
@@ -145,7 +145,7 @@ The first line of the note file must contain a note title. In this and other not
 
 ### Configuration
 
-TBD
+In the current, preliminary version of *nts* there are no user configurable options. *nts* will use "~/nts" as its home directory and will store its data files in and below "~/nts/data".
 
 ### License
 
