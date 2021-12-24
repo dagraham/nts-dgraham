@@ -11,17 +11,17 @@
 
 Notes are recorded in plain text files with the extension ".txt" that are located anywhere below the *nts* data directory. These note files have a simple format:
 
-* The first line of the note file must contain a note title line.
+* The first line of the note file must contain a *note title line*.
 
-* In this and other note title lines, a "+" must be in the first column and followed by the title of the note.
+* All *note title lines* must begin with a "+" in the first column followed by a space and then the title of the note.
 
 * Tags, if given, must be comma separated and enclosed in parentheses after the note title.
 
-* The note body begins with the next line and continues until another note title line or the end of the file is reached.
+* The *note body* begins on the next line and continues until another *note title line* or the end of the file is reached.
 
-* Lines that begin with one or more white space characters and then "+" are treated as part of the note body and not as the beginning of a new note.
+* Lines that begin with one or more white space characters and then "+" are treated as part of the *note body* and not as the beginning of a new note.
 
-* White space in the note body is preserved but whitespace between notes is ignored.
+* White space in the *note body* is preserved but whitespace between notes is ignored.
 
 
 

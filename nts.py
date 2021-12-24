@@ -29,7 +29,7 @@ import argparse
 nts_version = "1.0.0"
 
 
-note_regex = re.compile(r'^\+\s*([^\(]+)\s*(\(([^\)]*)\))?\s*$')
+note_regex = re.compile(r'^[\+#]\s+([^\(]+)\s*(\(([^\)]*)\))?\s*$')
 
 separator = os.path.sep
 
@@ -322,7 +322,8 @@ class ListView(object):
         page_num = 0
         while True:
             page_num += 1
-            beg_line = (page_num - 1) * (self.rows + 1)
+            # beg_line = (page_num - 1) * (self.rows + 1)
+            beg_line = (page_num - 1) * (self.rows )
             page_lines = self.lines[beg_line:beg_line + self.rows]
             if page_lines:
                 self.pages[str(page_num)] = page_lines
