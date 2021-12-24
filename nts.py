@@ -26,7 +26,12 @@ import logging.config
 
 import argparse
 
+# FIXME: should be imported
 nts_version = "1.0.0"
+
+# FIXME: should be set in nts config
+session_edit= '''gvim -f +{linenum} {filepath}'''
+command_edit= '''vim  +{linenum} {filepath}'''
 
 
 note_regex = re.compile(r'^[\+#]\s+([^\(]+)\s*(\(([^\)]*)\))?\s*$')
@@ -233,6 +238,7 @@ def myprint(tokenlines, color=None):
     # tokenlines[-1][1] = tokenlines[-1][1].rstrip()
     print_formatted_text(FormattedText(tokenlines), style=style)
 
+
 def getnotes(filepath):
     notes = []
     with open(filepath, 'r') as fo:
@@ -422,6 +428,7 @@ class NodeData(object):
         self.setMode('p')
         self.showingNodes = True
 
+    #FIXME: implement this
     def setMaxLevel(self, maxlevel=None):
         self.maxlevel = None if maxlevel == 0 else maxlevel
 
@@ -637,8 +644,26 @@ class NodeData(object):
             pprint(self.nodes.keys())
 
 
-def session():
+    def editID(self, idstr):
+        idtup = tuple([int(x) for x in idstr.split('-')])
+        info = self.id2info.get(idtup, ('.', ))
+        if not os.path.isfile(info[0]):
+            return
+        info = list(info)
+        if len(info) < 2 or not info[1]:
+            info[1] = 0
+        else:
+            info[1] += 1
+        filepath, linenum = info
+        hsh = {'filepath': filepath, 'linenum': linenum}
+        if self.sessionMode:
+            editcmd = session_edit.format(**hsh)
+        else:
+            editcmd = command_edit.format(**hsh)
+        os.system(editcmd)
 
+
+def session():
 
     Data.sessionMode = True
     bindings = KeyBindings()
@@ -843,6 +868,17 @@ def session():
                 lines = Data.notelines
                 leaf_view.set_pages(lines)
                 leaf_view.show_page()
+
+        elif text.startswith("e"):
+            shortcuts.clear()
+            idstr = text[1:].strip()
+            Data.editID(idstr)
+            Data.getNodes()
+            Data.showID()
+            lines = Data.nodelines if Data.showingNodes else Data.notelines
+            list_view.set_pages(lines)
+            list_view.show_page()
+
 
         elif text == 'm':
             multiline_prompt = not multiline_prompt
