@@ -258,7 +258,8 @@ def getnotes(filepath):
             note_begin = linenum
             note = [title, tags, linenum]
         else:
-            body.append(line.rstrip())
+            # body.append(line.rstrip())
+            body.append(line)
     if note:
         note.append(body)
         notes.append(note)
@@ -554,13 +555,24 @@ class NodeData(object):
         if linenum is None:
             for line in lines:
                 line = line.rstrip()
-                output_lines.extend(textwrap.wrap(line, width=columns-4, subsequent_indent="  ", initial_indent="  "))
+                if line:
+                    output_lines.extend(textwrap.wrap(line, width=columns-4, subsequent_indent="  ", initial_indent="  "))
+                else:
+                    output_lines.append("")
         else:
             output_lines.append(lines[linenum].rstrip())
             for line in lines[linenum+1:]:
+                # textwrap will return and empty list if passed a line with only white space characters
+                line = line.rstrip()
                 if line.startswith('+'):
+                    if not output_lines[-1]:
+                        # skip the last empty line
+                        output_lines = output_lines[:-1]
                     break
-                output_lines.extend(textwrap.wrap(line, width=columns-4, subsequent_indent="  ", initial_indent="  "))
+                if line:
+                    output_lines.extend(textwrap.wrap(line, width=columns-4, subsequent_indent="  ", initial_indent="  "))
+                else:
+                    output_lines.append("")
 
         self.notelines = output_lines
 
@@ -731,7 +743,7 @@ def session():
         run_in_terminal(up)
 
     shortcuts.clear()
-    message = [("class:prompt", 'nts session. Enter ? or h (help), q (quit) or another command at the > prompt\nand press "return"')]
+    message = [("class:prompt", 'Enter ?, q or another command at the > prompt and press "return"')]
     regx = ""
     myprint(message)
 
@@ -888,6 +900,8 @@ def session():
             shortcuts.clear()
             list_view.show_page()
 
+    # TODO: implement edit and add
+
 
 
 def main():
@@ -904,6 +918,7 @@ def main():
 
     parser.add_argument("-i", "--id", type=str, help="show output for the node/leaf corresponding to ID", default="0")
     parser.add_argument("-f", "--find", type=str, help="show notes containing a match for FIND")
+    # TODO: implement edit and add
     shortcuts.clear()
     args = parser.parse_args()
     if args.find:

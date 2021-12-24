@@ -32,13 +32,13 @@ Suppose, e.g., that the *nts* data directory contains a single file
 with this content:
 
     ---------------- grandchild.txt begins ---------------
-    + note a (red, blue)
+    + note a (red, green)
         The body of note a goes here
 
     + note b (blue, green)
         The body of note b here
 
-    + note c (red, green)
+    + note c (red, blue)
         And the body of note c here
     ---------------- grandchild.txt ends -----------------
 
@@ -122,7 +122,7 @@ add to IDENT    | -a IDENT | a IDENT    |   9
 1. If IDENT is the 2-number identifier for a note, then display the contents of that note. Else if IDENT is the identifier for a ".txt" file, then display the contents of that file. Otherwise limit the display to that part of the outline which starts from the corresponding node.
 1. In session mode, switch back and forth between the most recent path or tag display and the most recent display of a file or note.
 1. If IDENT corresponds to either a note or a ".txt" file, then open that file for editing and, in the case of a note, scroll to the beginning line of the note.
-1. If IDENT corresponds to either a note or a ".txt" file, then open that file for appending a new note. Otherwise, if IDENT corresponds to a directory, then prompt for the name of a child to add to that node. If the name entered ends with ".txt", a new note file will be created and opened for editing. Otherwise, a new subdirectory will be added to the node directory using the name provided.
+1. If IDENT corresponds to either a note or a ".txt" file, then open that file for appending a new note. Otherwise, if IDENT corresponds to a directory, then prompt for the name of a child to add to that node. If the name entered ends with ".txt", a new note file will be created and opened for editing. Otherwise, a new subdirectory will be added to the node directory using the name provided. Use "0" as the IDENT to add to the root (data) node.
 
 
 ### Configuration
