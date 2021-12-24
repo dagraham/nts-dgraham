@@ -125,24 +125,6 @@ add to IDENT    | -a IDENT | a IDENT    |   9
 1. If IDENT corresponds to either a note or a ".txt" file, then open that file for appending a new note. Otherwise, if IDENT corresponds to a directory, then prompt for the name of a child to add to that node. If the name entered ends with ".txt", a new note file will be created and opened for editing. Otherwise, a new subdirectory will be added to the node directory using the name provided.
 
 
-#### Note file format
-
-Notes files have the extension ".txt" (plain text) and are located in or below the "nts/data" directory.
-
-Each notes file can contain one or more notes using the following format for each:
-
-    + title of this note (optional comma separated tags)
-    One or more lines containing
-       the body of the note
-
-    with all white space preserved.
-
-	+ another note title (optional tags)
-	with its body on subsequent lines
-
-The first line of the note file must contain a note title. In this and other note titles, the "+" must be in the first column. If given, tags must be comma separated and enclosed in parentheses. The note body begins with the next line and continues until another note title or the end of the file is reached. (Lines that begin with one or more white space characters and then "+" are treated as part of the note body and not as a new note title.) White space in the note body is preserved but whitespace between notes is ignored.
-
-
 ### Configuration
 
 In the current, preliminary version of *nts* there are no user configurable options. *nts* will use "\~/nts" as its home directory and will store its data files in and below "\~/nts/data".
