@@ -8,14 +8,14 @@ import io
 import os
 import sys
 from shutil import rmtree
-from etm.__version__ import version
+from nts.__version__ import version
 
 from setuptools import find_packages, setup, Command
 
 # Package meta-data.
-NAME = 'etm-dgraham'
-DESCRIPTION = 'event and task manager'
-URL = 'https://dagraham.github.io/etm-dgraham/'
+NAME = 'nts-dgraham'
+DESCRIPTION = 'note taking simplified'
+URL = 'https://dagraham.github.io/nts-dgraham/'
 EMAIL = 'dnlgrhm@gmail.com'
 AUTHOR = 'Daniel A Graham'
 REQUIRES_PYTHON = '>=3.7.3'
@@ -23,25 +23,9 @@ VERSION = version
 
 # What packages are required for this module to be executed?
 REQUIRED = [
-        "icalendar>=4.0.3",
-        "Jinja2>=2.10",
-        "MarkupSafe>=1.1.0",
-        "pendulum>=2.0.4",
-        "prompt-toolkit>=3.0.2",
-        "Pygments>=2.5.2",
-        "pyperclip>=1.7.0",
-        "python-dateutil>=2.7.3",
-        "pytz>=2018.9",
-        "pytzdata>=2018.9",
+        "prompt-toolkit>=3.0.24",
         "ruamel.yaml>=0.15.88",
-        "requests>=2.25.1",
-        "six>=1.11.0",
-        "style>=1.1.6",
-        "tinydb>=3.12.2",
-        "tinydb-serialization>=1.0.4",
-        "tinydb-smartcache>=1.0.2",
-        "tzlocal>=1.5.1",
-        "wcwidth>=0.1.7"
+        "anytree>=2.8.0"
 ]
 
 # What packages are optional?
@@ -142,14 +126,14 @@ setup(
     author_email=EMAIL,
     python_requires=REQUIRES_PYTHON,
     url=URL,
-    # packages=['etm'],
+    # packages=['nts'],
     packages=find_packages(exclude=('tests', 'test', 'tmp')),
     # If your package is a single module, use this instead of 'packages':
     # py_modules=['mypackage'],
     entry_points={
         'console_scripts': [
-            'etm=etm.__main__:main',
-            'etm+=etm.__main__:inbasket',
+            'nts=nts.__main__:main',
+            'nts+=nts.__main__:inbasket',
         ],
     },
     # entry_points={
