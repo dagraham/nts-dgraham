@@ -1,23 +1,87 @@
 #! ./env/bin/python
 
 import pendulum
-import sys
+import sys, os
 import logging
 import logging.config
+import subprocess # for check_output
+
 logger = logging.getLogger()
 
-from etm.__version__ import version
-import etm.view as view
-# from etm.view import check_output
-import etm.options as options
+from nts.__version__ import version
 
 
-setup_logging = options.setup_logging
-setup_logging(1, '~/etm-mv')
-view.logger = logger
+def setup_logging(level, ntsdir, file=None):
+    """
+    Setup logging configuration. Override root:level in
+    logging.yaml with default_level.
+    """
+
+    if not os.path.isdir(ntsdir):
+        return
+
+    log_levels = {
+        1: logging.DEBUG,
+        2: logging.INFO,
+        3: logging.WARN,
+        4: logging.ERROR,
+        5: logging.CRITICAL
+    }
+
+    level = int(level)
+    loglevel = log_levels.get(level, log_levels[3])
+
+    # if we get here, we have an existing ntsdir
+    logfile = os.path.normpath(os.path.abspath(os.path.join(ntsdir, "nts.log")))
+
+    config = {'disable_existing_loggers': False,
+              'formatters': {'simple': {
+                  'format': '--- %(asctime)s - %(levelname)s - %(module)s.%(funcName)s\n    %(message)s'}},
+              'handlers': {
+                    'file': {
+                        'backupCount': 7,
+                        'class': 'logging.handlers.TimedRotatingFileHandler',
+                        'encoding': 'utf8',
+                        'filename': logfile,
+                        'formatter': 'simple',
+                        'level': loglevel,
+                        'when': 'midnight',
+                        'interval': 1}
+              },
+              'loggers': {
+                  'etmmv': {
+                    'handlers': ['file'],
+                    'level': loglevel,
+                    'propagate': False}
+              },
+              'root': {
+                  'handlers': ['file'],
+                  'level': loglevel},
+              'version': 1}
+    logging.config.dictConfig(config)
+    logger.critical("\n######## Initializing logging #########")
+    if file:
+        logger.critical(f'logging for file: {file}\n    logging at level: {loglevel}\n    logging to file: {logfile}')
+    else:
+        logger.critical(f'logging at level: {loglevel}\n    logging to file: {logfile}')
+
+def check_output(cmd):
+    if not cmd:
+        return
+    res = ""
+    try:
+        res = subprocess.check_output(cmd, stderr=subprocess.STDOUT, shell=True, universal_newlines=True, encoding='UTF-8')
+        return True, res
+    except subprocess.CalledProcessError as e:
+        logger.warning(f"Error running {cmd}\n'{e.output}'")
+        lines = e.output.strip().split('\n')
+        msg = lines[-1]
+        return False, msg
 
 
-check_output = view.check_output
+setup_logging(1, '~/nts-dgraham')
+
+# check_output = view.check_output
 ok, gb = check_output("git branch")
 print('branch:')
 print(gb)
@@ -32,7 +96,7 @@ if gs:
 
 # PEP 440 extensions
 # possible_extensions = ['a', 'b', 'rc', '.post', '.dev']
-# For etm only the following will be used
+# For nts only the following will be used
 possible_extensions = ['a', 'b', 'rc']
 
 pre = post = version
@@ -76,7 +140,7 @@ if ext and ext in extension_options:
     opts.append(f"  j: {b_major}")
 
 import os
-version_file = os.path.join(os.getcwd(), 'etm', '__version__.py')
+version_file = os.path.join(os.getcwd(), 'nts', '__version__.py')
 
 print("\n".join(opts))
 res = input(f"Which new version? ")
