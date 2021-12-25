@@ -263,6 +263,8 @@ def getnotes(filepath):
             print(f"Error failed to match: '{line}'\nin filepath: '{filepath}'")
         if note_regex.match(line):
             if note:
+                if body and not body[-1]:
+                    body = body[:-1]
                 note.append(body)
                 notes.append(note)
             note = []
@@ -274,9 +276,10 @@ def getnotes(filepath):
             note_begin = linenum
             note = [title, tags, linenum]
         else:
-            # body.append(line.rstrip())
-            body.append(line)
+            body.append(line.rstrip())
     if note:
+        if body and not body[-1]:
+            body = body[:-1]
         note.append(body)
         notes.append(note)
         note = []
@@ -621,9 +624,15 @@ class NodeData(object):
                     idstr = "-".join([str(x) for x in identifier])
                     output_lines.append(f"{lines[0]} {idstr}")
                     for line in lines[1:]:
-                        output_lines.extend(textwrap.wrap(line, width=columns-4,
-                            subsequent_indent="  ", initial_indent="  "))
+                        line.rstrip()
+                        if line:
+                            output_lines.extend(textwrap.wrap(line, width=columns-4,
+                                subsequent_indent="  ", initial_indent="  "))
+                        else:
+                            output_lines.append('')
                     output_lines.append('')
+            if not output_lines[-1]:
+                output_lines = output_lines[:-1]
         self.findlines = output_lines
 
     def showID(self, idstr="0"):
@@ -667,12 +676,10 @@ class NodeData(object):
         filepath, linenum = info
         # hsh = {'filepath': filepath, 'linenum': linenum}
         hsh = {'filepath': myescape(filepath), 'linenum': linenum}
-        print(f"hsh: {hsh}")
         if self.sessionMode:
             editcmd = session_edit.format(**hsh)
         else:
             editcmd = command_edit.format(**hsh)
-        print(f"editcmd: {editcmd}")
         os.system(r'%s' % editcmd)
 
     def addID(self, idstr, text=None):
@@ -1060,6 +1067,7 @@ def main():
             Data.find(args.find)
             for line in Data.findlines:
                 print(line)
+            print("_"*columns)
             return
 
         if args.notes:
@@ -1073,6 +1081,7 @@ def main():
             Data.showNodes()
             for line in Data.nodelines:
                 print(line)
+            print("_"*columns)
 
         if args.edit:
             Data.editID(args.edit)
