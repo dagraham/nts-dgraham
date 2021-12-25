@@ -14,6 +14,7 @@ from prompt_toolkit import shortcuts
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.application import run_in_terminal
 from prompt_toolkit.filters import Condition
+from prompt_toolkit.validation import Validator, ValidationError
 
 
 from prompt_toolkit import print_formatted_text
@@ -26,8 +27,8 @@ import logging.config
 
 import argparse
 
-# FIXME: should be imported
-nts_version = "1.0.0"
+import nts.__version__ as version
+nts_version = version.version
 
 # FIXME: should be set in nts config
 session_edit= "/Applications/MacVim.app/Contents/MacOS/Vim -g -f +{linenum} {filepath}"
@@ -287,6 +288,15 @@ def getnotes(filepath):
     return notes
 
 
+# class EntryValidator(Validator):
+
+#     def __init__(self):
+#         self.entryactive = False
+
+#     def validate(self, document):
+#         self.entryactive = True if document.text.strip() else False
+
+
 class ListView(object):
 
     def __init__(self, lines=[]):
@@ -364,7 +374,7 @@ class ListView(object):
         if self.num_pages < 2:
             return [('class:plain', f"{columns*'_'}")]
         page_num = self.page_numbers[self.current_page]
-        prompt = "Use the up and down cursor keys to change pages"
+        prompt = "Use shift+left and shift+right to change pages"
         return [('class:plain', f"{columns*'_'}\n"),
                 ('class:plain', f"Page {page_num}/{self.num_pages}. {prompt}.")]
 
@@ -744,6 +754,8 @@ class NodeData(object):
 
 def session():
 
+    # myValidator = EntryValidator()
+
     Data.sessionMode = True
     bindings = KeyBindings()
     session = PromptSession(key_bindings=bindings)
@@ -757,22 +769,17 @@ def session():
     find_index = 0
     current_view = 'list'
     logger.info("Opened session")
-    # print("id2info")
-    # pprint(Data.id2info)
 
     def prompt_continuation(width, line_number, is_soft_wrap):
-        # return '.' * width
         return f"{'.'*(width-1)} "
-        # return [('', '.' * width)]
 
-    # prompt('multiline input> ', multiline=True,
-    #     prompt_continuation=prompt_continuation)
-
+    @Condition
+    def entry_not_active():
+        return not myValidator.entryactive
 
     @Condition
     def is_showing_list():
         return current_view == 'list'
-        # return Data.showingNodes
 
     @Condition
     def is_showing_help():
@@ -786,61 +793,49 @@ def session():
     def is_showing_find():
         return current_view == 'find'
 
-    # @bindings.add('<', filter=is_showing_leaf)
-    # def _(event):
-    #     def back():
-    #         list_view.show_page()
-    #     run_in_terminal(back)
-
-    # @bindings.add('>', filter=is_showing_list)
-    # def _(event):
-    #     def back():
-    #         leaf_view.show_page()
-    #     run_in_terminal(back)
-
-    @bindings.add('down', filter=is_showing_leaf)
+    @bindings.add('s-right', filter=is_showing_leaf)
     def _(event):
         def down():
             leaf_view.scroll_down()
         run_in_terminal(down)
 
-    @bindings.add('up', filter=is_showing_leaf)
+    @bindings.add('s-left', filter=is_showing_leaf)
     def _(event):
         def up():
             leaf_view.scroll_up()
         run_in_terminal(up)
 
-    @bindings.add('down', filter=is_showing_list)
+    @bindings.add('s-right', filter=is_showing_list)
     def _(event):
         def down():
             list_view.scroll_down()
         run_in_terminal(down)
 
-    @bindings.add('up', filter=is_showing_list)
+    @bindings.add('s-left', filter=is_showing_list)
     def _(event):
         def up():
             list_view.scroll_up()
         run_in_terminal(up)
 
-    @bindings.add('down', filter=is_showing_help)
+    @bindings.add('s-right', filter=is_showing_help)
     def _(event):
         def down():
             help_view.scroll_down()
         run_in_terminal(down)
 
-    @bindings.add('up', filter=is_showing_help)
+    @bindings.add('s-left', filter=is_showing_help)
     def _(event):
         def up():
             help_view.scroll_up()
         run_in_terminal(up)
 
-    @bindings.add('down', filter=is_showing_find)
+    @bindings.add('s-right', filter=is_showing_find)
     def _(event):
         def down():
             find_view.scroll_down()
         run_in_terminal(down)
 
-    @bindings.add('up', filter=is_showing_find)
+    @bindings.add('s-left', filter=is_showing_find)
     def _(event):
         def up():
             find_view.scroll_up()
@@ -853,18 +848,25 @@ def session():
 
     run = True
     while run:
+        message_parts = []
         highlight = f"highlighting '{regx}'" if regx else ""
+        if highlight:
+            message_parts.append(highlight)
         if Data.shownodes:
-            hidden = "" if Data.shownotes else "leaf notes hidden - toggle with n"
+            hidden = "" if Data.shownotes else "leaf notes hidden - display with n"
         else:
-            hidden = "branch nodes hidden - toggle with N"
-        conj = "; " if hidden and highlight else ""
-        spc = " " if hidden or highlight else ""
-        message_str = f"{hidden}{conj}{highlight}{spc}"
+            hidden = "branch nodes hidden - display with N"
+        if hidden:
+            message_parts.append(hidden)
+        level = f"limiting levels to {Data.maxlevel} - set with m #" if  Data.maxlevel else ""
+        if level:
+            message_parts.append(level)
+        if message_parts:
+            message_str = "; ".join(message_parts) + " "
+        else:
+            message_str = ""
+
         message =  [("class:prompt", f"{message_str}\n> ")] if message_str else [("class:prompt", f"> ")]
-        # message = [("class:prompt", f"{hidden}{conj}{highlight}{spc}> ")]
-        # message = [("class:prompt", f"> ")]
-        # bottom_toolbar = [("class:toolbar", f"{hidden}{conj}{highlight}{spc}")]
         text = session.prompt(message, style=style,
                 multiline=multiline_prompt,
                 prompt_continuation=prompt_continuation)
@@ -905,6 +907,18 @@ def session():
             list_view.set_pages(lines)
             list_view.show_page()
 
+        elif text.startswith('m'):
+            level = text[1:] if len(text) > 1 else 0
+            try:
+                level = int(level.strip())
+            except:
+                level = 0
+            Data.setMaxLevel(level)
+            Data.showID()
+            lines = Data.nodelines if Data.showingNodes else Data.notelines
+            list_view.set_pages(lines)
+            list_view.show_page()
+
         elif text == 's':
             if current_view == 'list':
                 shortcuts.clear()
@@ -920,7 +934,6 @@ def session():
             shortcuts.clear()
             find = text[1:].strip()
             regx = find if find else None
-            # pprint(Data.id2info)
             Data.find(find)
             lines = Data.findlines
             if lines:
@@ -964,8 +977,6 @@ def session():
             idstr, *child = entry.split(" ")
             if child:
                 child = '_'.join(child)
-            # child = child[0].strip() if child else ""
-            print(f"idstr: {idstr}; child: '{child}'")
             Data.addID(idstr, child)
             Data.getNodes()
             Data.showID()
@@ -1030,14 +1041,13 @@ def session():
             shortcuts.clear()
             list_view.show_page()
 
-    # TODO: implement edit and add
-
 
 
 def main():
 
     parser = argparse.ArgumentParser(description="Note Taking Simplified")
     parser.add_argument("-s",  "--session", help="begin an interactive session", action="store_true")
+    parser.add_argument("-m", "--max", type=int, help="display at most MAX levels of outlines. Use MAX = 0 to show all levels.")
     parser.add_argument("-n",  "--notes", help="suppress notes",
                         action="store_true")
     parser.add_argument("-N",  "--nodes", help="suppress nodes",
@@ -1069,6 +1079,9 @@ def main():
                 print(line)
             print("_"*columns)
             return
+
+        if args.max:
+            Data.setMaxLevel(args.max)
 
         if args.notes:
             Data.toggleShowNotes()

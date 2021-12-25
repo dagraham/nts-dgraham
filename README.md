@@ -75,18 +75,18 @@ The numeric identifiers appended to the lines in both views are provided by *nts
 
 * Command mode
 
-    Commands are entered at the terminal prompt, e.g.,
+    Commands are entered at the terminal prompt. E.g., enter
 
 		$ nts.py -o p
 
-	displays the path view in the terminal window. The output can be piped in the standard way, e.g.,
+	to display the path view in the terminal window. The output can also be piped in the standard way, e.g.,
 
 		$ ntp.py -o p | less
 
 
 * Session mode
 
-    Start *nts* in command mode with the `-s` argument to begin session mode:
+    Use the `-s` argument to begin session mode:
 
 		$ nts.py -s
 
@@ -94,7 +94,7 @@ The numeric identifiers appended to the lines in both views are provided by *nts
 
 		> p
 
-	would display the path view but with several features not available in command mode. E.g., when there are more lines to display than will fit in the terminal window, the lines are divided into pages with the up and down cursor keys used to change pages.
+	would display the path view with several features not available in command mode. E.g., when there are more lines to display than will fit in the terminal window, the lines are divided into pages with shift+left and shift+down used to change pages.
 
 #### Command Summary
 
@@ -107,16 +107,18 @@ path view       |  -o p    |  p         |   ~
 tags view       |  -o t    |  t         |   ~
 hide notes      | -n       | n          |   2
 hide nodes      | -N       | N          |   3
-highlight REGEX |          |  / REGEX   |   4
-find REGEX      | -f REGEX | f REGEX    |   5
-inspect IDENT   | -i IDENT | i IDENT    |   6
-switch displays |    ~     | s          |   7
-edit IDENT      | -e IDENT | e IDENT    |   8
-add to IDENT    | -a IDENT | a IDENT    |   9
+set max levels  | -m MAX   | m MAX      |   4
+highlight REGEX |          |  / REGEX   |   5
+find REGEX      | -f REGEX | f REGEX    |   6
+inspect IDENT   | -i IDENT | i IDENT    |   7
+switch displays |    ~     | s          |   8
+edit IDENT      | -e IDENT | e IDENT    |   9
+add to IDENT    | -a IDENT | a IDENT    |  10
 
 1. In session mode, this is a toggle that switches the display back and forth between the active and the help displays.
 1. Suppress showing notes in the outline. In session mode this toggles the display of notes off and on.
 1. Suppress showing nodes in the outline, i.e., display only the notes. In session mode this toggles the display of the nodes off and on.
+1. Limit the diplay of nodes in the outline to the integer MAX levels. Use MAX = 0 to display all levels.
 1. Highlight displayed lines that contain a match for the case-insensitive regular expression REGEX. Enter an empty REGEX to clear highlighting.
 1. Display complete notes that contain a match in the title, tags or body for the case-insensitive regular expression REGEX.
 1. If IDENT is the 2-number identifier for a note, then display the contents of that note. Else if IDENT is the identifier for a ".txt" file, then display the contents of that file. Otherwise limit the display to that part of the outline which starts from the corresponding node.
