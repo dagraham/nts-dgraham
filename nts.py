@@ -30,8 +30,10 @@ import argparse
 nts_version = "1.0.0"
 
 # FIXME: should be set in nts config
-session_edit= '''gvim -f +{linenum} {filepath}'''
-command_edit= '''vim  +{linenum} {filepath}'''
+session_edit= "/Applications/MacVim.app/Contents/MacOS/Vim -g -f +{linenum} {filepath}"
+command_edit= '''/Applications/MacVim.app/Contents/MacOS/Vim   +{linenum} {filepath}'''
+session_add= '''/Applications/MacVim.app/Contents/MacOS/Vim -g -f + {filepath}'''
+command_add= '''/Applications/MacVim.app/Contents/MacOS/Vim -g  + {filepath}'''
 
 
 note_regex = re.compile(r'^[\+#]\s+([^\(]+)\s*(\(([^\)]*)\))?\s*$')
@@ -233,6 +235,14 @@ def splitall(path):
 
 def mysort(items):
     return sorted(items, key=lambda item: item.name)
+
+_to_esc = re.compile(r'\s')
+def _esc_char(match):
+    return r"\ "
+
+def myescape(name):
+    return _to_esc.sub(_esc_char, name)
+
 
 def myprint(tokenlines, color=None):
     # tokenlines[-1][1] = tokenlines[-1][1].rstrip()
@@ -655,12 +665,74 @@ class NodeData(object):
         else:
             info[1] += 1
         filepath, linenum = info
-        hsh = {'filepath': filepath, 'linenum': linenum}
+        # hsh = {'filepath': filepath, 'linenum': linenum}
+        hsh = {'filepath': myescape(filepath), 'linenum': linenum}
+        print(f"hsh: {hsh}")
         if self.sessionMode:
             editcmd = session_edit.format(**hsh)
         else:
             editcmd = command_edit.format(**hsh)
-        os.system(editcmd)
+        print(f"editcmd: {editcmd}")
+        os.system(r'%s' % editcmd)
+
+    def addID(self, idstr, text=None):
+        if '-' in idstr:
+            idtup = tuple([int(x) for x in idstr.split('-')])
+        else:
+            idtup = tuple([int(idstr.strip())])
+        info = self.id2info.get(idtup, ('.', ))
+        print(f"info: {info}; text: {text}; mode: {self.mode}")
+        retval = ""
+
+        if info[0] in self.nodes:
+            # we have a starting node
+            if not self.mode == 'path':
+                # only works for nodes in path mode
+                return "cancelled: must be in path mode"
+            path = os.path.join(self.rootdir, info[0][2:])
+            if not os.path.isdir(path):
+                return f"error: bad path {path}"
+            if not text:
+                text = prompt(
+                        f"directory or filename (ending in '.txt') to add as a child of\n {path}\n> ")
+                text = text.strip()
+                if not text:
+                    return "cancelled"
+            child = os.path.join(path, f"{text}")
+            root, ext = os.path.splitext(child)
+            print(f"root: {root}; ext: {ext}")
+            if ext:
+                # adding a new note file
+                if ext != ".txt":
+                    return f"bad file extension {ext}; '.txt' is required"
+                hsh = {'filepath': r'%s' % child}
+                if self.sessionMode:
+                    editcmd = session_add.format(**hsh)
+                else:
+                    editcmd = command_add.format(**hsh)
+                os.system(editcmd)
+            else:
+                # adding a new node
+                if os.path.isdir(child):
+                    return f"'child' already exists"
+                os.mkdir(child)
+                return f"created '{child}'"
+
+
+            return  "adding root {root} with extension {ext}"
+
+        elif os.path.isfile(info[0]):
+            # we have a filename
+            filepath, linenum = info
+            hsh = {'filepath': filepath}
+            if self.sessionMode:
+                editcmd = session_add.format(**hsh)
+            else:
+                editcmd = command_add.format(**hsh)
+            os.system(editcmd)
+        else:
+            print(f"error: bad index {info}")
+            pprint(self.nodes.keys())
 
 
 def session():
@@ -879,6 +951,21 @@ def session():
             list_view.set_pages(lines)
             list_view.show_page()
 
+        elif text.startswith("a"):
+            shortcuts.clear()
+            entry = text[1:].strip()
+            idstr, *child = entry.split(" ")
+            if child:
+                child = '_'.join(child)
+            # child = child[0].strip() if child else ""
+            print(f"idstr: {idstr}; child: '{child}'")
+            Data.addID(idstr, child)
+            Data.getNodes()
+            Data.showID()
+            lines = Data.nodelines if Data.showingNodes else Data.notelines
+            list_view.set_pages(lines)
+            list_view.show_page()
+
 
         elif text == 'm':
             multiline_prompt = not multiline_prompt
@@ -943,8 +1030,7 @@ def session():
 def main():
 
     parser = argparse.ArgumentParser(description="Note Taking Simplified")
-    parser.add_argument("-s",  "--session", help="begin an interactive session",
-                        action="store_true")
+    parser.add_argument("-s",  "--session", help="begin an interactive session", action="store_true")
     parser.add_argument("-n",  "--notes", help="suppress notes",
                         action="store_true")
     parser.add_argument("-N",  "--nodes", help="suppress nodes",
@@ -952,32 +1038,50 @@ def main():
     parser.add_argument("-o", "--outline", type=str, choices=['p', 't'],
                     help="outline by path or tags", default='p')
 
-    parser.add_argument("-i", "--id", type=str, help="show output for the node/leaf corresponding to ID", default="0")
+    parser.add_argument("-i", "--id", type=str, help="show output for the node/leaf corresponding to ID")
+    parser.add_argument("-e", "--edit", type=str, help="edit the node/leaf corresponding to EDIT")
+    parser.add_argument("-a", "--add", type=str, help="add to the node/leaf corresponding to ADD")
     parser.add_argument("-f", "--find", type=str, help="show notes containing a match for FIND")
-    # TODO: implement edit and add
+
     shortcuts.clear()
     args = parser.parse_args()
-    if args.find:
-        Data.showNodes()
-        Data.find(args.find)
-        for line in Data.findlines:
-            print(line)
-        return
-    if args.notes:
-        Data.toggleShowNotes()
-    if args.nodes:
-        Data.toggleShowNodes()
-
     mode = args.outline
-
     Data.setMode(mode)
 
     if args.session:
         Data.sessionMode = True
-        Data.showID(args.id)
+        Data.showID()
         session()
+
     else:
-        Data.showID(args.id)
+
+        if args.find:
+            Data.showNodes()
+            Data.find(args.find)
+            for line in Data.findlines:
+                print(line)
+            return
+
+        if args.notes:
+            Data.toggleShowNotes()
+
+        if args.nodes:
+            Data.toggleShowNodes()
+
+        if args.outline:
+            mode = args.outline
+            Data.showNodes()
+            for line in Data.nodelines:
+                print(line)
+
+        if args.edit:
+            Data.editID(args.edit)
+
+        elif args.add:
+            Data.addID(args.add)
+
+        elif args.id:
+            Data.showID(args.id)
 
 
 
