@@ -90,11 +90,11 @@ The numeric identifiers appended to the lines in both views are provided by *nts
 
 		$ nts.py -s
 
-	This begins a session in which data is loaded into memory and remains available for subsequent interaction. In this mode, *nts* assumes command of the terminal window and provides its own `>` command prompt. Then, e.g., entering
+	This begins a session in which data is loaded into memory and remains available for subsequent interaction. In this mode, *nts* assumes command of the terminal window and provides its own `>` command prompt. Then, e.g., entering `p` at the prompt
 
 		> p
 
-	would display the path view with several features not available in command mode. E.g., when there are more lines to display than will fit in the terminal window, the lines are divided into pages with shift+left and shift+down used to change pages.
+	would display the path view. Session mode adds several features not available in command mode. E.g., when there are more lines to display than will fit in the terminal window, the lines are divided into pages with shift+left and shift+down used to change pages.
 
 #### Command Summary
 
