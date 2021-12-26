@@ -94,7 +94,7 @@ The numeric identifiers appended to the lines in both views are provided by *nts
 
 		> p
 
-	would display the path view. Session mode adds several features not available in command mode. E.g., when there are more lines to display than will fit in the terminal window, the lines are divided into pages with shift+left and shift+right used to change pages.
+	would display the path view. Session mode adds several features not available in command mode. E.g., when there are more lines to display than will fit in the terminal window, the lines are divided into pages with up and down cursor keys used to change pages.
 
 #### Command Summary
 

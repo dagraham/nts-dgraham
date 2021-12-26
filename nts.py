@@ -288,15 +288,6 @@ def getnotes(filepath):
     return notes
 
 
-# class EntryValidator(Validator):
-
-#     def __init__(self):
-#         self.entryactive = False
-
-#     def validate(self, document):
-#         self.entryactive = True if document.text.strip() else False
-
-
 class ListView(object):
 
     def __init__(self, lines=[]):
@@ -374,7 +365,7 @@ class ListView(object):
         if self.num_pages < 2:
             return [('class:plain', f"{columns*'_'}")]
         page_num = self.page_numbers[self.current_page]
-        prompt = "Use shift+left and shift+right to change pages"
+        prompt = "Use up and down cursor keys to change pages"
         return [('class:plain', f"{columns*'_'}\n"),
                 ('class:plain', f"Page {page_num}/{self.num_pages}. {prompt}.")]
 
@@ -452,8 +443,8 @@ class NodeData(object):
         self.showingNodes = True
 
     #FIXME: implement this
-    def setMaxLevel(self, maxlevel=None):
-        self.maxlevel = None if maxlevel == 0 else maxlevel
+    def setMaxLevel(self, maxlevel=0):
+        self.maxlevel = maxlevel
 
 
     def toggleShowNotes(self):
@@ -536,7 +527,8 @@ class NodeData(object):
         linenum2node = {}
         output_lines = []
         start = self.nodes.get(self.start, self.nodes['.'])
-        for pre, fill, node in RenderTree(start, childiter=mysort, maxlevel=self.maxlevel):
+        showlevel = self.maxlevel + 1 if self.maxlevel else None
+        for pre, fill, node in RenderTree(start, childiter=mysort, maxlevel=showlevel):
             # node with lines are only used for notes
             if node.name != '.' and not hasattr(node, 'lines'):
                 id += 1
@@ -793,49 +785,49 @@ def session():
     def is_showing_find():
         return current_view == 'find'
 
-    @bindings.add('s-right', filter=is_showing_leaf)
+    @bindings.add('down', filter=is_showing_leaf)
     def _(event):
         def down():
             leaf_view.scroll_down()
         run_in_terminal(down)
 
-    @bindings.add('s-left', filter=is_showing_leaf)
+    @bindings.add('up', filter=is_showing_leaf)
     def _(event):
         def up():
             leaf_view.scroll_up()
         run_in_terminal(up)
 
-    @bindings.add('s-right', filter=is_showing_list)
+    @bindings.add('down', filter=is_showing_list)
     def _(event):
         def down():
             list_view.scroll_down()
         run_in_terminal(down)
 
-    @bindings.add('s-left', filter=is_showing_list)
+    @bindings.add('up', filter=is_showing_list)
     def _(event):
         def up():
             list_view.scroll_up()
         run_in_terminal(up)
 
-    @bindings.add('s-right', filter=is_showing_help)
+    @bindings.add('down', filter=is_showing_help)
     def _(event):
         def down():
             help_view.scroll_down()
         run_in_terminal(down)
 
-    @bindings.add('s-left', filter=is_showing_help)
+    @bindings.add('up', filter=is_showing_help)
     def _(event):
         def up():
             help_view.scroll_up()
         run_in_terminal(up)
 
-    @bindings.add('s-right', filter=is_showing_find)
+    @bindings.add('down', filter=is_showing_find)
     def _(event):
         def down():
             find_view.scroll_down()
         run_in_terminal(down)
 
-    @bindings.add('s-left', filter=is_showing_find)
+    @bindings.add('up', filter=is_showing_find)
     def _(event):
         def up():
             find_view.scroll_up()
@@ -858,7 +850,7 @@ def session():
             hidden = "branch nodes hidden - display with N"
         if hidden:
             message_parts.append(hidden)
-        level = f"limiting levels to {Data.maxlevel} - set with m #" if  Data.maxlevel else ""
+        level = f"limiting levels to {Data.maxlevel} - expand all with m 0" if  Data.maxlevel else ""
         if level:
             message_parts.append(level)
         if message_parts:
