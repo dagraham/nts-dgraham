@@ -133,12 +133,8 @@ setup(
     entry_points={
         'console_scripts': [
             'nts=nts.__main__:main',
-            'nts+=nts.__main__:inbasket',
         ],
     },
-    # entry_points={
-    #     'console_scripts': ['mycli=mymodule:cli'],
-    # },
     install_requires=REQUIRED,
     extras_require=EXTRAS,
     include_package_data=True,

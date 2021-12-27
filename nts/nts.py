@@ -165,59 +165,59 @@ style = Style.from_dict({
     'background': 'bg:#FFFF00 #000000',
 })
 
-def setup_logging(level, ntsdir, file=None):
-    """
-    Setup logging configuration. Override root:level in
-    logging.yaml with default_level.
-    """
+# def setup_logging(level, ntsdir, file=None):
+#     """
+#     Setup logging configuration. Override root:level in
+#     logging.yaml with default_level.
+#     """
 
-    if not os.path.isdir(ntsdir):
-        return
+#     if not os.path.isdir(ntsdir):
+#         return
 
-    log_levels = {
-        1: logging.DEBUG,
-        2: logging.INFO,
-        3: logging.WARN,
-        4: logging.ERROR,
-        5: logging.CRITICAL
-    }
+#     log_levels = {
+#         1: logging.DEBUG,
+#         2: logging.INFO,
+#         3: logging.WARN,
+#         4: logging.ERROR,
+#         5: logging.CRITICAL
+#     }
 
-    level = int(level)
-    loglevel = log_levels.get(level, log_levels[3])
+#     level = int(level)
+#     loglevel = log_levels.get(level, log_levels[3])
 
-    # if we get here, we have an existing ntsdir
-    logfile = os.path.normpath(os.path.abspath(os.path.join(ntsdir, "nts.log")))
+#     # if we get here, we have an existing ntsdir
+#     logfile = os.path.normpath(os.path.abspath(os.path.join(ntsdir, "nts.log")))
 
-    config = {'disable_existing_loggers': False,
-              'formatters': {'simple': {
-                  'format': '--- %(asctime)s - %(levelname)s - %(module)s.%(funcName)s\n    %(message)s'}},
-              'handlers': {
-                    'file': {
-                        'backupCount': 7,
-                        'class': 'logging.handlers.TimedRotatingFileHandler',
-                        'encoding': 'utf8',
-                        'filename': logfile,
-                        'formatter': 'simple',
-                        'level': loglevel,
-                        'when': 'midnight',
-                        'interval': 1}
-              },
-              'loggers': {
-                  'etmmv': {
-                    'handlers': ['file'],
-                    'level': loglevel,
-                    'propagate': False}
-              },
-              'root': {
-                  'handlers': ['file'],
-                  'level': loglevel},
-              'version': 1}
-    logging.config.dictConfig(config)
-    logger.critical("\n######## Initializing logging #########")
-    if file:
-        logger.critical(f'logging for file: {file}\n    logging at level: {loglevel}\n    logging to file: {logfile}')
-    else:
-        logger.critical(f'logging at level: {loglevel}\n    logging to file: {logfile}')
+#     config = {'disable_existing_loggers': False,
+#               'formatters': {'simple': {
+#                   'format': '--- %(asctime)s - %(levelname)s - %(module)s.%(funcName)s\n    %(message)s'}},
+#               'handlers': {
+#                     'file': {
+#                         'backupCount': 7,
+#                         'class': 'logging.handlers.TimedRotatingFileHandler',
+#                         'encoding': 'utf8',
+#                         'filename': logfile,
+#                         'formatter': 'simple',
+#                         'level': loglevel,
+#                         'when': 'midnight',
+#                         'interval': 1}
+#               },
+#               'loggers': {
+#                   'etmmv': {
+#                     'handlers': ['file'],
+#                     'level': loglevel,
+#                     'propagate': False}
+#               },
+#               'root': {
+#                   'handlers': ['file'],
+#                   'level': loglevel},
+#               'version': 1}
+#     logging.config.dictConfig(config)
+#     logger.critical("\n######## Initializing logging #########")
+#     if file:
+#         logger.critical(f'logging for file: {file}\n    logging at level: {loglevel}\n    logging to file: {logfile}')
+#     else:
+#         logger.critical(f'logging at level: {loglevel}\n    logging to file: {logfile}')
 
 def splitall(path):
     allparts = []
@@ -291,7 +291,7 @@ def getnotes(filepath):
 class ListView(object):
 
     def __init__(self, lines=[]):
-        columns, rows = shutil.get_terminal_size()
+        self.columns, rows = shutil.get_terminal_size()
         self.rows = rows - 4 # integer number of allowed display rows
         self.find = None
         self.lines = lines
@@ -363,10 +363,10 @@ class ListView(object):
 
     def get_page_footer(self):
         if self.num_pages < 2:
-            return [('class:plain', f"{columns*'_'}")]
+            return [('class:plain', f"{self.columns*'_'}")]
         page_num = self.page_numbers[self.current_page]
         prompt = "Use up and down cursor keys to change pages"
-        return [('class:plain', f"{columns*'_'}\n"),
+        return [('class:plain', f"{self.columns*'_'}\n"),
                 ('class:plain', f"Page {page_num}/{self.num_pages}. {prompt}.")]
 
     def show_page(self):
@@ -519,7 +519,7 @@ class NodeData(object):
 
     def showNodes(self):
 
-        columns, rows = shutil.get_terminal_size()
+        self.columns, self.rows = shutil.get_terminal_size()
         # nodes = self.pathnodes if mode == 'path' else self.tagnodes
         id = 0
         id2info = {}
@@ -542,7 +542,7 @@ class NodeData(object):
                 if hasattr(node, 'lines') and node.lines:
                     for line in node.lines:
                         # titlestr, tagstring,  (filepath, linenum)
-                        title = textwrap.shorten(line[0], width=columns-20)
+                        title = textwrap.shorten(line[0], width=self.columns-20)
                         notenum += 1
                         if self.shownodes:
                             output_lines.append(f"{fill}{title}{line[1]} {id}-{notenum}")
@@ -570,7 +570,7 @@ class NodeData(object):
     def showNotes(self, filepath, linenum=None):
         """display the contens of fllepath starting with linenum"""
 
-        columns, rows = shutil.get_terminal_size()
+        selfcolumns, self.rows = shutil.get_terminal_size()
         output_lines = []
         with open(filepath, 'r') as fo:
             lines = fo.readlines()
@@ -578,7 +578,7 @@ class NodeData(object):
             for line in lines:
                 line = line.rstrip()
                 if line:
-                    output_lines.extend(textwrap.wrap(line, width=columns-4, subsequent_indent="  ", initial_indent="  "))
+                    output_lines.extend(textwrap.wrap(line, width=self.columns-4, subsequent_indent="  ", initial_indent="  "))
                 else:
                     output_lines.append("")
         else:
@@ -592,7 +592,7 @@ class NodeData(object):
                         output_lines = output_lines[:-1]
                     break
                 if line:
-                    output_lines.extend(textwrap.wrap(line, width=columns-4, subsequent_indent="  ", initial_indent="  "))
+                    output_lines.extend(textwrap.wrap(line, width=self.columns-4, subsequent_indent="  ", initial_indent="  "))
                 else:
                     output_lines.append("")
 
@@ -618,7 +618,7 @@ class NodeData(object):
         # print(f"matching_keys: {matching_keys}")
         # print(self.id2info.keys())
         if matching_keys:
-            columns, rows = shutil.get_terminal_size()
+            self.columns, rows = shutil.get_terminal_size()
             for identifier, key in self.id2info.items():
                 # print(f"checking identifier: {identifier}; keys: {keys}")
                 if key in matching_keys:
@@ -628,7 +628,7 @@ class NodeData(object):
                     for line in lines[1:]:
                         line.rstrip()
                         if line:
-                            output_lines.extend(textwrap.wrap(line, width=columns-4,
+                            output_lines.extend(textwrap.wrap(line, width=self.columns-4,
                                 subsequent_indent="  ", initial_indent="  "))
                         else:
                             output_lines.append('')
@@ -1037,6 +1037,7 @@ def session():
 
 def main():
 
+    columns, rows = shutil.get_terminal_size()
     parser = argparse.ArgumentParser(description="Note Taking Simplified")
     parser.add_argument("-s",  "--session", help="begin an interactive session", action="store_true")
     parser.add_argument("-m", "--max", type=int, help="display at most MAX levels of outlines. Use MAX = 0 to show all levels.")
@@ -1047,7 +1048,7 @@ def main():
     parser.add_argument("-o", "--outline", type=str, choices=['p', 't'],
                     help="outline by path or tags", default='p')
 
-    parser.add_argument("-i", "--id", type=str, help="show output for the node/leaf corresponding to ID")
+    parser.add_argument("-i", "--id", type=str, help="inspect the node/leaf corresponding to ID")
     parser.add_argument("-e", "--edit", type=str, help="edit the node/leaf corresponding to EDIT")
     parser.add_argument("-a", "--add", type=str, help="add to the node/leaf corresponding to ADD")
     parser.add_argument("-f", "--find", type=str, help="show notes containing a match for FIND")

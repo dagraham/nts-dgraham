@@ -129,7 +129,8 @@ add to IDENT    | -a IDENT | a IDENT    |  10
 
 ### Configuration
 
-In the current, preliminary version of *nts* there are no user configurable options. *nts* will use "\~/nts" as its home directory and will store its data files in and below "\~/nts/data".
+If there is an environmental setting for `NTSHOME`, then *nts* will use it as its home directory. Otherwise *nts* will use "\~/nts" as its home directory. In both cases, it will store its data files in and below the subdirectory *data*. Both directories will be created if they don't already exist.
+
 
 ### License
 
