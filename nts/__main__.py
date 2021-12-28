@@ -120,6 +120,10 @@ def main():
     if not os.path.isdir(logdir):
         os.makedirs(logdir)
     loglevel = 2 # info
+    log_levels = [str(x) for x in range(1, 6)]
+    if len(sys.argv) > 1 and sys.argv[1] in log_levels:
+        loglevel = int(sys.argv.pop(1))
+
     setup_logging(loglevel, logdir)
     logger.info(f"Using '{ntshome}' as the home directory for nts")
 
