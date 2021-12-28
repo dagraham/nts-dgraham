@@ -139,7 +139,7 @@ Before you start *nts* for the first time, think about where you would like to k
 
 3. Finally, if neither of the previous alternatives are satisfied, then *nts* will use "\~/nts" as its home directory, creating this directory if necessary.
 
-    For cases (2) and (3) both the _nts_ "data" and "logs" directories will be created if necessary. If "data" needs to be created, the user will additionally be offered the opportunity to populate it with the data for the grandchild.txt example discussed above.
+    The _nts_ "data" and "logs" directories will be created if necessary. If "data" needs to be created, the user will additionally be offered the opportunity to populate it with the data for the grandchild.txt example discussed above.
 
 4. The _nts_ configuration file, `cfg.yaml` will aslo be created in this home directory. The default settings are for the editor _vim_.  If you prefer using another editor, you will need to edit this file and make the necessary changes. Here are the default contents of this file:
 
