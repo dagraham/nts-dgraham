@@ -5,6 +5,7 @@ import logging
 import logging.config
 logging.getLogger('asyncio').setLevel(logging.WARNING)
 logger = logging.getLogger()
+from prompt_toolkit import prompt
 
 def make_grandchild(rootdir):
     grandchild = """\
@@ -94,31 +95,42 @@ def main():
     import os
     IS_VENV = os.getenv('VIRTUAL_ENV') is not None
     import nts.__version__ as version
-    ntshome = os.environ.get("NTSHOME")
-    print(f"NTSHOME: {ntshome}")
-    ntsdir = ntshome if ntshome else os.path.join(os.path.expanduser('~'), 'nts')
-    if not os.path.isdir(ntsdir):
-        from prompt_toolkit import prompt
-        text = prompt(f"'{ntsdir}' does not exist. Create it [yN] > ")
+
+    cwd = os.getcwd()
+    dlst = os.listdir(cwd)
+    NTSHOME = os.environ.get("NTSHOME")
+    if len(dlst) == 0 or ('data' in dlst and 'logs' in dlst):
+        # use cwd if it is empty or contains both data and logs
+        ntshome = cwd
+    elif NTSHOME and os.path.isdir(NTSHOME):
+        # else use NTSHOME if it is set and specifies a directory
+        ntshome = NTSHOME
+    else:
+        # use the default ~/nts
+        ntshome = os.path.join(os.path.expanduser('~'), 'nts')
+    if not os.path.isdir(ntshome):
+        text = prompt(f"'{ntshome}' does not exist. Create it [yN] > ")
         if text.lower().strip() == 'y':
             os.mkdir(ntsdir)
-            print(f"Created '{ntsdir}'")
         else:
             print("cancelled")
             return
-    rootdir = os.path.join(ntsdir, 'data')
+
+    logdir = os.path.normpath(os.path.join(ntshome, 'logs'))
+    if not os.path.isdir(logdir):
+        os.makedirs(logdir)
+    loglevel = 2 # info
+    setup_logging(loglevel, logdir)
+    logger.info(f"Using '{ntshome}' as the home directory for nts")
+
+    rootdir = os.path.join(ntshome, 'data')
     if not os.path.isdir(rootdir):
         os.makedirs(rootdir)
-        print(f"Created '{rootdir}'")
+        logger.info(f"Created '{rootdir}'")
         text = prompt(f"populate {rootdir} with grandchild example data? [yN] > ")
         if text.lower().strip() == 'y':
             make_grandchild(rootdir)
-    logdir = os.path.normpath(os.path.join(ntsdir, 'logs'))
-    if not os.path.isdir(logdir):
-        os.makedirs(logdir)
-        print(f"Created '{logdir}'")
-    loglevel = 2 # info
-    setup_logging(loglevel, logdir)
+            logger.info("added grandchild example")
     import nts.nts as nts
     Data = nts.NodeData(rootdir)
     nts.logger = logger

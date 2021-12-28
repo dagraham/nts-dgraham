@@ -1,6 +1,4 @@
-<figure>
-	<img src="https://raw.githubusercontent.com/dagraham/nts-dgraham/master/ntslogo.png" alt="nts"  width="180px" />
-</figure>
+<img src="https://raw.githubusercontent.com/dagraham/nts-dgraham/master/ntslogo.png" alt="nts"  width="180px" />
 
 
 # Note Taking Simplified
@@ -77,18 +75,18 @@ The numeric identifiers appended to the lines in both views are provided by *nts
 
     Commands are entered at the terminal prompt. E.g., enter
 
-		$ nts.py -o p
+		$ nts -o p
 
 	to display the path view in the terminal window. The output can also be piped in the standard way, e.g.,
 
-		$ ntp.py -o p | less
+		$ nts -o p | less
 
 
 * Session mode
 
     Use the `-s` argument to begin session mode:
 
-		$ nts.py -s
+		$ nts -s
 
 	This begins a session in which data is loaded into memory and remains available for subsequent interaction. In this mode, *nts* assumes command of the terminal window and provides its own `>` command prompt. Then, e.g., entering `p` at the prompt
 
@@ -129,8 +127,84 @@ add to IDENT    | -a IDENT | a IDENT    |  10
 
 ### Configuration
 
-If there is an environmental setting for `NTSHOME`, then *nts* will use it as its home directory. Otherwise *nts* will use "\~/nts" as its home directory. In both cases, it will store its data files in and below the subdirectory *data*. Both directories will be created if they don't already exist.
+Before you start *nts* for the first time, think about where you would like to keep your personal data files and any log files that _nts_ will create. This will be your nts *home* directory. The data files will be stored in and below the subdirectory "data" in this home directory.
 
+1. The default is to use whatever directory you're in when you start _nts_ as the _nts_ home directory either if it is empty (unused so far) or if it contains  subdirectories called "data" and "logs" (not empty and already in use for _nts_). To use this option just change to this directory before starting _nts_.
+
+1. Alternatively, if the current working directory doesn't satisfy the requirments but there is an environmental variable, `NTSHOME`, that contains the path to an existing directory, then *nts* will use this as its home directory. To use this option, first create the directory and then set the enivonmental variable by, e.g., appending the following to your "~/.bash_profile":
+
+		export NTSHOME='complete path to the nts home directory'
+
+1. Finally, if neither of the previous alternatives are satisfied, then *nts* will use "\~/nts" as its home directory, creating this directory if necessary.
+
+In the latter two cases both the _nts_ "data" and "logs" directories will be created if necessary. If "data" needs to be created, the user will additionally be offered the opportunity to populate it with the data for the grandchild.txt example discussed above.
+
+
+### Installation
+
+#### For use in a virtual environment
+
+The steps for OS/X or linux are illustrated below. For details see [python-virtual-environments-a-primer](https://www.google.com/url?q=https%3A%2F%2Frealpython.com%2Fpython-virtual-environments-a-primer%2F&sa=D&sntz=1&usg=AFQjCNFh7QpJQ4rPCDjZ1eLrV1BRCCpSmw).
+
+Open a terminal and begin by creating a new directory/folder for the virtual environment, say `nts-pypi`, in your home directory:
+
+	$ mkdir ~/nts-pypi
+	$ cd ~/nts-pypi
+
+Now continue by creating the virtual environment (python >= 3.7.3 is required for nts):
+
+	$ python3 -m venv env
+
+After a few seconds you will have an `./env` directory. Now activate the virtual environment:
+
+	$ source env/bin/activate
+
+The prompt will now change to something containing `(env)` to indicate that the virtual environment is active. Updating pip is now recommended:
+
+	(env) $ pip install -U pip
+
+Note that this invokes `./env/bin/pip`. Once this is finished, use pip to install nts:
+
+	(env) $ pip install -U nts-dgraham
+
+This will install nts and all its requirements in
+
+	./env/lib/python3.x/sitepackages
+
+and will also install an executable called `nts` in `./env/bin`.You can then start nts using
+
+	(env) nts ARGS
+
+using ARGS enumerated in the **Command Summary** section above.
+
+
+#### For use system wide
+
+If your system allows you to run `sudo` and you want general access system wide, then you could instead install nts using
+
+    $ sudo -H python3.x -m pip install -U nts-dgraham
+
+replacing the `3.x` with the verion of python you want to use, e.g., `3.7`. This would put nts in your path (in the bin directory for python3.7).
+
+Notes:
+* This same command would be used to update *nts* to the latest version.
+* You may or may not need the '-H' argument for sudo. Here is the relevant section from the sudo man page:
+
+	-H, --set-home
+				Request that the security policy set the
+				HOME environment variable to the home
+				directory specified by the target user's
+				password database entry.  Depending on
+				the policy, this may be the default
+				behavior.
+
+* Invoking pip through python in this way forces the use of the pip that belongs to python3.7.
+
+You can then open a terminal and start nts using
+
+    $ nts ARGS
+
+using ARGS enumerated in the **Command Summary** section above.
 
 ### License
 
