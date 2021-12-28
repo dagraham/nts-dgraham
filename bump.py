@@ -107,7 +107,8 @@ for poss in possible_extensions:
         ext = poss
         pre, post = version.split(ext)
         print(f"pre: {pre}; post: {post}; ext: {ext}")
-        ext_num = int(post) + 1
+        if post:
+            ext_num = int(post) + 1
         break
 
 extension_options = {
