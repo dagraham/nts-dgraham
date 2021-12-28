@@ -21,7 +21,7 @@ Notes are recorded in plain text files with the extension ".txt" that are locate
 
 * White space in the *note body* is preserved but whitespace between notes is ignored.
 
-* Using spaces in directory and file names should be avoided.
+* Using spaces in directory and note file names should be avoided.
 
 
 
@@ -77,11 +77,11 @@ The numeric identifiers appended to the lines in both views are provided by *nts
 
     Commands are entered at the terminal prompt. E.g., enter
 
-		$ nts -o p
+		$ nts -v p
 
 	to display the path view in the terminal window. The output can also be piped in the standard way, e.g.,
 
-		$ nts -o p | less
+		$ nts -v p | less
 
 
 * Session mode

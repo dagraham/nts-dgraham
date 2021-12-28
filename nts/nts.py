@@ -49,12 +49,12 @@ nts provides two ways of interacting with the data.
 * Command mode
     Commands are entered at the terminal prompt. E.g., enter
 
-        $ nts -o p
+        $ nts -v p
 
     to display the path view in the terminal window. The output can also be
     piped in the standard way, e.g.,
 
-        $ nts -o p | less
+        $ nts -v p | less
 
 * Session mode
     Use the -s argument to begin session mode:
