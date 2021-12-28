@@ -15,7 +15,7 @@ from setuptools import find_packages, setup, Command
 # Package meta-data.
 NAME = 'nts-dgraham'
 DESCRIPTION = 'note taking simplified'
-URL = 'https://dagraham.github/nts-dgraham/'
+URL = 'https://github.com/dagraham/nts-dgraham'
 EMAIL = 'dnlgrhm@gmail.com'
 AUTHOR = 'Daniel A Graham'
 REQUIRES_PYTHON = '>=3.7.3'
