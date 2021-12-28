@@ -21,6 +21,8 @@ Notes are recorded in plain text files with the extension ".txt" that are locate
 
 * White space in the *note body* is preserved but whitespace between notes is ignored.
 
+* Using spaces in directory and file names should be avoided.
+
 
 
 Suppose, e.g., that the *nts* data directory contains a single file
@@ -101,8 +103,8 @@ Action          | Command Mode | Session Mode | Notes
 help            |  -h		   |  h or ?      |   1
 begin session   |  -s		   |  ~			  |   ~
 end session     |    ~		   |  q			  |   ~
-path view       |  -o p		   |  p			  |   ~
-tags view       |  -o t		   |  t			  |   ~
+path view       |  -v p		   |  p			  |   ~
+tags view       |  -v t		   |  t			  |   ~
 hide notes      | -n		   | n			  |   2
 hide nodes      | -N		   | N			  |   3
 set max levels  | -m MAX	   | m MAX		  |   4
@@ -127,17 +129,39 @@ add to IDENT    | -a IDENT	   | a IDENT	  |  10
 
 ### Configuration
 
-Before you start *nts* for the first time, think about where you would like to keep your personal data files and any log files that _nts_ will create. This will be your nts *home* directory. The data files will be stored in and below the subdirectory "data" in this home directory.
+Before you start *nts* for the first time, think about where you would like to keep your personal data files and any log files that _nts_ will create. This will be your nts *home* directory. The _nts_ configuration file, "cfg.yaml" will be placed in this directory as well as the data and log files in the subdirectories "data" and "logs", respectively.
 
-1. The default is to use whatever directory you're in when you start _nts_ as the _nts_ home directory either if it is empty (unused so far) or if it contains  subdirectories called "data" and "logs" (not empty and already in use for _nts_). To use this option just change to this directory before starting _nts_.
+1. The default is to use whatever directory you're in when you start _nts_ as the  home directory either 1) if it is empty (unused so far) or 2) if it contains  subdirectories called "data" and "logs" (not empty and already in use for _nts_). To use this option just change to this directory before starting _nts_.
 
-1. Alternatively, if the current working directory doesn't satisfy the requirments but there is an environmental variable, `NTSHOME`, that contains the path to an existing directory, then *nts* will use this as its home directory. To use this option, first create the directory and then set the enivonmental variable by, e.g., appending the following to your "~/.bash_profile":
+2. Alternatively, if the current working directory doesn't satisfy the requirments but there is an environmental variable, `NTSHOME`, that contains the path to an existing directory, then *nts* will use this as its home directory. To use this option, first create the directory and then set the enivonmental variable by, e.g., appending the following to your "~/.bash_profile":
 
-		export NTSHOME='complete path to the nts home directory'
+		export NTSHOME="complete path to the nts home directory"
 
-1. Finally, if neither of the previous alternatives are satisfied, then *nts* will use "\~/nts" as its home directory, creating this directory if necessary.
+3. Finally, if neither of the previous alternatives are satisfied, then *nts* will use "\~/nts" as its home directory, creating this directory if necessary.
 
-In the latter two cases both the _nts_ "data" and "logs" directories will be created if necessary. If "data" needs to be created, the user will additionally be offered the opportunity to populate it with the data for the grandchild.txt example discussed above.
+    For cases (2) and (3) both the _nts_ "data" and "logs" directories will be created if necessary. If "data" needs to be created, the user will additionally be offered the opportunity to populate it with the data for the grandchild.txt example discussed above.
+
+4. The _nts_ configuration file, `cfg.yaml` will aslo be created in this home directory. The default settings are for the editor _vim_.  If you prefer using another editor, you will need to edit this file and make the necessary changes. Here are the default contents of this file:
+
+        ################# IMPORTANT #########################
+        #
+        # Changes only take effect when nts is restarted.
+        #
+        #####################################################
+        #
+        # edit {filepath} at {linenum} - wait for completion
+        session_edit: gvim -f +{linenum} {filepath}
+        #
+        # edit {filepath} at end of file - wait for completion
+        session_add: gvim -f + {filepath}
+        #
+        # edit {filepath} at {linenum} - no wait for completion
+        command_edit: gvim +{linenum} {filepath}
+        #
+        # edit {filepath} at end of file - no wait for completion
+        command_add: gvim  + {filepath}
+
+    The first command, e.g.,  is for editing in session mode and invokes gvim with the '-f' switch. This switch blocks _nts_ until gvim is closed and, when this happens, _nts_ will reload the data files to reflect any changes. The '+{linenum}' and '{filepath}' arguments will be replaced by _nts_ before the command is executed by the relevant line number and filepath.
 
 
 ### Installation
@@ -186,19 +210,6 @@ If your system allows you to run `sudo` and you want general access system wide,
 
 replacing the `3.x` with the verion of python you want to use, e.g., `3.7`. This would put nts in your path (in the bin directory for python3.7).
 
-Notes:
-* This same command would be used to update *nts* to the latest version.
-* You may or may not need the '-H' argument for sudo. Here is the relevant section from the sudo man page:
-
-	-H, --set-home
-				Request that the security policy set the
-				HOME environment variable to the home
-				directory specified by the target user's
-				password database entry.  Depending on
-				the policy, this may be the default
-				behavior.
-
-* Invoking pip through python in this way forces the use of the pip that belongs to python3.7.
 
 You can then open a terminal and start nts using
 
@@ -208,7 +219,7 @@ using ARGS enumerated in the **Command Summary** section above.
 
 ### License
 
-Copyright (c) 2010-2022 Daniel Graham <daniel.graham@duke.edu>. All rights reserved. Further information about nts is available at [github](https://github.com/dagraham/nts-dgraham) and in the nts discussion group at [groups.io](https://groups.io/g/nts).
+Copyright (c) 2010-2022 Daniel Graham <daniel.graham@duke.edu>. All rights reserved. Further information about nts is available at [github](https://github.com/dagraham/nts-dgraham), the _nts_ discussion group at [groups.io](https://groups.io/g/nts) and, of course, from [PyPI](https://pypi.org/project/nts-dgraham/).
 
 This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
 

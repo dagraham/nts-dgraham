@@ -30,11 +30,11 @@ import argparse
 import nts.__version__ as version
 nts_version = version.version
 
-# FIXME: should be set in nts config
-session_edit= "/Applications/MacVim.app/Contents/MacOS/Vim -g -f +{linenum} {filepath}"
-command_edit= '''/Applications/MacVim.app/Contents/MacOS/Vim   +{linenum} {filepath}'''
-session_add= '''/Applications/MacVim.app/Contents/MacOS/Vim -g -f + {filepath}'''
-command_add= '''/Applications/MacVim.app/Contents/MacOS/Vim -g  + {filepath}'''
+# # FIXME: should be set in nts config
+# session_edit= "/Applications/MacVim.app/Contents/MacOS/Vim -g -f +{linenum} {filepath}"
+# command_edit= '''/Applications/MacVim.app/Contents/MacOS/Vim   +{linenum} {filepath}'''
+# session_add= '''/Applications/MacVim.app/Contents/MacOS/Vim -g -f + {filepath}'''
+# command_add= '''/Applications/MacVim.app/Contents/MacOS/Vim -g  + {filepath}'''
 
 
 note_regex = re.compile(r'^[\+#]\s+([^\(]+)\s*(\(([^\)]*)\))?\s*$')
@@ -49,17 +49,17 @@ nts provides two ways of interacting with the data.
 * Command mode
     Commands are entered at the terminal prompt. E.g., enter
 
-        $ nts.py -o p
+        $ nts -o p
 
     to display the path view in the terminal window. The output can also be
     piped in the standard way, e.g.,
 
-        $ ntp.py -o p | less
+        $ nts -o p | less
 
 * Session mode
     Use the -s argument to begin session mode:
 
-        $ nts.py -s
+        $ nts -s
 
     This begins a session in which data is loaded into memory and remains
     available for subsequent interaction. In this mode, nts assumes command
@@ -79,8 +79,8 @@ Command Summary
     help            |  -h          |  h or ?      |   1
     begin session   |  -s          |  ~           |   ~
     end session     |    ~         |  q           |   ~
-    path view       |  -o p        |  p           |   ~
-    tags view       |  -o t        |  t           |   ~
+    path view       |  -v p        |  p           |   ~
+    tags view       |  -v t        |  t           |   ~
     hide notes      | -n           | n            |   2
     hide nodes      | -N           | N            |   3
     set max levels  | -m MAX       | m MAX        |   4
@@ -119,7 +119,6 @@ Command Summary
     for editing. Otherwise, a new subdirectory will be added to the node
     directory using the name provided. Use "0" as the IDENT to add to the root
     (data) node.
-
 """
 
 
@@ -216,6 +215,7 @@ def _esc_char(match):
     return r"\ "
 
 def myescape(name):
+    # escape spaces in file/path names
     return _to_esc.sub(_esc_char, name)
 
 
@@ -656,15 +656,13 @@ class NodeData(object):
             editcmd = session_edit.format(**hsh)
         else:
             editcmd = command_edit.format(**hsh)
+        logger.debug(f"edit editcmd: {editcmd}")
         os.system(r'%s' % editcmd)
 
     def addID(self, idstr, text=None):
-        if '-' in idstr:
-            idtup = tuple([int(x) for x in idstr.split('-')])
-        else:
-            idtup = tuple([int(idstr.strip())])
+        idtup = tuple([int(x) for x in idstr.split('-')])
         info = self.id2info.get(idtup, ('.', ))
-        print(f"info: {info}; text: {text}; mode: {self.mode}")
+        info = list(info)
         retval = ""
 
         if info[0] in self.nodes:
@@ -683,16 +681,16 @@ class NodeData(object):
                     return "cancelled"
             child = os.path.join(path, f"{text}")
             root, ext = os.path.splitext(child)
-            print(f"root: {root}; ext: {ext}")
             if ext:
                 # adding a new note file
                 if ext != ".txt":
                     return f"bad file extension {ext}; '.txt' is required"
-                hsh = {'filepath': r'%s' % child}
+                hsh = {'filepath':  myescape(child)}
                 if self.sessionMode:
                     editcmd = session_add.format(**hsh)
                 else:
                     editcmd = command_add.format(**hsh)
+                logger.debug(f"new note editcmd: {editcmd}")
                 os.system(editcmd)
             else:
                 # adding a new node
@@ -707,11 +705,12 @@ class NodeData(object):
         elif os.path.isfile(info[0]):
             # we have a filename
             filepath, linenum = info
-            hsh = {'filepath': filepath}
+            hsh = {'filepath': myescape(filepath)}
             if self.sessionMode:
                 editcmd = session_add.format(**hsh)
             else:
                 editcmd = command_add.format(**hsh)
+            logger.debug(f"add editcmd: {editcmd}")
             os.system(editcmd)
         else:
             print(f"error: bad index {info}")
@@ -1013,23 +1012,32 @@ def main():
 
     columns, rows = shutil.get_terminal_size()
     parser = argparse.ArgumentParser(description="Note Taking Simplified")
+
     parser.add_argument("-s",  "--session", help="begin an interactive session", action="store_true")
+
     parser.add_argument("-m", "--max", type=int, help="display at most MAX levels of outlines. Use MAX = 0 to show all levels.")
+
     parser.add_argument("-n",  "--notes", help="suppress notes",
                         action="store_true")
+
     parser.add_argument("-N",  "--nodes", help="suppress nodes",
                         action="store_true")
-    parser.add_argument("-o", "--outline", type=str, choices=['p', 't'],
-                    help="outline by path or tags", default='p')
+
+    parser.add_argument("-v", "--view", type=str, choices=['p', 't'],
+                    help="view path or tags", default='p')
+
+    parser.add_argument("-f", "--find", type=str, help="show notes containing a match for FIND")
 
     parser.add_argument("-i", "--id", type=str, help="inspect the node/leaf corresponding to ID")
-    parser.add_argument("-e", "--edit", type=str, help="edit the node/leaf corresponding to EDIT")
+
     parser.add_argument("-a", "--add", type=str, help="add to the node/leaf corresponding to ADD")
-    parser.add_argument("-f", "--find", type=str, help="show notes containing a match for FIND")
+
+    parser.add_argument("-e", "--edit", type=str, help="edit the node/leaf corresponding to EDIT")
+
 
     shortcuts.clear()
     args = parser.parse_args()
-    mode = args.outline
+    mode = args.view
     Data.setMode(mode)
 
     if args.session:
@@ -1056,18 +1064,21 @@ def main():
         if args.nodes:
             Data.toggleShowNodes()
 
-        if args.outline:
-            mode = args.outline
+        if args.view:
+            mode = args.view
             Data.showNodes()
             for line in Data.nodelines:
                 print(line)
             print("_"*columns)
 
+        if args.add:
+            logger.debug(f"args.add: {args.add}")
+            Data.addID(args.add)
+
         if args.edit:
+            logger.debug(f"args.edit: {args.edit}")
             Data.editID(args.edit)
 
-        elif args.add:
-            Data.addID(args.add)
 
         elif args.id:
             Data.showID(args.id)

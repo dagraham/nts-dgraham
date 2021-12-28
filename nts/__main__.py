@@ -6,6 +6,30 @@ import logging.config
 logging.getLogger('asyncio').setLevel(logging.WARNING)
 logger = logging.getLogger()
 from prompt_toolkit import prompt
+from ruamel.yaml import YAML
+yaml = YAML(typ='safe', pure=True)
+
+# for nts.yaml
+default_cfg = """\
+###################### IMPORTANT ####################################
+#
+# Changes to this file only take effect when nts is next # restarted.
+#
+#####################################################################
+#
+# The following are examples using the editor gvim
+# edit {filepath} starting at {linenum} and wait for completion
+session_edit: gvim -f +{linenum} {filepath}
+#
+# edit {filepath} starting at end of file without waiting for completion
+command_add: gvim + {filepath}
+#
+# edit {filepath} starting at {linenum} without waiting for completion
+command_edit: gvim +{linenum} {filepath}
+#
+# edit {filepath} starting at end of file and wait for completion
+session_add: gvim -f + {filepath}
+"""
 
 def make_grandchild(rootdir):
     grandchild = """\
@@ -115,6 +139,11 @@ def main():
         else:
             print("cancelled")
             return
+    cfg_path = os.path.join(ntshome, 'cfg.yaml')
+    if not os.path.isfile(cfg_path):
+        with open(cfg_path, 'w') as fo:
+            fo.write(default_cfg)
+
 
     logdir = os.path.normpath(os.path.join(ntshome, 'logs'))
     if not os.path.isdir(logdir):
@@ -125,7 +154,7 @@ def main():
         loglevel = int(sys.argv.pop(1))
 
     setup_logging(loglevel, logdir)
-    logger.info(f"Using '{ntshome}' as the home directory for nts")
+    logger.info(f"nts home directory: '{ntshome}'")
 
     rootdir = os.path.join(ntshome, 'data')
     if not os.path.isdir(rootdir):
@@ -139,4 +168,14 @@ def main():
     Data = nts.NodeData(rootdir)
     nts.logger = logger
     nts.Data = Data
+    if os.path.isfile(cfg_path):
+        fo = open(cfg_path, 'r')
+        yaml_data = yaml.load(fo)
+        fo.close()
+
+        nts.session_edit= yaml_data['session_edit']
+        nts.session_add= yaml_data['session_add']
+        nts.command_edit= yaml_data['command_edit']
+        nts.command_add= yaml_data['command_add']
+
     nts.main()
