@@ -97,32 +97,32 @@ The numeric identifiers appended to the lines in both views are provided by *nts
 #### Command Summary
 
 Action          | Command Mode | Session Mode | Notes
----|---|---|---
-help            |  -h      |  h or ?    |   1
-begin session   |  -s      |  ~         |   ~
-end session     |    ~     |  q         |   ~
-path view       |  -o p    |  p         |   ~
-tags view       |  -o t    |  t         |   ~
-hide notes      | -n       | n          |   2
-hide nodes      | -N       | N          |   3
-set max levels  | -m MAX   | m MAX      |   4
-highlight REGEX |          |  / REGEX   |   5
-find REGEX      | -f REGEX | f REGEX    |   6
-inspect IDENT   | -i IDENT | i IDENT    |   7
-switch displays |    ~     | s          |   8
-edit IDENT      | -e IDENT | e IDENT    |   9
-add to IDENT    | -a IDENT | a IDENT    |  10
+----------------|--------------|--------------|------
+help            |  -h		   |  h or ?      |   1
+begin session   |  -s		   |  ~			  |   ~
+end session     |    ~		   |  q			  |   ~
+path view       |  -o p		   |  p			  |   ~
+tags view       |  -o t		   |  t			  |   ~
+hide notes      | -n		   | n			  |   2
+hide nodes      | -N		   | N			  |   3
+set max levels  | -m MAX	   | m MAX		  |   4
+highlight REGEX |			   |  / REGEX	  |   5
+find REGEX      | -f REGEX	   | f REGEX	  |   6
+inspect IDENT   | -i IDENT	   | i IDENT	  |   7
+switch displays |    ~		   | s			  |   8
+edit IDENT      | -e IDENT	   | e IDENT	  |   9
+add to IDENT    | -a IDENT	   | a IDENT	  |  10
 
 1. In session mode, this is a toggle that switches the display back and forth between the active and the help displays.
-1. Suppress showing notes in the outline. In session mode this toggles the display of notes off and on.
-1. Suppress showing nodes in the outline, i.e., display only the notes. In session mode this toggles the display of the nodes off and on.
-1. Limit the diplay of nodes in the outline to the integer MAX levels. Use MAX = 0 to display all levels.
-1. Highlight displayed lines that contain a match for the case-insensitive regular expression REGEX. Enter an empty REGEX to clear highlighting.
-1. Display complete notes that contain a match in the title, tags or body for the case-insensitive regular expression REGEX.
-1. If IDENT is the 2-number identifier for a note, then display the contents of that note. Else if IDENT is the identifier for a ".txt" file, then display the contents of that file. Otherwise limit the display to that part of the outline which starts from the corresponding node.
-1. In session mode, switch back and forth between the most recent path or tag display and the most recent display of a file or note.
-1. If IDENT corresponds to either a note or a ".txt" file, then open that file for editing and, in the case of a note, scroll to the beginning line of the note.
-1. If IDENT corresponds to either a note or a ".txt" file, then open that file for appending a new note. Otherwise, if IDENT corresponds to a directory, then prompt for the name of a child to add to that node. If the name entered ends with ".txt", a new note file will be created and opened for editing. Otherwise, a new subdirectory will be added to the node directory using the name provided. Use "0" as the IDENT to add to the root (data) node.
+2. Suppress showing notes in the outline. In session mode this toggles the display of notes off and on.
+3. Suppress showing nodes in the outline, i.e., display only the notes. In session mode this toggles the display of the nodes off and on.
+4. Limit the diplay of nodes in the outline to the integer MAX levels. Use MAX = 0 to display all levels.
+5. Highlight displayed lines that contain a match for the case-insensitive regular expression REGEX. Enter an empty REGEX to clear highlighting.
+6. Display complete notes that contain a match in the title, tags or body for the case-insensitive regular expression REGEX.
+7. If IDENT is the 2-number identifier for a note, then display the contents of that note. Else if IDENT is the identifier for a ".txt" file, then display the contents of that file. Otherwise limit the display to that part of the outline which starts from the corresponding node.
+8. In session mode, switch back and forth between the most recent path or tag display and the most recent display of a file or note.
+9. If IDENT corresponds to either a note or a ".txt" file, then open that file for editing and, in the case of a note, scroll to the beginning line of the note.
+10. If IDENT corresponds to either a note or a ".txt" file, then open that file for appending a new note. Otherwise, if IDENT corresponds to a directory, then prompt for the name of a child to add to that node. If the name entered ends with ".txt", a new note file will be created and opened for editing. Otherwise, a new subdirectory will be added to the node directory using the name provided. Use "0" as the IDENT to add to the root (data) node.
 
 
 ### Configuration
