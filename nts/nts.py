@@ -42,110 +42,84 @@ note_regex = re.compile(r'^[\+#]\s+([^\(]+)\s*(\(([^\)]*)\))?\s*$')
 separator = os.path.sep
 
 help = f"""\
-NTS: Note Taking Simplified {nts_version}
+           NTS: Note Taking Simplified  Version: {nts_version}
 
-Suppose, for example, that the nts "data" directory has a single
-subdirectory "parent" which contains a single subdirectory "child"
-which contains a single file "~/nts/data/parent/child/grandchild.txt"
-with these lines:
+nts provides two ways of interacting with the data.
 
-    + note a (red, blue)
-        The body of note a goes here
+* Command mode
+    Commands are entered at the terminal prompt. E.g., enter
 
-    + note b (blue, green)
-        The body of note b here
+        $ nts.py -o p
 
-    + note c (red, green)
-        And the body of note c here
+    to display the path view in the terminal window. The output can also be
+    piped in the standard way, e.g.,
 
-nts provides two views of this data directory.
+        $ ntp.py -o p | less
 
-Path View:
+* Session mode
+    Use the -s argument to begin session mode:
 
-    └── parent 1
-        └── child 2
-            └── grandchild.txt 3
-                    + note a (red, green) 3-1
-                    + note b (blue, green) 3-2
-                    + note c (red, blue) 3-3
+        $ nts.py -s
 
-Tag View:
+    This begins a session in which data is loaded into memory and remains
+    available for subsequent interaction. In this mode, nts assumes command
+    of the terminal window and provides its own > command prompt. Then,
+    e.g., entering p at the prompt
 
-    ├── blue 1
-    │       + note b (blue, green) 1-1
-    │       + note c (red, blue) 1-2
-    ├── green 2
-    │       + note a (red, green) 2-1
-    │       + note b (blue, green) 2-2
-    └── red 3
-            + note a (red, green) 3-1
-            + note c (red, blue) 3-2
+        > p
 
-    when the display contains more lines than will fit in the terminal
-    window, the "up" and "down" cursor keys can be used to change pages.
+    would display the path view. Session mode adds several features not
+    available in command mode. E.g., when there are more lines to display
+    than will fit in the terminal window, the lines are divided into pages
+    with up and down cursor keys used to change pages.
 
-interacting with nts uses the following commands. in each case, enter
-the command up to the ")" at the ">" prompt and then press "return".
+Command Summary
+    Action          | Command Mode | Session Mode | Notes
+    ----------------|--------------|--------------|------
+    help            |  -h          |  h or ?      |   1
+    begin session   |  -s          |  ~           |   ~
+    end session     |    ~         |  q           |   ~
+    path view       |  -o p        |  p           |   ~
+    tags view       |  -o t        |  t           |   ~
+    hide notes      | -n           | n            |   2
+    hide nodes      | -N           | N            |   3
+    set max levels  | -m MAX       | m MAX        |   4
+    highlight REGEX |              |  / REGEX     |   5
+    find REGEX      | -f REGEX     | f REGEX      |   6
+    inspect IDENT   | -i IDENT     | i IDENT      |   7
+    switch displays |    ~         | s            |   8
+    edit IDENT      | -e IDENT     | e IDENT      |   9
+    add to IDENT    | -a IDENT     | a IDENT      |  10
 
-? or H) toogle this help/info display
+ 1. In session mode, this is a toggle that switches the display back and
+    forth between the active and the help displays.
+ 2. Suppress showing notes in the outline. In session mode this toggles the
+    display of notes off and on.
+ 3. Suppress showing nodes in the outline, i.e., display only the notes. In
+    session mode this toggles the display of the nodes off and on.
+ 4. Limit the diplay of nodes in the outline to the integer MAX levels. Use
+    MAX = 0 to display all levels.
+ 5. Highlight displayed lines that contain a match for the case-insensitive
+    regular expression REGEX. Enter an empty REGEX to clear highlighting.
+ 6. Display complete notes that contain a match in the title, tags or body
+    for the case-insensitive regular expression REGEX.
+ 7. If IDENT is the 2-number identifier for a note, then display the
+    contents of that note. Else if IDENT is the identifier for a ".txt" file,
+    then display the contents of that file. Otherwise limit the display to that
+    part of the outline which starts from the corresponding node.
+ 8. In session mode, switch back and forth between the most recent path or
+    tag display and the most recent display of a file or note.
+ 9. If IDENT corresponds to either a note or a ".txt" file, then open that
+    file for editing and, in the case of a note, scroll to the beginning line
+    of the note.
+10. If IDENT corresponds to either a note or a ".txt" file, then open that
+    file for appending a new note. Otherwise, if IDENT corresponds to a
+    directory, then prompt for the name of a child to add to that node. If the
+    name entered ends with ".txt", a new note file will be created and opened
+    for editing. Otherwise, a new subdirectory will be added to the node
+    directory using the name provided. Use "0" as the IDENT to add to the root
+    (data) node.
 
-q) quit
-
-p) show path view
-
-t) show tag view
-
-i IDENTIFIER) inspect the item corresponding to "IDENTIFIER"
-
-    nts provides the "identifiers" at the end of each line of the display,
-    e.g., in the path view the "2" after "child" and the "3-2" after
-    "+ note c (red, blue)". These identifiers can be used inspect the
-    relevant item.
-
-    In the tag view example, entering "i 1" at the prompt would display
-    this PATH view:
-
-        red 1
-            + note a (red, blue) 1-1
-            + note c (red, green) 1-2
-
-    while entering "i 3-2" at the prompt would display this LEAF view
-
-        + note c (red, green)
-            And the body of note c here
-
-    In path view, entering "i 3", on the other hand, would display the
-    entire "grandchiid.tex" file again as a LEAF view.
-
-    The term LEAF view is used in the last two cases because the display
-    shows either a part or the entirety of a file rather than an outline.
-
-s) switch between the most recent PATH and LEAF views
-
-e IDENTIFIER) edit the item corresponding to "IDENTIFIER"
-
-    This works similarly but only for IDENTIFIERs corresponding to txt
-    files or notes. In the former case, the relevant file is opened in
-    the external editor specified in the nts configuration file and, in
-    the later case, the file is opened at the line corresponding to the
-    note.
-
-n) toggle displaying/hiding notes
-
-In the tag view example, entering "n" would hide the notes from the
-original display
-
-    ├── blue 1
-    ├── green 2
-    ├── red 3
-
-and entering "n" again would restore them.
-
-/ REGEX) highlight lines matching REGEX
-
-Set a case-insensitive regular expression. Lines containing a
-match will be highlighted. Enter an empty value for REGEX to
-clear highlighting.
 """
 
 
