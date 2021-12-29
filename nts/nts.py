@@ -30,13 +30,6 @@ import argparse
 import nts.__version__ as version
 nts_version = version.version
 
-# # FIXME: should be set in nts config
-# session_edit= "/Applications/MacVim.app/Contents/MacOS/Vim -g -f +{linenum} {filepath}"
-# command_edit= '''/Applications/MacVim.app/Contents/MacOS/Vim   +{linenum} {filepath}'''
-# session_add= '''/Applications/MacVim.app/Contents/MacOS/Vim -g -f + {filepath}'''
-# command_add= '''/Applications/MacVim.app/Contents/MacOS/Vim -g  + {filepath}'''
-
-
 note_regex = re.compile(r'^[\+#]\s+([^\(]+)\s*(\(([^\)]*)\))?\s*$')
 
 separator = os.path.sep
@@ -138,59 +131,6 @@ style = Style.from_dict({
     'background': 'bg:#FFFF00 #000000',
 })
 
-# def setup_logging(level, ntsdir, file=None):
-#     """
-#     Setup logging configuration. Override root:level in
-#     logging.yaml with default_level.
-#     """
-
-#     if not os.path.isdir(ntsdir):
-#         return
-
-#     log_levels = {
-#         1: logging.DEBUG,
-#         2: logging.INFO,
-#         3: logging.WARN,
-#         4: logging.ERROR,
-#         5: logging.CRITICAL
-#     }
-
-#     level = int(level)
-#     loglevel = log_levels.get(level, log_levels[3])
-
-#     # if we get here, we have an existing ntsdir
-#     logfile = os.path.normpath(os.path.abspath(os.path.join(ntsdir, "nts.log")))
-
-#     config = {'disable_existing_loggers': False,
-#               'formatters': {'simple': {
-#                   'format': '--- %(asctime)s - %(levelname)s - %(module)s.%(funcName)s\n    %(message)s'}},
-#               'handlers': {
-#                     'file': {
-#                         'backupCount': 7,
-#                         'class': 'logging.handlers.TimedRotatingFileHandler',
-#                         'encoding': 'utf8',
-#                         'filename': logfile,
-#                         'formatter': 'simple',
-#                         'level': loglevel,
-#                         'when': 'midnight',
-#                         'interval': 1}
-#               },
-#               'loggers': {
-#                   'etmmv': {
-#                     'handlers': ['file'],
-#                     'level': loglevel,
-#                     'propagate': False}
-#               },
-#               'root': {
-#                   'handlers': ['file'],
-#                   'level': loglevel},
-#               'version': 1}
-#     logging.config.dictConfig(config)
-#     logger.critical("\n######## Initializing logging #########")
-#     if file:
-#         logger.critical(f'logging for file: {file}\n    logging at level: {loglevel}\n    logging to file: {logfile}')
-#     else:
-#         logger.critical(f'logging at level: {loglevel}\n    logging to file: {logfile}')
 
 def splitall(path):
     allparts = []
@@ -733,7 +673,7 @@ def session():
     find_view = ListView()
     find_index = 0
     current_view = 'list'
-    logger.info("Opened session")
+    logger.debug("Opened session")
 
     def prompt_continuation(width, line_number, is_soft_wrap):
         return f"{'.'*(width-1)} "

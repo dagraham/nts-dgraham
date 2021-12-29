@@ -154,7 +154,7 @@ def main():
         loglevel = int(sys.argv.pop(1))
 
     setup_logging(loglevel, logdir)
-    logger.info(f"nts home directory: '{ntshome}'")
+    logger.debug(f"nts home directory: '{ntshome}'")
 
     rootdir = os.path.join(ntshome, 'data')
     if not os.path.isdir(rootdir):

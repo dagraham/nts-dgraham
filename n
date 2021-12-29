@@ -1,0 +1,6 @@
+#! /usr/bin/env python3
+# shortcut to start nts from the project directory ignoring the installed
+# version
+from nts.__main__ import main
+main()
+
