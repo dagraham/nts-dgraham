@@ -15,7 +15,7 @@ from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.application import run_in_terminal
 from prompt_toolkit.filters import Condition
 from prompt_toolkit.validation import Validator, ValidationError
-
+import subprocess
 
 from prompt_toolkit import print_formatted_text
 # from prompt_toolkit.styles.named_colors import NAMED_COLORS
@@ -315,6 +315,7 @@ class NodeData(object):
 
     def __init__(self, rootdir):
         self.rootdir = rootdir
+
         self.pathnodes = {} # nodeid -> node for path tree
         # nodeid = relative filepath to directory or file
         # nodes corresponding to files have a lines attribute
@@ -353,10 +354,11 @@ class NodeData(object):
         self.setStart()
         self.setMaxLevel(None)
         self.getNodes()
-        self.setMode('p')
+        self.mode = 'path'
+        # self.setMode('p')
         self.showingNodes = True
 
-    #FIXME: implement this
+
     def setMaxLevel(self, maxlevel=0):
         self.maxlevel = maxlevel
 
@@ -386,10 +388,9 @@ class NodeData(object):
     def getNodes(self):
         """
         Create node trees for pathnodes and tagnodes.
-
-
         """
         taghash = {}
+        self.pathnodes = {}
         self.tagnodes = {}
         self.notedetails = {}
         for root, dirs, files in os.walk(self.rootdir):
@@ -434,7 +435,8 @@ class NodeData(object):
     def showNodes(self):
 
         self.columns, self.rows = shutil.get_terminal_size()
-        # nodes = self.pathnodes if mode == 'path' else self.tagnodes
+        self.nodes = self.pathnodes if self.mode == 'path' else self.tagnodes
+        logger.debug(f"mode: {self.mode}, nodes:\n{self.nodes}")
         id = 0
         id2info = {}
         linenum = 0
@@ -443,6 +445,7 @@ class NodeData(object):
         start = self.nodes.get(self.start, self.nodes['.'])
         showlevel = self.maxlevel + 1 if self.maxlevel else None
         for pre, fill, node in RenderTree(start, childiter=mysort, maxlevel=showlevel):
+            # logger.debug(f"pre: '{pre}'; fill: '{fill}'; len(pre): {len(pre)}; len(fill): {len(fill)}")
             # node with lines are only used for notes
             if node.name != '.' and not hasattr(node, 'lines'):
                 id += 1
@@ -456,11 +459,19 @@ class NodeData(object):
                 if hasattr(node, 'lines') and node.lines:
                     for line in node.lines:
                         # titlestr, tagstring,  (filepath, linenum)
-                        title = textwrap.shorten(line[0], width=self.columns-20)
                         notenum += 1
+                        title = line[0]
                         if self.shownodes:
+                            excess = len(f"{fill}{title}{line[1]} {id}-{notenum}") - self.columns
+                            if excess >= 0:
+                                logger.debug(f"excess: {excess}; title: {title}")
+                                title = textwrap.shorten(title, width=self.columns-excess-2)
                             output_lines.append(f"{fill}{title}{line[1]} {id}-{notenum}")
                         else:
+                            excess = len(f"{title}{line[1]} {id}-{notenum}") - self.columns
+                            if excess > 0:
+                                logger.debug(f"excess: {excess}; title: {title}")
+                                title = textwrap.shorten(title, width=self.columns-excess-2)
                             output_lines.append(f"{title}{line[1]} {id}-{notenum}")
                         id2info[(id, notenum)] = line[2]
                 else:
@@ -482,7 +493,7 @@ class NodeData(object):
         self.nodelines = output_lines
 
     def showNotes(self, filepath, linenum=None):
-        """display the contens of fllepath starting with linenum"""
+        """display the contens of filepath starting with linenum"""
 
         selfcolumns, self.rows = shutil.get_terminal_size()
         output_lines = []
@@ -596,8 +607,11 @@ class NodeData(object):
             editcmd = session_edit.format(**hsh)
         else:
             editcmd = command_edit.format(**hsh)
+        editcmd = [x.strip() for x in editcmd.split(" ")]
         logger.debug(f"edit editcmd: {editcmd}")
-        os.system(r'%s' % editcmd)
+        subprocess.call(editcmd)
+        return
+
 
     def addID(self, idstr, text=None):
         idtup = tuple([int(x) for x in idstr.split('-')])
@@ -630,8 +644,9 @@ class NodeData(object):
                     editcmd = session_add.format(**hsh)
                 else:
                     editcmd = command_add.format(**hsh)
+                editcmd = [x.strip() for x in editcmd.split(" ")]
                 logger.debug(f"new note editcmd: {editcmd}")
-                os.system(editcmd)
+                subprocess.call(editcmd)
             else:
                 # adding a new node
                 if os.path.isdir(child):
@@ -650,11 +665,13 @@ class NodeData(object):
                 editcmd = session_add.format(**hsh)
             else:
                 editcmd = command_add.format(**hsh)
+            editcmd = [x.strip() for x in editcmd.split(" ")]
             logger.debug(f"add editcmd: {editcmd}")
-            os.system(editcmd)
+            subprocess.call(editcmd)
         else:
             print(f"error: bad index {info}")
             pprint(self.nodes.keys())
+        return
 
 
 def session():
@@ -868,11 +885,19 @@ def session():
 
         elif text.startswith("e"):
             shortcuts.clear()
+            logger.debug(f"current view: {current_view}")
             idstr = text[1:].strip()
+            orig_mode = Data.mode
             Data.editID(idstr)
             Data.getNodes()
+            Data.setMode(orig_mode)
             Data.showID()
+            new_mode = Data.mode
+            logger.debug(f"showingNodes: {Data.showingNodes}, mode: {Data.mode}")
             lines = Data.nodelines if Data.showingNodes else Data.notelines
+            logger.debug(f"lines: {[x for x in lines if 'delegated' in x]}")
+            logger.debug(f"nodelines: {[x for x in Data.nodelines if 'delegated' in x]}")
+            logger.debug(f"notelines: {[x for x in Data.notelines if 'delegated' in x]}")
             list_view.set_pages(lines)
             list_view.show_page()
 
@@ -951,7 +976,7 @@ def session():
 def main():
 
     columns, rows = shutil.get_terminal_size()
-    parser = argparse.ArgumentParser(description="Note Taking Simplified")
+    parser = argparse.ArgumentParser(description=f"nts: Note Taking Simplified version {nts_version}")
 
     parser.add_argument("-s",  "--session", help="begin an interactive session", action="store_true")
 
@@ -1043,7 +1068,7 @@ if __name__ == "__main__":
     setup_logging(loglevel, logdir)
     # print(f"rootdir: {rootdir}, python version: {sys.version_info}")
 
-    Data = NodeData(rootdir)
+    Data = NodeData(rootdir, logger)
 
     main()
 

@@ -69,6 +69,7 @@ Both views are outlines with branches that end with note title lines. In path vi
 
 The numeric identifiers appended to the lines in both views are provided by *nts*. These are single numbers for the *nodes* in the outline branches that have children and hyphenated numbers for the *leaves*, e.g., the "3" appended to the "grandchild.txt" node in the path view and the "2-1" appended to "+ note a (red, green)" in the tag view. The first of the two numbers in the leaf identifier is the indentifier of the parent node. These identifiers are used in various ways that are explained below.
 
+
 ### Usage
 
 *nts* provides two ways of interacting with the data.
@@ -162,6 +163,65 @@ Before you start *nts* for the first time, think about where you would like to k
         command_add: gvim  + {filepath}
 
     The first command, e.g.,  is for editing in session mode and invokes gvim with the '-f' switch. This switch blocks _nts_ until gvim is closed and, when this happens, _nts_ will reload the data files to reflect any changes. The '+{linenum}' and '{filepath}' arguments will be replaced by _nts_ before the command is executed by the relevant line number and filepath.
+
+### Organizing with Paths and Tags
+
+A reference section for all the stuff I want to remember, but usually can't, is very helpful to me.
+
+        └── reference
+            ├── entertainment
+            │   ├── books.txt
+            │   ├── movies.txt
+            │   └── quotations.txt
+            └── programming
+                ├── markdown.txt
+                ├── python.txt
+                └── vim.txt
+
+Another example would be a journal section for monthly notes
+
+        └── journal
+            ├── 2021
+            │   ├── 10.txt
+            │   ├── 11.txt
+            │   └── 12.txt
+            └── 2022
+                ├── 01.txt
+                ├── 02.txt
+                └── 03.txt
+
+or one for projects
+
+        └── projects
+            ├── etm
+            │   ├── advocacy.txt
+            │   ├── bugs.txt
+            │   └── ideas.txt
+            └── nts
+                ├── advocacy.txt
+                ├── bugs.txt
+                └── ideas.txt
+
+
+For tags,  using the _GTD_ (Getting Things Done) classifiers is handy:
+
+now
+: action required as soon as possible
+
+next
+: action needed when time permits
+
+delegated joe
+: assigned to joe for action but follow up still required
+
+someday
+: review from time to time for possible action
+
+Better, if you use '!now', '#next', '%delegated joe' and '>someday' or, better still, just '!', '#', '% joe' and '>', then these tags will always appear as the top branches in tag view because of the way these special characters are sorted.
+
+One of the nice things about tags is that they are so easy to change. When you've taken care of a 'now' item, e.g., just remove the tag or change the tag to '~completed' or '~' and it will still appear in tags view but now at the bottom.
+
+Other ideas for tags from _GTD_ involve contexts such as 'home', 'office', 'shop', 'phone', and so forth.
 
 
 ### Installation
