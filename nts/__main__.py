@@ -8,6 +8,7 @@ logger = logging.getLogger()
 from prompt_toolkit import prompt
 from ruamel.yaml import YAML
 yaml = YAML(typ='safe', pure=True)
+from prompt_toolkit.styles import Style
 
 # for nts.yaml
 default_cfg = """\
@@ -17,6 +18,7 @@ default_cfg = """\
 #
 #####################################################################
 #
+#########         EDIT        ##############################
 # The following are examples using the editor vim under Mac OSX
 # edit {filepath} starting at {linenum} and wait for completion
 session_edit: /Applications/MacVim.app/Contents/MacOS/Vim -g -f +{linenum} {filepath}
@@ -29,6 +31,12 @@ command_edit: /Applications/MacVim.app/Contents/MacOS/Vim -g +{linenum} {filepat
 #
 # edit {filepath} starting at end of file without waiting for completion
 command_add: /Applications/MacVim.app/Contents/MacOS/Vim -g + {filepath}
+#
+#########         STYLE        #############################
+style:
+    plain:        '#FFFAFA'
+    prompt:       '#FFF68F'
+    highlight:    'bg:#FFF68F #000000'
 """
 
 def make_grandchild(rootdir):
@@ -169,13 +177,17 @@ def main():
     nts.logger = logger
     nts.Data = Data
     if os.path.isfile(cfg_path):
-        fo = open(cfg_path, 'r')
-        yaml_data = yaml.load(fo)
-        fo.close()
+        with open(cfg_path, 'r') as fo:
+            yaml_data = yaml.load(fo)
+        logger.debug(f"yaml_data: {yaml_data}")
 
         nts.session_edit= yaml_data['session_edit']
         nts.session_add= yaml_data['session_add']
         nts.command_edit= yaml_data['command_edit']
         nts.command_add= yaml_data['command_add']
+
+        style_dict = yaml_data['style']
+        style_obj = Style.from_dict(style_dict)
+        nts.style_obj = style_obj
 
     nts.main()

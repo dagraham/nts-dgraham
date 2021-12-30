@@ -121,19 +121,6 @@ Command Summary
 
 helplines = help.split("\n")
 
-# The style sheet.
-style = Style.from_dict({
-    'plain':        '#fffafa',
-    'inbox':        '#ff00ff',
-    'pastdue':      '#87ceeb',
-    'match':        '#ffff00',
-    'record':       '#daa520',
-    'prompt':       '#FFFF00',
-    'available':    '#1e90ff',
-    'waiting':      '#6495ed',
-    'finished':     '#191970',
-    'background': 'bg:#FFFF00 #000000',
-})
 
 def check_update():
     url = "https://raw.githubusercontent.com/dagraham/nts-dgraham/master/nts/__version__.py"
@@ -185,8 +172,7 @@ def myescape(name):
 
 
 def myprint(tokenlines, color=None):
-    # tokenlines[-1][1] = tokenlines[-1][1].rstrip()
-    print_formatted_text(FormattedText(tokenlines), style=style)
+    print_formatted_text(FormattedText(tokenlines), style=style_obj)
 
 
 def getnotes(filepath):
@@ -260,7 +246,7 @@ class ListView(object):
                 else:
                     text = line.rstrip()
                 if self.find.search(text):
-                    line = ('class:background', f"{text} \n")
+                    line = ('class:highlight', f"{text} \n")
                 else:
                     line = ('class:plain', f"{text} \n")
                 self.lines.append(line)
@@ -302,11 +288,11 @@ class ListView(object):
 
     def get_page_footer(self):
         if self.num_pages < 2:
-            return [('class:plain', f"{self.columns*'_'}")]
+            return [('class:prompt', f"{self.columns*'_'}")]
         page_num = self.page_numbers[self.current_page]
         prompt = "Use up and down cursor keys to change pages"
-        return [('class:plain', f"{self.columns*'_'}\n"),
-                ('class:plain', f"Page {page_num}/{self.num_pages}. {prompt}.")]
+        return [('class:prompt', f"{self.columns*'_'}\n"),
+                ('class:prompt', f"Page {page_num}/{self.num_pages}. {prompt}.")]
 
     def show_page(self):
         # print(f"page_numbers: {self.page_numbers}\ncurrent_page: {self.current_page}")
@@ -487,13 +473,11 @@ class NodeData(object):
                         if self.shownodes:
                             excess = len(f"{fill}{title}{line[1]} {id}-{notenum}") - self.columns
                             if excess >= 0:
-                                logger.debug(f"excess: {excess}; title: {title}")
                                 title = textwrap.shorten(title, width=self.columns-excess-2)
                             output_lines.append(f"{fill}{title}{line[1]} {id}-{notenum}")
                         else:
                             excess = len(f"{title}{line[1]} {id}-{notenum}") - self.columns
                             if excess > 0:
-                                logger.debug(f"excess: {excess}; title: {title}")
                                 title = textwrap.shorten(title, width=self.columns-excess-2)
                             output_lines.append(f"{title}{line[1]} {id}-{notenum}")
                         id2info[(id, notenum)] = line[2]
@@ -631,7 +615,6 @@ class NodeData(object):
         else:
             editcmd = command_edit.format(**hsh)
         editcmd = [x.strip() for x in editcmd.split(" ") if x.strip()]
-        logger.debug(f"edit editcmd: {editcmd}")
         subprocess.call(editcmd)
         return
 
@@ -668,7 +651,6 @@ class NodeData(object):
                 else:
                     editcmd = command_add.format(**hsh)
                 editcmd = [x.strip() for x in editcmd.split(" ") if x.strip()]
-                logger.debug(f"new note editcmd: {editcmd}")
                 subprocess.call(editcmd)
             else:
                 # adding a new node
@@ -689,7 +671,6 @@ class NodeData(object):
             else:
                 editcmd = command_add.format(**hsh)
             editcmd = [x.strip() for x in editcmd.split(" ") if x.strip()]
-            logger.debug(f"add editcmd: {editcmd}")
             subprocess.call(editcmd)
         else:
             print(f"error: bad index {info}")
@@ -812,7 +793,7 @@ def session():
             message_str = ""
 
         message =  [("class:prompt", f"{message_str}\n> ")] if message_str else [("class:prompt", f"> ")]
-        text = session.prompt(message, style=style,
+        text = session.prompt(message, style=style_obj,
                 multiline=multiline_prompt,
                 prompt_continuation=prompt_continuation)
         text = text.strip()
@@ -908,7 +889,6 @@ def session():
 
         elif text.startswith("e"):
             shortcuts.clear()
-            logger.debug(f"current view: {current_view}")
             idstr = text[1:].strip()
             orig_mode = Data.mode
             Data.editID(idstr)
@@ -916,11 +896,7 @@ def session():
             Data.setMode(orig_mode)
             Data.showID()
             new_mode = Data.mode
-            logger.debug(f"showingNodes: {Data.showingNodes}, mode: {Data.mode}")
             lines = Data.nodelines if Data.showingNodes else Data.notelines
-            logger.debug(f"lines: {[x for x in lines if 'delegated' in x]}")
-            logger.debug(f"nodelines: {[x for x in Data.nodelines if 'delegated' in x]}")
-            logger.debug(f"notelines: {[x for x in Data.notelines if 'delegated' in x]}")
             list_view.set_pages(lines)
             list_view.show_page()
 
@@ -1000,7 +976,6 @@ def session():
 
 
 def main():
-
     columns, rows = shutil.get_terminal_size()
     parser = argparse.ArgumentParser(description=f"nts: Note Taking Simplified version {nts_version}")
 
