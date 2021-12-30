@@ -16,6 +16,7 @@ from prompt_toolkit.application import run_in_terminal
 from prompt_toolkit.filters import Condition
 from prompt_toolkit.validation import Validator, ValidationError
 import subprocess
+import requests
 
 from prompt_toolkit import print_formatted_text
 # from prompt_toolkit.styles.named_colors import NAMED_COLORS
@@ -35,7 +36,7 @@ note_regex = re.compile(r'^[\+#]\s+([^\(]+)\s*(\(([^\)]*)\))?\s*$')
 separator = os.path.sep
 
 help = f"""\
-           NTS: Note Taking Simplified  Version: {nts_version}
+           nts: Note Taking Simplified version {nts_version}
 
 nts provides two ways of interacting with the data.
 
@@ -83,6 +84,7 @@ Command Summary
     switch displays |    ~         | s            |   8
     edit IDENT      | -e IDENT     | e IDENT      |   9
     add to IDENT    | -a IDENT     | a IDENT      |  10
+    update check    | -u           | u      	  |  11
 
  1. In session mode, this is a toggle that switches the display back and
     forth between the active and the help displays.
@@ -112,6 +114,8 @@ Command Summary
     for editing. Otherwise, a new subdirectory will be added to the node
     directory using the name provided. Use "0" as the IDENT to add to the root
     (data) node.
+11. Compare the installed version of nts with the latest version on GitHub
+    (requires internet connection) and report the result.\
 """
 
 
@@ -130,6 +134,27 @@ style = Style.from_dict({
     'finished':     '#191970',
     'background': 'bg:#FFFF00 #000000',
 })
+
+def check_update():
+    url = "https://raw.githubusercontent.com/dagraham/nts-dgraham/master/nts/__version__.py"
+    try:
+        r = requests.get(url)
+        t = r.text.strip()
+        # t will be something like "version = '4.7.2'"
+        url_version = t.split(' ')[-1][1:-1]
+        # split(' ')[-1] will give "'4.7.2'" and url_version will then be '4.7.2'
+    except:
+        url_version = None
+    if url_version is None:
+        res = "update information is unavailable"
+        status_char = "?"
+    else:
+        if url_version > nts_version:
+            res = f"An update is available to {url_version}"
+        else:
+            res = f"The installed version of nts, {nts_version}, is the latest available."
+
+    return res
 
 
 def splitall(path):
@@ -436,7 +461,6 @@ class NodeData(object):
 
         self.columns, self.rows = shutil.get_terminal_size()
         self.nodes = self.pathnodes if self.mode == 'path' else self.tagnodes
-        logger.debug(f"mode: {self.mode}, nodes:\n{self.nodes}")
         id = 0
         id2info = {}
         linenum = 0
@@ -445,7 +469,6 @@ class NodeData(object):
         start = self.nodes.get(self.start, self.nodes['.'])
         showlevel = self.maxlevel + 1 if self.maxlevel else None
         for pre, fill, node in RenderTree(start, childiter=mysort, maxlevel=showlevel):
-            # logger.debug(f"pre: '{pre}'; fill: '{fill}'; len(pre): {len(pre)}; len(fill): {len(fill)}")
             # node with lines are only used for notes
             if node.name != '.' and not hasattr(node, 'lines'):
                 id += 1
@@ -607,7 +630,7 @@ class NodeData(object):
             editcmd = session_edit.format(**hsh)
         else:
             editcmd = command_edit.format(**hsh)
-        editcmd = [x.strip() for x in editcmd.split(" ")]
+        editcmd = [x.strip() for x in editcmd.split(" ") if x.strip()]
         logger.debug(f"edit editcmd: {editcmd}")
         subprocess.call(editcmd)
         return
@@ -914,7 +937,6 @@ def session():
             list_view.set_pages(lines)
             list_view.show_page()
 
-
         elif text == 'm':
             multiline_prompt = not multiline_prompt
 
@@ -944,7 +966,6 @@ def session():
                 leaf_view.set_pages(lines)
                 leaf_view.show_page()
 
-
         elif text.startswith('/'):
             shortcuts.clear()
 
@@ -962,6 +983,11 @@ def session():
                 leaf_view.set_pages(lines)
                 leaf_view.set_page(leaf_index)
                 leaf_view.show_page()
+
+        elif text == 'u':
+            shortcuts.clear()
+            res = check_update()
+            print(res)
 
         elif text:
             shortcuts.clear()
@@ -999,6 +1025,9 @@ def main():
 
     parser.add_argument("-e", "--edit", type=str, help="edit the node/leaf corresponding to EDIT")
 
+    parser.add_argument("-u",  "--update", help="check for an available nts update",
+                        action="store_true")
+
 
     shortcuts.clear()
     args = parser.parse_args()
@@ -1018,6 +1047,11 @@ def main():
             for line in Data.findlines:
                 print(line)
             print("_"*columns)
+            return
+
+        if args.update:
+            res = check_update()
+            print(res)
             return
 
         if args.max:
@@ -1043,7 +1077,6 @@ def main():
         if args.edit:
             logger.debug(f"args.edit: {args.edit}")
             Data.editID(args.edit)
-
 
         elif args.id:
             Data.showID(args.id)

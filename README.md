@@ -115,6 +115,7 @@ inspect IDENT   | -i IDENT	   | i IDENT	  |   7
 switch displays |    ~		   | s			  |   8
 edit IDENT      | -e IDENT	   | e IDENT	  |   9
 add to IDENT    | -a IDENT	   | a IDENT	  |  10
+update check    | -u           | u      	  |  11
 
 1. In session mode, this is a toggle that switches the display back and forth between the active and the help displays.
 2. Suppress showing notes in the outline. In session mode this toggles the display of notes off and on.
@@ -126,6 +127,7 @@ add to IDENT    | -a IDENT	   | a IDENT	  |  10
 8. In session mode, switch back and forth between the most recent path or tag display and the most recent display of a file or note.
 9. If IDENT corresponds to either a note or a ".txt" file, then open that file for editing and, in the case of a note, scroll to the beginning line of the note.
 10. If IDENT corresponds to either a note or a ".txt" file, then open that file for appending a new note. Otherwise, if IDENT corresponds to a directory, then prompt for the name of a child to add to that node. If the name entered ends with ".txt", a new note file will be created and opened for editing. Otherwise, a new subdirectory will be added to the node directory using the name provided. Use "0" as the IDENT to add to the root (data) node.
+11. Compare the installed version of nts with the latest version on GitHub (requires internet connection) and report the result.
 
 
 ### Configuration
@@ -166,7 +168,7 @@ Before you start *nts* for the first time, think about where you would like to k
 
 ### Organizing with Paths and Tags
 
-A reference section for all the stuff I want to remember, but usually can't, is very helpful to me.
+Here are a few organizational ideas. First, a reference section for all the stuff I want to remember, but usually can't:
 
         └── reference
             ├── entertainment
@@ -178,7 +180,7 @@ A reference section for all the stuff I want to remember, but usually can't, is 
                 ├── python.txt
                 └── vim.txt
 
-Another example would be a journal section for monthly notes
+Another example is a journal section for monthly notes
 
         └── journal
             ├── 2021
@@ -217,11 +219,11 @@ delegated joe
 someday
 : review from time to time for possible action
 
-Better, if you use '!now', '#next', '%delegated joe' and '>someday' or, better still, just '!', '#', '% joe' and '>', then these tags will always appear as the top branches in tag view because of the way these special characters are sorted.
+Better, if you use _!_ for _now_, _#_ for _next_, _%_ for _delegated_ and _>_ for _someday_, then these tags will always appear as the top branches in tag view because of the way these special characters are sorted.
 
-One of the nice things about tags is that they are so easy to change. When you've taken care of a 'now' item, e.g., just remove the tag or change the tag to '~completed' or '~' and it will still appear in tags view but now at the bottom.
+One of the nice things about tags is that they are so easy to change. When you've taken care of a _now_ item, e.g., just remove the tag or change the tag to _\~_ for _completed_ and it will still appear in tags view but now at the bottom.
 
-Other ideas for tags from _GTD_ involve contexts such as 'home', 'office', 'shop', 'phone', and so forth.
+Other ideas for tags from _GTD_ involve contexts such as _home_, _office_, _shop_, _phone_, _internet_ and so forth.
 
 
 ### Installation

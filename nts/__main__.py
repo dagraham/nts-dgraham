@@ -17,18 +17,18 @@ default_cfg = """\
 #
 #####################################################################
 #
-# The following are examples using the editor gvim
+# The following are examples using the editor vim under Mac OSX
 # edit {filepath} starting at {linenum} and wait for completion
-session_edit: gvim -f +{linenum} {filepath}
-#
-# edit {filepath} starting at end of file without waiting for completion
-command_add: gvim + {filepath}
-#
-# edit {filepath} starting at {linenum} without waiting for completion
-command_edit: gvim +{linenum} {filepath}
+session_edit: /Applications/MacVim.app/Contents/MacOS/Vim -g -f +{linenum} {filepath}
 #
 # edit {filepath} starting at end of file and wait for completion
-session_add: gvim -f + {filepath}
+session_add: /Applications/MacVim.app/Contents/MacOS/Vim -g -f + {filepath}
+#
+# edit {filepath} starting at {linenum} without waiting for completion
+command_edit: /Applications/MacVim.app/Contents/MacOS/Vim -g +{linenum} {filepath}
+#
+# edit {filepath} starting at end of file without waiting for completion
+command_add: /Applications/MacVim.app/Contents/MacOS/Vim -g + {filepath}
 """
 
 def make_grandchild(rootdir):
