@@ -12,27 +12,32 @@ from prompt_toolkit.styles import Style
 
 # for nts.yaml
 default_cfg = """\
-###################### IMPORTANT ####################################
+##################### IMPORTANT #############################
 #
-# Changes to this file only take effect when nts is next # restarted.
+# Changes to this file only take effect when nts is restarted.
 #
-#####################################################################
+#############################################################
 #
-#########         EDIT        ##############################
-# The following are examples using the editor vim under Mac OSX
-# edit {filepath} starting at {linenum} and wait for completion
-session_edit: /Applications/MacVim.app/Contents/MacOS/Vim -g -f +{linenum} {filepath}
+##################        EDIT      #########################
+# The following are examples using the editor vim
+# To use the native version of vim under Mac OSX, replace
+# 'vim' with '/Applications/MacVim.app/Contents/MacOS/Vim'
+# in each of the following commands.
 #
-# edit {filepath} starting at end of file and wait for completion
-session_add: /Applications/MacVim.app/Contents/MacOS/Vim -g -f + {filepath}
+# edit {filepath} at {linenum} - wait for completion
+session_edit: vim -g -f +{linenum} {filepath}
 #
-# edit {filepath} starting at {linenum} without waiting for completion
-command_edit: /Applications/MacVim.app/Contents/MacOS/Vim -g +{linenum} {filepath}
+# edit {filepath} at end of file - wait for completion
+session_add: vim -g -f + {filepath}
 #
-# edit {filepath} starting at end of file without waiting for completion
-command_add: /Applications/MacVim.app/Contents/MacOS/Vim -g + {filepath}
+# edit {filepath} at {linenum} - do not wait for completion
+command_edit: vim -g +{linenum} {filepath}
 #
-#########         STYLE        #############################
+# edit {filepath} at end of file - do not wait for completion
+command_add: vim -g + {filepath}
+#
+##################        STYLE        ######################
+# style hex colors for plain, prompt and highlight
 style:
     plain:        '#FFFAFA'
     prompt:       '#FFF68F'

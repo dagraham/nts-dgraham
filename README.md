@@ -146,25 +146,37 @@ Before you start *nts* for the first time, think about where you would like to k
 
 4. The _nts_ configuration file, `cfg.yaml` will also be created in this home directory. The default settings are for the editor _vim_.  If you prefer using another editor, you will need to edit this file and make the necessary changes. Here are the default contents of this file:
 
-        ################# IMPORTANT #########################
-        #
-        # Changes only take effect when nts is restarted.
-        #
-        #####################################################
-        #
-        # edit {filepath} at {linenum} - wait for completion
-        session_edit: gvim -f +{linenum} {filepath}
-        #
-        # edit {filepath} at end of file - wait for completion
-        session_add: gvim -f + {filepath}
-        #
-        # edit {filepath} at {linenum} - no wait for completion
-        command_edit: gvim +{linenum} {filepath}
-        #
-        # edit {filepath} at end of file - no wait for completion
-        command_add: gvim  + {filepath}
+	##################### IMPORTANT #############################
+	#
+	# Changes to this file only take effect when nts is restarted.
+	#
+	#############################################################
+	#
+	##################        EDIT      #########################
+	# The following are examples using the editor vim
+	# To use the native version of vim under Mac OSX, replace
+	# 'vim' with '/Applications/MacVim.app/Contents/MacOS/Vim'
+	# in each of the following commands.
+	#
+	# edit {filepath} at {linenum} - wait for completion
+	session_edit: vim -g -f +{linenum} {filepath}
+	#
+	# edit {filepath} at end of file - wait for completion
+	session_add: vim -g -f + {filepath}
+	#
+	# edit {filepath} at {linenum} - do not wait for completion
+	command_edit: vim -g +{linenum} {filepath}
+	#
+	# edit {filepath} at end of file - do not wait for completion
+	command_add: vim -g + {filepath}
+	#
+	##################        STYLE        ######################
+	# style hex colors for plain, prompt and highlight
+	style:
+		plain:        '#FFFAFA'
+		prompt:       '#FFF68F'
+		highlight:    'bg:#FFF68F #000000'
 
-    The first command, e.g.,  is for editing in session mode and invokes gvim with the '-f' switch. This switch blocks _nts_ until gvim is closed and, when this happens, _nts_ will reload the data files to reflect any changes. The '+{linenum}' and '{filepath}' arguments will be replaced by _nts_ before the command is executed by the relevant line number and filepath.
 
 ### Organizing with Paths and Tags
 
@@ -192,7 +204,7 @@ Another example is a journal section for monthly notes
                 ├── 02.txt
                 └── 03.txt
 
-or one for projects
+and one for my projects
 
         └── projects
             ├── etm
@@ -219,11 +231,15 @@ delegated joe
 someday
 : review from time to time for possible action
 
-Better, if you use _!_ for _now_, _#_ for _next_, _%_ for _delegated_ and _>_ for _someday_, then these tags will always appear as the top branches in tag view because of the way these special characters are sorted.
+Better, if you use _!_ for _now_, _#_ for _next_, _%_ for _delegated_ and _>_ for _someday_, then these tags will always appear as the top branches in tag view because of the way these special characters are sorted.[^1]
+
+
+[^1]: This is python's _dictionary order_ for common characters:
+'!', '#', '$', '%', '&', '(', ')', '*', '+', '-', '/', '1', '2', '3', ';', '<', '=', '>', '?', '@', 'A', 'B', 'C', '[', ']', '^', '_', 'a', 'b', 'c', '{', '}', '~'
 
 One of the nice things about tags is that they are so easy to change. When you've taken care of a _now_ item, e.g., just remove the tag or change the tag to _\~_ for _completed_ and it will still appear in tags view but now at the bottom.
 
-Other ideas for tags from _GTD_ involve contexts such as _home_, _office_, _shop_, _phone_, _internet_ and so forth.
+Other ideas for tags from _GTD_ involve contexts such as _home_, _office_, _shop_, _phone_, _internet_, _driving_ and so forth.
 
 
 ### Installation
