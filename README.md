@@ -5,7 +5,7 @@
 
 ### Overview
 
-*nts* is pure python and will run on any platform that supports python >= 3.7.3.
+*nts* is pure python and will run on any platform that supports python >= 3.7.3. It runs in a terminal window that should be configured to use a fixed width (monospaced) font. _Menlo Regular_ is a good choice for OSX and _DejaVu Sans Mono_ for Linux.
 
 Notes are recorded in plain text files with the extension ".txt" that are located anywhere below the *nts* data directory. These note files have a simple format:
 
