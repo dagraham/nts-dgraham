@@ -644,7 +644,7 @@ class NodeData(object):
                     editcmd = session_add.format(**hsh)
                 else:
                     editcmd = command_add.format(**hsh)
-                editcmd = [x.strip() for x in editcmd.split(" ")]
+                editcmd = [x.strip() for x in editcmd.split(" ") if x.strip()]
                 logger.debug(f"new note editcmd: {editcmd}")
                 subprocess.call(editcmd)
             else:
@@ -665,7 +665,7 @@ class NodeData(object):
                 editcmd = session_add.format(**hsh)
             else:
                 editcmd = command_add.format(**hsh)
-            editcmd = [x.strip() for x in editcmd.split(" ")]
+            editcmd = [x.strip() for x in editcmd.split(" ") if x.strip()]
             logger.debug(f"add editcmd: {editcmd}")
             subprocess.call(editcmd)
         else:
