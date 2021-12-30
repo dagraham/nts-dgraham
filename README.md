@@ -134,17 +134,18 @@ update check    | -u           | u      	  |  11
 
 Before you start *nts* for the first time, think about where you would like to keep your personal data files and any log files that _nts_ will create. This will be your nts *home* directory. The _nts_ configuration file, "cfg.yaml" will be placed in this directory as well as the data and log files in the subdirectories "data" and "logs", respectively.
 
-1. The default is to use whatever directory you're in when you start _nts_ as the  home directory either 1) if it is empty (unused so far) or 2) if it contains  subdirectories called "data" and "logs" (not empty and already in use for _nts_). To use this option just change to this directory before starting _nts_.
+The default is to use whatever directory you're in when you start _nts_ as the _home directory_ either 1) if it is empty (unused so far) or 2) if it contains  subdirectories called "data" and "logs" (not empty and already in use for _nts_). To use this option just change to this directory before starting _nts_.
 
-2. Alternatively, if the current working directory doesn't satisfy the requirments but there is an environmental variable, `NTSHOME`, that contains the path to an existing directory, then *nts* will use this as its home directory. To use this option, first create the directory and then set the enivonmental variable by, e.g., appending the following to your "~/.bash_profile":
+Alternatively, if the current working directory doesn't satisfy the requirments but there is an environmental variable, `NTSHOME`, that contains the path to an existing directory, then *nts* will use this as its _home directory_. To use this option, first create the directory and then set the enivonmental variable by, e.g., appending the following to your "~/.bash_profile":
 
 		export NTSHOME="complete path to the nts home directory"
 
-3. Finally, if neither of the previous alternatives are satisfied, then *nts* will use "\~/nts" as its home directory, creating this directory if necessary.
+Finally, if neither of the previous alternatives are satisfied, then *nts* will use "\~/nts" as its _home directory_, creating this directory if necessary.
 
-    The _nts_ "data" and "logs" directories will be created if necessary. If "data" needs to be created, the user will additionally be offered the opportunity to populate it with the data for the grandchild.txt example discussed above.
+The _nts_ "data" and "logs" directories will be created if necessary. If "data" needs to be created, the user will additionally be offered the opportunity to populate it with the data for the grandchild.txt example discussed above.
 
-4. The _nts_ configuration file, `cfg.yaml` will also be created in this home directory. The default settings are for the editor _vim_.  If you prefer using another editor, you will need to edit this file and make the necessary changes. Here are the default contents of this file:
+The _nts_ configuration file, "cfg.yaml" will also be created in this _home directory_. The default settings are for the editor _vim_.  If you prefer using another editor, you will need to edit this file and make the necessary changes. Here are the default contents of this file:
+
 
 	##################### IMPORTANT #############################
 	#
