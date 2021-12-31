@@ -1084,6 +1084,11 @@ def session():
                     path_list_view.show_page()
                 elif current_view == 'tags_list':
                     tags_list_view.show_page()
+                elif current_view == 'find':
+                    find_view.show_page()
+                elif current_view == 'help':
+                    help_view.show_page()
+
             else:
                 leaf_view.show_page()
 
