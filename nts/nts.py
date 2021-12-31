@@ -176,6 +176,10 @@ def myescape(name):
 def myprint(tokenlines, color=None):
     print_formatted_text(FormattedText(tokenlines), style=style_obj)
 
+def show_message(mgs):
+    shortcuts.clear()
+    print(mgs)
+
 
 def getnotes(filepath):
     notes = []
@@ -807,7 +811,7 @@ def session():
             hidden = "branch nodes hidden - display with N"
         if hidden:
             message_parts.append(hidden)
-        level = f"limiting levels to {Data.maxlevel} - expand all with m 0" if  Data.maxlevel else ""
+        level = f"limiting levels to {Data.maxlevel} - to include all levels enter 'm 0'" if  Data.maxlevel else ""
         if level:
             message_parts.append(level)
         if message_parts:
@@ -856,20 +860,25 @@ def session():
         elif text.startswith('m'):
             # if current_view not in ['path_list_view', 'tags_list_view']:
             #     return
+            msg = ""
             level = text[1:] if len(text) > 1 else 0
             try:
                 level = int(level.strip())
             except:
-                level = 0
-            Data.setMaxLevel(level)
-            Data.showID()
-            lines = Data.nodelines if Data.showingNodes else Data.notelines
-            if current_view == 'path_list':
-                path_list_view.set_pages(lines)
-                path_list_view.show_page()
-            elif current_view == 'tags_list':
-                tags_list_view.set_pages(lines)
-                tags_list_view.show_page()
+                level = None
+            if level is not None:
+                Data.setMaxLevel(level)
+                Data.showID()
+                lines = Data.nodelines if Data.showingNodes else Data.notelines
+                if current_view == 'path_list':
+                    path_list_view.set_pages(lines)
+                    path_list_view.show_page()
+                elif current_view == 'tags_list':
+                    tags_list_view.set_pages(lines)
+                    tags_list_view.show_page()
+            else:
+                show_message("an integer LEVEL argument was either missing or invalid")
+
 
 
         elif text == 'b':
@@ -916,80 +925,90 @@ def session():
         elif text.startswith("i"):
             shortcuts.clear()
             lineid = text[1:].strip()
-            Data.showID(lineid)
-            if Data.showingNodes:
-                if current_view == 'path_list':
-                    path_list_index = path_list_view.current_page
-                    lines = Data.nodelines
-                    path_list_view.set_pages(lines)
-                    path_list_view.show_page()
-                elif current_view == 'tags_list':
-                    tags_list_index = tags_list_view.current_page
-                    lines = Data.nodelines
-                    tags_list_view.set_pages(lines)
-                    tags_list_view.show_page()
+            if lineid:
+                Data.showID(lineid)
+                if Data.showingNodes:
+                    if current_view == 'path_list':
+                        path_list_index = path_list_view.current_page
+                        lines = Data.nodelines
+                        path_list_view.set_pages(lines)
+                        path_list_view.show_page()
+                    elif current_view == 'tags_list':
+                        tags_list_index = tags_list_view.current_page
+                        lines = Data.nodelines
+                        tags_list_view.set_pages(lines)
+                        tags_list_view.show_page()
+                else:
+                    current_view = 'leaf'
+                    leaf_index = leaf_view.current_page
+                    lines = Data.notelines
+                    leaf_view.set_pages(lines)
+                    leaf_view.show_page()
             else:
-                current_view = 'leaf'
-                leaf_index = leaf_view.current_page
-                lines = Data.notelines
-                leaf_view.set_pages(lines)
-                leaf_view.show_page()
+                show_message("an IDENT argument is required but missing")
 
         elif text.startswith("e"):
             shortcuts.clear()
             idstr = text[1:].strip()
-            orig_mode = Data.mode
-            Data.editID(idstr)
-            Data.getNodes()
-            Data.setMode(orig_mode)
-            Data.showID()
-            logger.debug(f"edit done; current_view: {current_view}; showingNodes: {Data.showingNodes}")
-            # new_mode = Data.mode
-            if Data.showingNodes:
-                if current_view == 'path_list':
-                    path_list_index = path_list_view.current_page
-                    lines = Data.nodelines
-                    path_list_view.set_pages(lines)
-                    path_list_view.show_page()
-                elif current_view == 'tags_list':
-                    tags_list_index = tags_list_view.current_page
-                    lines = Data.nodelines
-                    tags_list_view.set_pages(lines)
-                    tags_list_view.show_page()
-                elif current_view == 'find':
-                    Data.find(find_view.find)
-                    lines = Data.findlines
-                    logger.debug(f"find: {find_view.find}; lines: {lines}")
-                    find_view.set_pages(lines)
-                    find_view.show_page()
+            if idstr:
+                orig_mode = Data.mode
+                Data.editID(idstr)
+                Data.getNodes()
+                Data.setMode(orig_mode)
+                Data.showID()
+                logger.debug(f"edit done; current_view: {current_view}; showingNodes: {Data.showingNodes}")
+                # new_mode = Data.mode
+                if Data.showingNodes:
+                    if current_view == 'path_list':
+                        path_list_index = path_list_view.current_page
+                        lines = Data.nodelines
+                        path_list_view.set_pages(lines)
+                        path_list_view.show_page()
+                    elif current_view == 'tags_list':
+                        tags_list_index = tags_list_view.current_page
+                        lines = Data.nodelines
+                        tags_list_view.set_pages(lines)
+                        tags_list_view.show_page()
+                    elif current_view == 'find':
+                        Data.find(find_view.find)
+                        lines = Data.findlines
+                        logger.debug(f"find: {find_view.find}; lines: {lines}")
+                        find_view.set_pages(lines)
+                        find_view.show_page()
+            else:
+                show_message("an IDENT argument is required but missing")
 
 
         elif text.startswith("a"):
             shortcuts.clear()
             entry = text[1:].strip()
-            idstr, *child = entry.split(" ")
-            if child:
-                child = '_'.join(child)
-            Data.addID(idstr, child)
-            Data.getNodes()
-            Data.showID()
-            if Data.showingNodes:
-                if current_view == 'path_list':
-                    path_list_index = path_list_view.current_page
-                    lines = Data.nodelines
-                    path_list_view.set_pages(lines)
-                    path_list_view.show_page()
-                elif current_view == 'tags_list':
-                    tags_list_index = tags_list_view.current_page
-                    lines = Data.nodelines
-                    tags_list_view.set_pages(lines)
-                    tags_list_view.show_page()
-                elif current_view == 'find':
-                    Data.find(find_view.find)
-                    lines = Data.findlines
-                    logger.debug(f"find: {find_view.find}; lines: {lines}")
-                    find_view.set_pages(lines)
-                    find_view.show_page()
+            if entry:
+                idstr, *child = entry.split(" ")
+                if child:
+                    child = '_'.join(child)
+                Data.addID(idstr, child)
+                Data.getNodes()
+                Data.showID()
+                if Data.showingNodes:
+                    if current_view == 'path_list':
+                        path_list_index = path_list_view.current_page
+                        lines = Data.nodelines
+                        path_list_view.set_pages(lines)
+                        path_list_view.show_page()
+                    elif current_view == 'tags_list':
+                        tags_list_index = tags_list_view.current_page
+                        lines = Data.nodelines
+                        tags_list_view.set_pages(lines)
+                        tags_list_view.show_page()
+                    elif current_view == 'find':
+                        Data.find(find_view.find)
+                        lines = Data.findlines
+                        logger.debug(f"find: {find_view.find}; lines: {lines}")
+                        find_view.set_pages(lines)
+                        find_view.show_page()
+            else:
+                show_message("an IDENT argument is required but missing")
+
 
         elif text == 'n':
             shortcuts.clear()
