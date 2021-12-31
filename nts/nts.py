@@ -70,52 +70,54 @@ nts provides two ways of interacting with the data.
 Command Summary
     Action          | Command Mode | Session Mode | Notes
     ----------------|--------------|--------------|------
-    help            |  -h          |  h or ?      |   1
+    help            |  -h          |  h or ?      |   ~
     begin session   |  -s          |  ~           |   ~
-    end session     |    ~         |  q           |   ~
+    end session     |   ~          |  q           |   ~
     path view       |  -v p        |  p           |   ~
     tags view       |  -v t        |  t           |   ~
-    hide notes      | -n           | n            |   2
-    hide nodes      | -N           | N            |   3
-    set max levels  | -m MAX       | m MAX        |   4
-    highlight REGEX |              |  / REGEX     |   5
-    find REGEX      | -f REGEX     | f REGEX      |   6
-    inspect IDENT   | -i IDENT     | i IDENT      |   7
-    switch displays |    ~         | s            |   8
-    edit IDENT      | -e IDENT     | e IDENT      |   9
-    add to IDENT    | -a IDENT     | a IDENT      |  10
-    update check    | -u           | u      	  |  11
+    hide notes      |  -n          |  n           |   1
+    hide nodes      |  -N          |  N           |   2
+    set max levels  |  -m MAX      |  m MAX       |   3
+    highlight REGEX |              |  / REGEX     |   4
+    find REGEX      |  -f REGEX    |  f REGEX     |   5
+    inspect IDENT   |  -i IDENT    |  i IDENT     |   6
+    back            |   ~          |  b           |   7
+    edit IDENT      |  -e IDENT    |  e IDENT     |   8
+    add to IDENT    |  -a IDENT    |  a IDENT     |   9
+    update check    |  -u          |  u           |  10
 
- 1. In session mode, this is a toggle that switches the display back and
-    forth between the active and the help displays.
- 2. Suppress showing notes in the outline. In session mode this toggles the
-    display of notes off and on.
- 3. Suppress showing nodes in the outline, i.e., display only the notes. In
-    session mode this toggles the display of the nodes off and on.
- 4. Limit the diplay of nodes in the outline to the integer MAX levels. Use
-    MAX = 0 to display all levels.
- 5. Highlight displayed lines that contain a match for the case-insensitive
-    regular expression REGEX. Enter an empty REGEX to clear highlighting.
- 6. Display complete notes that contain a match in the title, tags or body
-    for the case-insensitive regular expression REGEX.
- 7. If IDENT is the 2-number identifier for a note, then display the
-    contents of that note. Else if IDENT is the identifier for a ".txt" file,
-    then display the contents of that file. Otherwise limit the display to that
-    part of the outline which starts from the corresponding node.
- 8. In session mode, switch back and forth between the most recent path or
-    tag display and the most recent display of a file or note.
- 9. If IDENT corresponds to either a note or a ".txt" file, then open that
-    file for editing and, in the case of a note, scroll to the beginning line
-    of the note.
-10. If IDENT corresponds to either a note or a ".txt" file, then open that
-    file for appending a new note. Otherwise, if IDENT corresponds to a
-    directory, then prompt for the name of a child to add to that node. If the
-    name entered ends with ".txt", a new note file will be created and opened
-    for editing. Otherwise, a new subdirectory will be added to the node
-    directory using the name provided. Use "0" as the IDENT to add to the root
-    (data) node.
-11. Compare the installed version of nts with the latest version on GitHub
-    (requires internet connection) and report the result.\
+1. Suppress showing notes in the outline. In session mode this
+   toggles the display of notes off and on.
+2. Suppress showing nodes in the outline, i.e., display only the
+   notes. In session mode this toggles the display of the nodes
+   off and on.
+3. Limit the diplay of nodes in the outline to the integer MAX
+   levels. Use MAX = 0 to display all levels.
+4. Highlight displayed lines that contain a match for the
+   case-insensitive regular expression REGEX. Enter an empty REGEX
+   to clear highlighting.
+5. Display complete notes that contain a match in the title, tags
+   or body for the case-insensitive regular expression REGEX.
+6. If IDENT is the 2-number identifier for a note, then display
+   the contents of that note. Else if IDENT is the identifier for
+   a ".txt" file, then display the contents of that file. Otherwise
+   limit the display to that part of the outline which starts from
+   the corresponding node.
+7. In session mode, switch back and forth between the two most
+   recent displays.
+8. If IDENT corresponds to either a note or a ".txt" file, then
+   open that file for editing and, in the case of a note, scroll
+   to the beginning line of the note.
+9. If IDENT corresponds to either a note or a ".txt" file, then
+   open that file for appending a new note. Otherwise, if IDENT
+   corresponds to a directory, then prompt for the name of a child
+   to add to that node. If the name entered ends with ".txt", a
+   new note file will be created and opened for editing. Otherwise,
+   a new subdirectory will be added to the node directory using
+   the name provided. Use "0" as the IDENT to add to the root
+   (data) node.
+10. Compare the installed version of nts with the latest version
+   on GitHub (requires internet connection) and report the result.
 """
 
 
@@ -565,7 +567,7 @@ class NodeData(object):
                         else:
                             output_lines.append('')
                     output_lines.append('')
-            if not output_lines[-1]:
+            if output_lines and not output_lines[-1]:
                 output_lines = output_lines[:-1]
         self.findlines = output_lines
 
@@ -686,14 +688,17 @@ def session():
     bindings = KeyBindings()
     session = PromptSession(key_bindings=bindings)
     multiline_prompt = False
-    list_view = ListView()
-    list_index = 0
+    path_list_view = ListView()
+    path_list_index = 0
+    tags_list_view = ListView()
+    tags_list_index = 0
     help_view = ListView(helplines)
     leaf_view = ListView()
     leaf_index = 0
     find_view = ListView()
     find_index = 0
-    current_view = 'list'
+    current_view = ''
+    previous_view = ''
     logger.debug("Opened session")
 
     def prompt_continuation(width, line_number, is_soft_wrap):
@@ -704,8 +709,12 @@ def session():
         return not myValidator.entryactive
 
     @Condition
-    def is_showing_list():
-        return current_view == 'list'
+    def is_showing_path():
+        return current_view == 'path_list'
+
+    @Condition
+    def is_showing_tags():
+        return current_view == 'tags_list'
 
     @Condition
     def is_showing_help():
@@ -731,16 +740,28 @@ def session():
             leaf_view.scroll_up()
         run_in_terminal(up)
 
-    @bindings.add('down', filter=is_showing_list)
+    @bindings.add('down', filter=is_showing_path)
     def _(event):
         def down():
-            list_view.scroll_down()
+            path_list_view.scroll_down()
         run_in_terminal(down)
 
-    @bindings.add('up', filter=is_showing_list)
+    @bindings.add('up', filter=is_showing_path)
     def _(event):
         def up():
-            list_view.scroll_up()
+            path_list_view.scroll_up()
+        run_in_terminal(up)
+
+    @bindings.add('down', filter=is_showing_tags)
+    def _(event):
+        def down():
+            tags_list_view.scroll_down()
+        run_in_terminal(down)
+
+    @bindings.add('up', filter=is_showing_tags)
+    def _(event):
+        def up():
+            tags_list_view.scroll_up()
         run_in_terminal(up)
 
     @bindings.add('down', filter=is_showing_help)
@@ -803,37 +824,37 @@ def session():
             break
 
         elif text in ['?', 'h']:
-            if current_view == 'list':
+            if current_view != 'help':
+                previous_view = current_view
                 current_view = 'help'
-                shortcuts.clear()
-                # always start help at the first page
-                help_view.set_page(0)
-                help_view.show_page()
-            elif current_view == "help":
-                current_view = 'list'
-                shortcuts.clear()
-                # show list at the current page
-                list_view.show_page()
+            shortcuts.clear()
+            help_view.show_page()
 
         elif text == 'p':
+            if current_view != 'path_list':
+                previous_view = current_view
+                current_view = 'path_list'
             shortcuts.clear()
-            current_view = 'list'
             Data.setMode('p')
             Data.showID()
             lines = Data.nodelines if Data.showingNodes else Data.notelines
-            list_view.set_pages(lines)
-            list_view.show_page()
+            path_list_view.set_pages(lines)
+            path_list_view.show_page()
 
         elif text == 't':
             shortcuts.clear()
-            current_view = 'list'
+            if current_view != 'tags_list':
+                previous_view = current_view
+                current_view = 'tags_list'
             Data.setMode('t')
             Data.showID()
             lines = Data.nodelines if Data.showingNodes else Data.notelines
-            list_view.set_pages(lines)
-            list_view.show_page()
+            tags_list_view.set_pages(lines)
+            tags_list_view.show_page()
 
         elif text.startswith('m'):
+            # if current_view not in ['path_list_view', 'tags_list_view']:
+            #     return
             level = text[1:] if len(text) > 1 else 0
             try:
                 level = int(level.strip())
@@ -842,44 +863,70 @@ def session():
             Data.setMaxLevel(level)
             Data.showID()
             lines = Data.nodelines if Data.showingNodes else Data.notelines
-            list_view.set_pages(lines)
-            list_view.show_page()
+            if current_view == 'path_list':
+                path_list_view.set_pages(lines)
+                path_list_view.show_page()
+            elif current_view == 'tags_list':
+                tags_list_view.set_pages(lines)
+                tags_list_view.show_page()
 
-        elif text == 's':
-            if current_view == 'list':
-                shortcuts.clear()
-                current_view = 'leaf'
-                leaf_view.show_page()
-            elif current_view == 'leaf':
-                shortcuts.clear()
-                current_view = 'list'
-                list_view.show_page()
+
+        elif text == 'b':
+            logger.debug(f"current_view: {current_view}; previous_view: {previous_view}")
+            shortcuts.clear()
+            if previous_view and current_view:
+                tmp = previous_view
+                previous_view = current_view
+                current_view = tmp
+                if current_view == 'help':
+                    help_view.show_page()
+                elif current_view == 'find':
+                    find_view.show_page()
+                elif current_view == 'leaf':
+                    leaf_view.show_page()
+                elif current_view == 'path_list':
+                    path_list_view.show_page()
+                elif current_view == 'tags_list':
+                    tags_list_view.show_page()
+
 
         elif text.startswith('f'):
-            current_view = 'find'
-            shortcuts.clear()
+            if current_view != 'find':
+                previous_view = current_view
+                current_view = 'find'
             find = text[1:].strip()
-            regx = find if find else None
-            Data.find(find)
-            lines = Data.findlines
-            if lines:
-                list_view.set_find(find)
-                leaf_view.set_find(find)
-                find_view.set_find(find)
-            find_view.set_pages(lines)
-            find_view.set_page(find_index)
-            find_view.show_page()
+            regex = find if find else None
+            path_list_view.set_find(find)
+            tags_list_view.set_find(find)
+            find_view.set_find(find)
+            if regex:
+                Data.find(find)
+                lines = Data.findlines
+                logger.debug(f"find: {find}; lines: {lines}")
+                shortcuts.clear()
+                if lines:
+                    find_view.set_pages(lines)
+                    find_view.set_page(find_index)
+                    find_view.show_page()
+                else:
+                    print(f"nothing found matching '{find}'")
+
 
         elif text.startswith("i"):
             shortcuts.clear()
             lineid = text[1:].strip()
             Data.showID(lineid)
             if Data.showingNodes:
-                current_view = 'list'
-                list_index = list_view.current_page
-                lines = Data.nodelines
-                list_view.set_pages(lines)
-                list_view.show_page()
+                if current_view == 'path_list':
+                    path_list_index = path_list_view.current_page
+                    lines = Data.nodelines
+                    path_list_view.set_pages(lines)
+                    path_list_view.show_page()
+                elif current_view == 'tags_list':
+                    tags_list_index = tags_list_view.current_page
+                    lines = Data.nodelines
+                    tags_list_view.set_pages(lines)
+                    tags_list_view.show_page()
             else:
                 current_view = 'leaf'
                 leaf_index = leaf_view.current_page
@@ -913,8 +960,8 @@ def session():
             list_view.set_pages(lines)
             list_view.show_page()
 
-        elif text == 'm':
-            multiline_prompt = not multiline_prompt
+        # elif text == 'm':
+        #     multiline_prompt = not multiline_prompt
 
         elif text == 'n':
             shortcuts.clear()
@@ -922,8 +969,12 @@ def session():
             Data.showID()
             if Data.showingNodes:
                 lines = Data.nodelines
-                list_view.set_pages(lines)
-                list_view.show_page()
+                if current_view == 'path_list':
+                    path_list_view.set_pages(lines)
+                    path_list_view.show_page()
+                elif current_view == 'tags_list':
+                    tags_list_view.set_pages(lines)
+                    tags_list_view.show_page()
             else:
                 lines = Data.notelines
                 leaf_view.set_pages(lines)
@@ -935,8 +986,12 @@ def session():
             Data.showID()
             if Data.showingNodes:
                 lines = Data.nodelines
-                list_view.set_pages(lines)
-                list_view.show_page()
+                if current_view == 'path_list':
+                    path_list_view.set_pages(lines)
+                    path_list_view.show_page()
+                elif current_view == 'tags_list':
+                    tags_list_view.set_pages(lines)
+                    tags_list_view.show_page()
             else:
                 lines = Data.notelines
                 leaf_view.set_pages(lines)
@@ -947,13 +1002,19 @@ def session():
 
             arg = text[1:]
             regx = arg if arg else None
-            list_view.set_find(regx)
+            path_list_view.set_find(regx)
+            tags_list_view.set_find(regx)
             leaf_view.set_find(regx)
             if Data.showingNodes:
                 lines = Data.nodelines
-                list_view.set_pages(lines)
-                list_view.set_page(list_index)
-                list_view.show_page()
+                if current_view == 'path_list':
+                    path_list_view.set_pages(lines)
+                    path_list_view.set_page(path_list_index)
+                    path_list_view.show_page()
+                elif current_view == 'tags_list':
+                    tags_list_view.set_pages(lines)
+                    tags_list_view.set_page(tags_list_index)
+                    tags_list_view.show_page()
             else:
                 lines = Data.notelines
                 leaf_view.set_pages(lines)
@@ -971,7 +1032,13 @@ def session():
 
         else:
             shortcuts.clear()
-            list_view.show_page()
+            if Data.showingNodes:
+                if current_view == 'path_list':
+                    path_list_view.show_page()
+                elif current_view == 'tags_list':
+                    tags_list_view.show_page()
+            else:
+                leaf_view.show_page()
 
 
 

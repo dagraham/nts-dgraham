@@ -5,7 +5,7 @@
 
 ### Overview
 
-*nts* is pure python and will run on any platform that supports python >= 3.7.3. It runs in a terminal window that should be configured to use a fixed width (monospaced) font. _Menlo Regular_ is a good choice for OSX and _DejaVu Sans Mono_ for Linux.
+*nts* is pure python and will run on any platform that supports python >= 3.7.3. It runs in a terminal window that should be configured to use a fixed width (monospaced) font. _Menlo Regular_ for OSX and _DejaVu Sans Mono_ for Linux are good choices.
 
 Notes are recorded in plain text files with the extension ".txt" that are located anywhere below the *nts* data directory. These note files have a simple format:
 
@@ -101,38 +101,37 @@ The numeric identifiers appended to the lines in both views are provided by *nts
 
 Action          | Command Mode | Session Mode | Notes
 ----------------|--------------|--------------|------
-help            |  -h		   |  h or ?      |   1
-begin session   |  -s		   |  ~			  |   ~
-end session     |    ~		   |  q			  |   ~
-path view       |  -v p		   |  p			  |   ~
-tags view       |  -v t		   |  t			  |   ~
-hide notes      | -n		   | n			  |   2
-hide nodes      | -N		   | N			  |   3
-set max levels  | -m MAX	   | m MAX		  |   4
-highlight REGEX |			   |  / REGEX	  |   5
-find REGEX      | -f REGEX	   | f REGEX	  |   6
-inspect IDENT   | -i IDENT	   | i IDENT	  |   7
-switch displays |    ~		   | s			  |   8
-edit IDENT      | -e IDENT	   | e IDENT	  |   9
-add to IDENT    | -a IDENT	   | a IDENT	  |  10
-update check    | -u           | u      	  |  11
+help            |  -h          |  h or ?      |   ~
+begin session   |  -s          |  ~           |   ~
+end session     |    ~         |  q           |   ~
+path view       |  -v p        |  p           |   ~
+tags view       |  -v t        |  t           |   ~
+hide notes      | -n           |  n           |   1
+hide nodes      | -N           |  N           |   2
+set max levels  | -m MAX       |  m MAX       |   3
+highlight REGEX |              |  / REGEX     |   4
+find REGEX      | -f REGEX     |  f REGEX     |   5
+inspect IDENT   | -i IDENT     |  i IDENT     |   6
+back            |    ~         |  b           |   7
+edit IDENT      | -e IDENT     |  e IDENT     |   8
+add to IDENT    | -a IDENT     |  a IDENT     |   9
+update check    | -u           |  u           |  10
 
-1. In session mode, this is a toggle that switches the display back and forth between the active and the help displays.
-2. Suppress showing notes in the outline. In session mode this toggles the display of notes off and on.
-3. Suppress showing nodes in the outline, i.e., display only the notes. In session mode this toggles the display of the nodes off and on.
-4. Limit the diplay of nodes in the outline to the integer MAX levels. Use MAX = 0 to display all levels.
-5. Highlight displayed lines that contain a match for the case-insensitive regular expression REGEX. Enter an empty REGEX to clear highlighting.
-6. Display complete notes that contain a match in the title, tags or body for the case-insensitive regular expression REGEX.
-7. If IDENT is the 2-number identifier for a note, then display the contents of that note. Else if IDENT is the identifier for a ".txt" file, then display the contents of that file. Otherwise limit the display to that part of the outline which starts from the corresponding node.
-8. In session mode, switch back and forth between the most recent path or tag display and the most recent display of a file or note.
-9. If IDENT corresponds to either a note or a ".txt" file, then open that file for editing and, in the case of a note, scroll to the beginning line of the note.
-10. If IDENT corresponds to either a note or a ".txt" file, then open that file for appending a new note. Otherwise, if IDENT corresponds to a directory, then prompt for the name of a child to add to that node. If the name entered ends with ".txt", a new note file will be created and opened for editing. Otherwise, a new subdirectory will be added to the node directory using the name provided. Use "0" as the IDENT to add to the root (data) node.
-11. Compare the installed version of nts with the latest version on GitHub (requires internet connection) and report the result.
+1. Suppress showing notes in the outline. In session mode this toggles the display of notes off and on.
+2. Suppress showing nodes in the outline, i.e., display only the notes. In session mode this toggles the display of the nodes off and on.
+3. Limit the diplay of nodes in the outline to the integer MAX levels. Use MAX = 0 to display all levels.
+4. Highlight displayed lines that contain a match for the case-insensitive regular expression REGEX. Enter an empty REGEX to clear highlighting.
+5. Display complete notes that contain a match in the title, tags or body for the case-insensitive regular expression REGEX.
+6. If IDENT is the 2-number identifier for a note, then display the contents of that note. Else if IDENT is the identifier for a ".txt" file, then display the contents of that file. Otherwise limit the display to that part of the outline which starts from the corresponding node.
+7. In session mode, switch back and forth between the two most recent views.
+8. If IDENT corresponds to either a note or a ".txt" file, then open that file for editing and, in the case of a note, scroll to the beginning line of the note.
+9. If IDENT corresponds to either a note or a ".txt" file, then open that file for appending a new note. Otherwise, if IDENT corresponds to a directory, then prompt for the name of a child to add to that node. If the name entered ends with ".txt", a new note file will be created and opened for editing. Otherwise, a new subdirectory will be added to the node directory using the name provided. Use "0" as the IDENT to add to the root (data) node.
+10. Compare the installed version of nts with the latest version on GitHub (requires internet connection) and report the result.
 
 
 ### Configuration
 
-Before you start *nts* for the first time, think about where you would like to keep your personal data files and any log files that _nts_ will create. This will be your nts *home* directory. The _nts_ configuration file, "cfg.yaml" will be placed in this directory as well as the data and log files in the subdirectories "data" and "logs", respectively.
+Before you start *nts* for the first time, think about where you would like to keep your personal data files and any log files that _nts_ will create. This will be your nts _home directory_. The _nts_ configuration file, "cfg.yaml" will be placed in this directory as well as the data and log files in the subdirectories _data_ and _logs_, respectively.
 
 The default is to use whatever directory you're in when you start _nts_ as the _home directory_ either 1) if it is empty (unused so far) or 2) if it contains  subdirectories called "data" and "logs" (not empty and already in use for _nts_). To use this option just change to this directory before starting _nts_.
 
@@ -181,7 +180,7 @@ The _nts_ configuration file, "cfg.yaml" will also be created in this _home dire
 
 ### Organizing with Paths and Tags
 
-Here are a few organizational ideas. First, a reference section for all the stuff I want to remember, but usually can't:
+Here are a few organizational ideas that have helped me. First, a reference section for all the stuff I want to remember, but usually can't:
 
         └── reference
             ├── entertainment
@@ -235,7 +234,7 @@ someday
 Better, if you use _!_ for _now_, _#_ for _next_, _%_ for _delegated_ and _>_ for _someday_, then these tags will always appear as the top branches in tag view because of the way these special characters are sorted.[^1]
 
 
-[^1]: This is python's _dictionary order_ for common characters:
+[^1]: This is python's _dictionary order_ for common keyboard characters:
 '!', '#', '$', '%', '&', '(', ')', '*', '+', '-', '/', '1', '2', '3', ';', '<', '=', '>', '?', '@', 'A', 'B', 'C', '[', ']', '^', '_', 'a', 'b', 'c', '{', '}', '~'
 
 One of the nice things about tags is that they are so easy to change. When you've taken care of a _now_ item, e.g., just remove the tag or change the tag to _\~_ for _completed_ and it will still appear in tags view but now at the bottom.
