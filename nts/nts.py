@@ -221,6 +221,7 @@ class ListView(object):
         self.columns, rows = shutil.get_terminal_size()
         self.rows = rows - 4 # integer number of allowed display rows
         self.find = None
+        self.regx = None
         self.lines = lines
         self.pages = {}
         self.page_numbers = []
@@ -228,11 +229,13 @@ class ListView(object):
         self.set_pages(lines)
 
 
-    def set_find(self, regx):
-        if regx:
-            self.find = re.compile(r'%s' % regx , re.IGNORECASE)
+    def set_find(self, find):
+        if find:
+            self.find = find
+            self.regx = re.compile(r'%s' % find , re.IGNORECASE)
         else:
             self.find = None
+            self.regx = None
         self.set_lines(self.lines)
 
 
@@ -241,13 +244,13 @@ class ListView(object):
         Format the lines according to whether or not they match the find regex
         """
         self.lines = []
-        if self.find:
+        if self.regx:
             for line in lines:
                 if isinstance(line, (tuple, list)):
                     text = line[1].rstrip()
                 else:
                     text = line.rstrip()
-                if self.find.search(text):
+                if self.regx.search(text):
                     line = ('class:highlight', f"{text} \n")
                 else:
                     line = ('class:plain', f"{text} \n")
@@ -687,7 +690,6 @@ def session():
     Data.sessionMode = True
     bindings = KeyBindings()
     session = PromptSession(key_bindings=bindings)
-    multiline_prompt = False
     path_list_view = ListView()
     path_list_index = 0
     tags_list_view = ListView()
@@ -815,7 +817,6 @@ def session():
 
         message =  [("class:prompt", f"{message_str}\n> ")] if message_str else [("class:prompt", f"> ")]
         text = session.prompt(message, style=style_obj,
-                multiline=multiline_prompt,
                 prompt_continuation=prompt_continuation)
         text = text.strip()
 
@@ -942,10 +943,26 @@ def session():
             Data.getNodes()
             Data.setMode(orig_mode)
             Data.showID()
-            new_mode = Data.mode
-            lines = Data.nodelines if Data.showingNodes else Data.notelines
-            list_view.set_pages(lines)
-            list_view.show_page()
+            logger.debug(f"edit done; current_view: {current_view}; showingNodes: {Data.showingNodes}")
+            # new_mode = Data.mode
+            if Data.showingNodes:
+                if current_view == 'path_list':
+                    path_list_index = path_list_view.current_page
+                    lines = Data.nodelines
+                    path_list_view.set_pages(lines)
+                    path_list_view.show_page()
+                elif current_view == 'tags_list':
+                    tags_list_index = tags_list_view.current_page
+                    lines = Data.nodelines
+                    tags_list_view.set_pages(lines)
+                    tags_list_view.show_page()
+                elif current_view == 'find':
+                    Data.find(find_view.find)
+                    lines = Data.findlines
+                    logger.debug(f"find: {find_view.find}; lines: {lines}")
+                    find_view.set_pages(lines)
+                    find_view.show_page()
+
 
         elif text.startswith("a"):
             shortcuts.clear()
@@ -956,12 +973,23 @@ def session():
             Data.addID(idstr, child)
             Data.getNodes()
             Data.showID()
-            lines = Data.nodelines if Data.showingNodes else Data.notelines
-            list_view.set_pages(lines)
-            list_view.show_page()
-
-        # elif text == 'm':
-        #     multiline_prompt = not multiline_prompt
+            if Data.showingNodes:
+                if current_view == 'path_list':
+                    path_list_index = path_list_view.current_page
+                    lines = Data.nodelines
+                    path_list_view.set_pages(lines)
+                    path_list_view.show_page()
+                elif current_view == 'tags_list':
+                    tags_list_index = tags_list_view.current_page
+                    lines = Data.nodelines
+                    tags_list_view.set_pages(lines)
+                    tags_list_view.show_page()
+                elif current_view == 'find':
+                    Data.find(find_view.find)
+                    lines = Data.findlines
+                    logger.debug(f"find: {find_view.find}; lines: {lines}")
+                    find_view.set_pages(lines)
+                    find_view.show_page()
 
         elif text == 'n':
             shortcuts.clear()

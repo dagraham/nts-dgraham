@@ -123,7 +123,7 @@ update check    | -u           |  u           |  10
 4. Highlight displayed lines that contain a match for the case-insensitive regular expression REGEX. Enter an empty REGEX to clear highlighting.
 5. Display complete notes that contain a match in the title, tags or body for the case-insensitive regular expression REGEX.
 6. If IDENT is the 2-number identifier for a note, then display the contents of that note. Else if IDENT is the identifier for a ".txt" file, then display the contents of that file. Otherwise limit the display to that part of the outline which starts from the corresponding node.
-7. In session mode, switch back and forth between the two most recent views.
+7. In session mode, switch back and forth between the two most recent displays.
 8. If IDENT corresponds to either a note or a ".txt" file, then open that file for editing and, in the case of a note, scroll to the beginning line of the note.
 9. If IDENT corresponds to either a note or a ".txt" file, then open that file for appending a new note. Otherwise, if IDENT corresponds to a directory, then prompt for the name of a child to add to that node. If the name entered ends with ".txt", a new note file will be created and opened for editing. Otherwise, a new subdirectory will be added to the node directory using the name provided. Use "0" as the IDENT to add to the root (data) node.
 10. Compare the installed version of nts with the latest version on GitHub (requires internet connection) and report the result.
