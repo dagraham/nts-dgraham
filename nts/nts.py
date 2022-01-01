@@ -256,6 +256,8 @@ class ListView(object):
                     text = line.rstrip()
                 if self.regx.search(text):
                     line = ('class:highlight', f"{text} \n")
+                elif text.startswith('IDENT:'):
+                    line = ('class:prompt', f"{text} \n")
                 else:
                     line = ('class:plain', f"{text} \n")
                 self.lines.append(line)
@@ -265,7 +267,10 @@ class ListView(object):
                     text = line[1].rstrip()
                 else:
                     text = line.rstrip()
-                line = ('class:plain', f"{text} \n")
+                if text.startswith('IDENT:'):
+                    line = ('class:prompt', f"{text} \n")
+                else:
+                    line = ('class:plain', f"{text} \n")
                 self.lines.append(line)
 
     def set_pages(self, lines):
@@ -277,7 +282,6 @@ class ListView(object):
         page_num = 0
         while True:
             page_num += 1
-            # beg_line = (page_num - 1) * (self.rows + 1)
             beg_line = (page_num - 1) * (self.rows )
             page_lines = self.lines[beg_line:beg_line + self.rows]
             if page_lines:
@@ -289,12 +293,6 @@ class ListView(object):
         self.num_pages = len(self.page_numbers)
         self.current_page = 0 # current page number = self.page_numbers[0] = 1
 
-        # for page in self.page_numbers:
-        #     print(f"page {page}")
-        #     for line in self.pages[page]:
-        #         print(line)
-
-
     def get_page_footer(self):
         if self.num_pages < 2:
             return [('class:prompt', f"{self.columns*'_'}")]
@@ -304,7 +302,6 @@ class ListView(object):
                 ('class:prompt', f"Page {page_num}/{self.num_pages}. {prompt}.")]
 
     def show_page(self):
-        # print(f"page_numbers: {self.page_numbers}\ncurrent_page: {self.current_page}")
         if not self.page_numbers:
             return
         page_num = self.page_numbers[self.current_page]
@@ -375,7 +372,6 @@ class NodeData(object):
         self.setMaxLevel(None)
         self.getNodes()
         self.mode = 'path'
-        # self.setMode('p')
         self.showingNodes = True
 
 
@@ -879,8 +875,6 @@ def session():
             else:
                 show_message("an integer LEVEL argument was either missing or invalid")
 
-
-
         elif text == 'b':
             logger.debug(f"current_view: {current_view}; previous_view: {previous_view}")
             shortcuts.clear()
@@ -939,9 +933,11 @@ def session():
                         tags_list_view.set_pages(lines)
                         tags_list_view.show_page()
                 else:
+                    previous_view = current_view
                     current_view = 'leaf'
                     leaf_index = leaf_view.current_page
                     lines = Data.notelines
+                    lines.insert(0, f"IDENT: {lineid}")
                     leaf_view.set_pages(lines)
                     leaf_view.show_page()
             else:
@@ -955,7 +951,7 @@ def session():
                 Data.editID(idstr)
                 Data.getNodes()
                 Data.setMode(orig_mode)
-                Data.showID()
+                Data.showID(idstr)
                 logger.debug(f"edit done; current_view: {current_view}; showingNodes: {Data.showingNodes}")
                 # new_mode = Data.mode
                 if Data.showingNodes:
@@ -975,6 +971,14 @@ def session():
                         logger.debug(f"find: {find_view.find}; lines: {lines}")
                         find_view.set_pages(lines)
                         find_view.show_page()
+                else:
+                    leaf_index = leaf_view.current_page
+                    lines = Data.notelines
+                    logger.debug(f"leaf IDENT: {idstr}; notelines: {lines}")
+                    lines.insert(0, f"IDENT: {lineid}")
+                    leaf_view.set_pages(lines)
+                    leaf_view.show_page()
+
             else:
                 show_message("an IDENT argument is required but missing")
 
@@ -1088,7 +1092,6 @@ def session():
                     find_view.show_page()
                 elif current_view == 'help':
                     help_view.show_page()
-
             else:
                 leaf_view.show_page()
 
