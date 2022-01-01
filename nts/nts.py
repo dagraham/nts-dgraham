@@ -577,9 +577,19 @@ class NodeData(object):
     def showID(self, idstr="0"):
         shortcuts.clear()
         self.showNodes()
-        idtup = tuple([int(x) for x in idstr.split('-')])
+        if idstr == "0":
+            info = ('.', )
+        else:
+            try:
+                idtup = tuple([int(x) for x in idstr.split('-')])
+            except:
+                return([False, f"Bad IDENT {idstr}"])
+            if idtup in self.id2info:
+                info = self.id2info[idtup]
+            else:
+                return([False, f"Bad IDENT {idstr}"])
 
-        info = self.id2info.get(idtup, ('.', )) # (key, line) tuple or None
+        # info = self.id2info.get(idtup, ('.', )) # (key, line) tuple or None
         # info: (key, line)
         if info[0] in self.nodes:
             # we have a starting node
@@ -589,6 +599,7 @@ class NodeData(object):
             if not self.sessionMode:
                 for line in self.nodelines:
                     print(line)
+            return [True, "printed nodelines"]
         elif os.path.isfile(info[0]):
             # we have a filename and linenumber
             self.showingNodes = False
@@ -597,9 +608,10 @@ class NodeData(object):
             if not self.sessionMode:
                 for line in self.notelines:
                     print(line)
+            return [True, "printed notelines"]
         else:
-            print(f"error: bad index {info}")
-            pprint(self.nodes.keys())
+            # shouldn't get here
+            return([False, f"Bad IDENT {idstr}"])
 
 
     def editID(self, idstr):
@@ -837,10 +849,13 @@ def session():
                 current_view = 'path_list'
             shortcuts.clear()
             Data.setMode('p')
-            Data.showID()
-            lines = Data.nodelines if Data.showingNodes else Data.notelines
-            path_list_view.set_pages(lines)
-            path_list_view.show_page()
+            ok, msg = Data.showID()
+            if ok:
+                lines = Data.nodelines if Data.showingNodes else Data.notelines
+                path_list_view.set_pages(lines)
+                path_list_view.show_page()
+            else:
+                myprint(msg)
 
         elif text == 't':
             shortcuts.clear()
@@ -848,10 +863,13 @@ def session():
                 previous_view = current_view
                 current_view = 'tags_list'
             Data.setMode('t')
-            Data.showID()
-            lines = Data.nodelines if Data.showingNodes else Data.notelines
-            tags_list_view.set_pages(lines)
-            tags_list_view.show_page()
+            ok, msg = Data.showID()
+            if ok:
+                lines = Data.nodelines if Data.showingNodes else Data.notelines
+                tags_list_view.set_pages(lines)
+                tags_list_view.show_page()
+            else:
+                myprint(msg)
 
         elif text.startswith('m'):
             # if current_view not in ['path_list_view', 'tags_list_view']:
@@ -864,7 +882,7 @@ def session():
                 level = None
             if level is not None:
                 Data.setMaxLevel(level)
-                Data.showID()
+                ok, msg = Data.showID()
                 lines = Data.nodelines if Data.showingNodes else Data.notelines
                 if current_view == 'path_list':
                     path_list_view.set_pages(lines)
@@ -918,28 +936,31 @@ def session():
 
         elif text.startswith("i"):
             shortcuts.clear()
-            lineid = text[1:].strip()
-            if lineid:
-                Data.showID(lineid)
-                if Data.showingNodes:
-                    if current_view == 'path_list':
-                        path_list_index = path_list_view.current_page
-                        lines = Data.nodelines
-                        path_list_view.set_pages(lines)
-                        path_list_view.show_page()
-                    elif current_view == 'tags_list':
-                        tags_list_index = tags_list_view.current_page
-                        lines = Data.nodelines
-                        tags_list_view.set_pages(lines)
-                        tags_list_view.show_page()
-                else:
-                    previous_view = current_view
-                    current_view = 'leaf'
-                    leaf_index = leaf_view.current_page
-                    lines = Data.notelines
-                    lines.insert(0, f"IDENT: {lineid}")
-                    leaf_view.set_pages(lines)
-                    leaf_view.show_page()
+            idstr = text[1:].strip()
+            if idstr:
+                ok, msg = Data.showID(idstr)
+                if ok:
+                    if Data.showingNodes:
+                        if current_view == 'path_list':
+                            path_list_index = path_list_view.current_page
+                            lines = Data.nodelines
+                            path_list_view.set_pages(lines)
+                            path_list_view.show_page()
+                        elif current_view == 'tags_list':
+                            tags_list_index = tags_list_view.current_page
+                            lines = Data.nodelines
+                            tags_list_view.set_pages(lines)
+                            tags_list_view.show_page()
+                    else:
+                        previous_view = current_view
+                        current_view = 'leaf'
+                        leaf_index = leaf_view.current_page
+                        lines = Data.notelines
+                        lines.insert(0, f"IDENT: {idstr}")
+                        leaf_view.set_pages(lines)
+                        leaf_view.show_page()
+                else: # not ok
+                    show_message(msg)
             else:
                 show_message("an IDENT argument is required but missing")
 
@@ -975,7 +996,7 @@ def session():
                     leaf_index = leaf_view.current_page
                     lines = Data.notelines
                     logger.debug(f"leaf IDENT: {idstr}; notelines: {lines}")
-                    lines.insert(0, f"IDENT: {lineid}")
+                    lines.insert(0, f"IDENT: {idstr}")
                     leaf_view.set_pages(lines)
                     leaf_view.show_page()
 
