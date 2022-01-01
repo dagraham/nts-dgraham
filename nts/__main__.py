@@ -22,7 +22,8 @@ default_cfg = """\
 # The following are examples using the editor vim
 # To use the native version of vim under Mac OSX, replace
 # 'vim' with '/Applications/MacVim.app/Contents/MacOS/Vim'
-# in each of the following commands.
+# in each of the following commands. Omit the '-g' argument
+# to open vim in the same _nts_ terminal window.
 #
 # edit {filepath} at {linenum} - wait for completion
 session_edit: vim -g -f +{linenum} {filepath}
@@ -41,6 +42,7 @@ command_add: vim -g + {filepath}
 style:
     plain:        '#FFFAFA'
     prompt:       '#FFF68F'
+    message:      '#90C57F'
     highlight:    'bg:#FFF68F #000000'
 """
 
@@ -191,7 +193,19 @@ def main():
         nts.command_edit= yaml_data['command_edit']
         nts.command_add= yaml_data['command_add']
 
-        style_dict = yaml_data['style']
+        default_style = {
+                'plain':        '#FFFAFA',
+                'prompt':       '#FFF68F',
+                'message':      '#90C57F',
+                'highlight':    'bg:#FFF68F #000000',
+                }
+
+        user_style = yaml_data['style']
+        style_dict = {}
+        for key, value in default_style.items():
+            style_dict[key] = user_style.get(key, value)
+            if key not in user_style:
+                logger.info(f"using default color '{value}' for class: '{key}'")
         style_obj = Style.from_dict(style_dict)
         nts.style_obj = style_obj
 

@@ -117,7 +117,7 @@ Command Summary
    the name provided. Use "0" as the IDENT to add to the root
    (data) node.
 10. Compare the installed version of nts with the latest version
-   on GitHub (requires internet connection) and report the result.
+   on GitHub (requires internet connection) and report the result.\
 """
 
 
@@ -176,9 +176,14 @@ def myescape(name):
 def myprint(tokenlines, color=None):
     print_formatted_text(FormattedText(tokenlines), style=style_obj)
 
-def show_message(mgs):
+def show_message(msg):
     shortcuts.clear()
-    print(mgs)
+    # print(f"\n{msg}\n")
+    empty_line = ('class:plain', '\n')
+    msg_line = ('class:message', f"{msg}\n")
+    line = ('class:prompt',
+            'To restore the previous display, press "return" with nothing entered\nat the prompt.')
+    print_formatted_text(FormattedText([empty_line, msg_line, empty_line, line]), style=style_obj)
 
 
 def getnotes(filepath):
@@ -221,12 +226,13 @@ def getnotes(filepath):
 
 class ListView(object):
 
-    def __init__(self, lines=[]):
+    def __init__(self, lines=[], style_class='class:plain'):
         self.columns, rows = shutil.get_terminal_size()
         self.rows = rows - 4 # integer number of allowed display rows
         self.find = None
         self.regx = None
         self.lines = lines
+        self.style_class = style_class
         self.pages = {}
         self.page_numbers = []
         self.current_page = None
@@ -259,7 +265,7 @@ class ListView(object):
                 elif text.startswith('IDENT:'):
                     line = ('class:prompt', f"{text} \n")
                 else:
-                    line = ('class:plain', f"{text} \n")
+                    line = (self.style_class, f"{text} \n")
                 self.lines.append(line)
         else:
             for line in lines:
@@ -270,7 +276,7 @@ class ListView(object):
                 if text.startswith('IDENT:'):
                     line = ('class:prompt', f"{text} \n")
                 else:
-                    line = ('class:plain', f"{text} \n")
+                    line = (self.style_class, f"{text} \n")
                 self.lines.append(line)
 
     def set_pages(self, lines):
@@ -561,6 +567,7 @@ class NodeData(object):
                 if key in matching_keys:
                     lines = self.notedetails.get(key, [])
                     idstr = "-".join([str(x) for x in identifier])
+                    # output_lines.append(f"IDENT: {idstr}\n{lines[0]} {idstr}")
                     output_lines.append(f"{lines[0]} {idstr}")
                     for line in lines[1:]:
                         line.rstrip()
@@ -589,7 +596,6 @@ class NodeData(object):
             else:
                 return([False, f"Bad IDENT {idstr}"])
 
-        # info = self.id2info.get(idtup, ('.', )) # (key, line) tuple or None
         # info: (key, line)
         if info[0] in self.nodes:
             # we have a starting node
@@ -706,7 +712,7 @@ def session():
     path_list_index = 0
     tags_list_view = ListView()
     tags_list_index = 0
-    help_view = ListView(helplines)
+    help_view = ListView(helplines, 'class:message')
     leaf_view = ListView()
     leaf_index = 0
     find_view = ListView()
@@ -828,6 +834,7 @@ def session():
             message_str = ""
 
         message =  [("class:prompt", f"{message_str}\n> ")] if message_str else [("class:prompt", f"> ")]
+
         text = session.prompt(message, style=style_obj,
                 prompt_continuation=prompt_continuation)
         text = text.strip()

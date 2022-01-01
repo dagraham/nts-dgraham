@@ -128,6 +128,7 @@ update check    | -u           |  u           |  10
 9. If IDENT corresponds to either a note or a ".txt" file, then open that file for appending a new note. Otherwise, if IDENT corresponds to a directory, then prompt for the name of a child to add to that node. If the name entered ends with ".txt", a new note file will be created and opened for editing. Otherwise, a new subdirectory will be added to the node directory using the name provided. Use "0" as the IDENT to add to the root (data) node.
 10. Compare the installed version of nts with the latest version on GitHub (requires internet connection) and report the result.
 
+There are no commands in _nts_ to remove either a note file or a directory. Please use your favorite file manager for these risky actions and don't forget to restart _nts_ to update its display.
 
 ### Configuration
 
