@@ -189,8 +189,10 @@ if new_version:
     check_output(f"git tag -a -f '{new_version}' -m '{version_info}'")
 
     count = 20
-    check_output(f"echo 'Recent tagged changes as of {pendulum.now()}:' > CHANGES.txt")
-    check_output(f"git log --pretty=format:'- %ar%d %an%n    %h %ai%n%w(70,4,4)%B' --max-count={count} --no-walk --tags >> CHANGES.txt")
+    # check_output(f"echo 'Recent tagged changes as of {pendulum.now()}:' > CHANGES.txt")
+    check_output(f"echo 'Recent changes as of {pendulum.now()}:' > CHANGES.txt")
+    # check_output(f"git log --pretty=format:'- %ar%d %an%n    %h %ai%n%w(70,4,4)%B' --max-count={count} --no-walk --tags >> CHANGES.txt")
+    check_output(f"git log --pretty=format:'- %ar%d %an%n    %h %ai%n%w(70,4,4)%B' --max-count={count} --no-walk  >> CHANGES.txt")
     check_output(f"git commit -a --amend -m '{tmsg}'")
 
 else:
