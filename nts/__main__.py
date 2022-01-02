@@ -44,6 +44,18 @@ style:
     prompt:       '#FFF68F'
     message:      '#90C57F'
     highlight:    'bg:#FFF68F #000000'
+#
+##################      TAG SORT       ######################
+# for listed keys, sort by the corresponding value. E.g. In
+# tag view an items with the tag "now" will be sorted as if
+# they had the tag "!". Replace the keys and values with
+# whatever you find convenient
+tag_sort:
+    now:        '!'
+    next:       '#'
+    delegated:  '%'
+    someday:    '}'
+    completed:  '~'
 """
 
 def make_grandchild(rootdir):
@@ -52,10 +64,28 @@ def make_grandchild(rootdir):
     The body of note a goes here
 
 + note b (blue, green)
-    The body of note b here
+    The body of note b goes here
 
 + note c (red, blue)
-    And the body of note c here
+    And the body of note c goes here
+
++ action required as soon as possible (now)
+    The body of as soon as possible goes here
+
++ action needed when time permits (next)
+    The body of when time permits action goes here
+
++ assigned to joe for action (delegated joe)
+    The body of assigned to joe goes here
+
++ assigned to bob for action (delegated bob)
+    The body of assigned to bob goes goes here
+
++ review from time to time for action (someday)
+    The body of review goes here
+
++ finished but kept for reference (completed)
+    The body of finished goes here
 """
     full_path = rootdir
     for path in ['parent', 'child']:
@@ -136,8 +166,9 @@ def main():
     import nts.__version__ as version
 
     cwd = os.getcwd()
-    dlst = os.listdir(cwd)
+    dlst = [x for x in os.listdir(cwd) if not x.startswith('.')]
     NTSHOME = os.environ.get("NTSHOME")
+    print(f"cwd: {cwd}; dlst: {dlst}; len(dlst): {len(dlst)}; NTSHOME: {NTSHOME}")
     if len(dlst) == 0 or ('data' in dlst and 'logs' in dlst):
         # use cwd if it is empty or contains both data and logs
         ntshome = cwd
@@ -208,5 +239,8 @@ def main():
                 logger.info(f"using default color '{value}' for class: '{key}'")
         style_obj = Style.from_dict(style_dict)
         nts.style_obj = style_obj
+
+        tag_sort = yaml_data.get('tag_sort', {})
+        nts.tag_sort = tag_sort
 
     nts.main()

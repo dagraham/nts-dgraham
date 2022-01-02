@@ -139,7 +139,7 @@ def check_update():
         status_char = "?"
     else:
         if url_version > nts_version:
-            res = f"An update is available to {url_version}"
+            res = f"An update is available from {nts_version} (installed) to {url_version}"
         else:
             res = f"The installed version of nts, {nts_version}, is the latest available."
 
@@ -161,8 +161,11 @@ def splitall(path):
             allparts.insert(0, parts[1])
     return allparts
 
-def mysort(items):
+def mypathsort(items):
     return sorted(items, key=lambda item: item.name)
+
+def mytagsort(items):
+    return sorted(items, key=lambda item: tag_sort.get(item.name.split(' ')[0], item.name.split(' ')[0]) + ' '.join(item.name.split(' ')[1:]))
 
 _to_esc = re.compile(r'\s')
 def _esc_char(match):
@@ -465,7 +468,8 @@ class NodeData(object):
         output_lines = []
         start = self.nodes.get(self.start, self.nodes['.'])
         showlevel = self.maxlevel + 1 if self.maxlevel else None
-        for pre, fill, node in RenderTree(start, childiter=mysort, maxlevel=showlevel):
+        thissort = mypathsort if self.mode == 'path' else mytagsort
+        for pre, fill, node in RenderTree(start, childiter=thissort, maxlevel=showlevel):
             # node with lines are only used for notes
             if node.name != '.' and not hasattr(node, 'lines'):
                 id += 1
@@ -702,9 +706,7 @@ class NodeData(object):
 
 
 def session():
-
-    # myValidator = EntryValidator()
-
+    columns, rows = shutil.get_terminal_size()
     Data.sessionMode = True
     bindings = KeyBindings()
     session = PromptSession(key_bindings=bindings)
@@ -816,22 +818,26 @@ def session():
     run = True
     while run:
         message_parts = []
-        highlight = f"highlighting '{regx}'" if regx else ""
+        highlight = f'highlighting "{regx.strip()}" - enter "/" to clear highlighting' if regx else ""
         if highlight:
             message_parts.append(highlight)
         if Data.shownodes:
-            hidden = "" if Data.shownotes else "leaf notes hidden - display with n"
+            hidden = "" if Data.shownotes else 'leaf notes hidden - enter "n" to display them'
         else:
-            hidden = "branch nodes hidden - display with N"
+            hidden = 'branch nodes hidden - enter "N" to display them'
         if hidden:
             message_parts.append(hidden)
-        level = f"limiting levels to {Data.maxlevel} - to include all levels enter 'm 0'" if  Data.maxlevel else ""
+        level = f'limiting levels to {Data.maxlevel} - enter "m 0" to display all levels' if  Data.maxlevel else ""
         if level:
             message_parts.append(level)
         if message_parts:
             message_str = "; ".join(message_parts) + " "
         else:
             message_str = ""
+
+        if message_str:
+            msg_lines = textwrap.wrap(message_str, width=columns-2)
+            message_str = "\n".join(msg_lines)
 
         message =  [("class:prompt", f"{message_str}\n> ")] if message_str else [("class:prompt", f"> ")]
 
@@ -1103,7 +1109,7 @@ def session():
         elif text == 'u':
             shortcuts.clear()
             res = check_update()
-            print(res)
+            show_message(res)
 
         elif text:
             shortcuts.clear()

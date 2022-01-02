@@ -128,7 +128,8 @@ update check    | -u           |  u           |  10
 9. If IDENT corresponds to either a note or a ".txt" file, then open that file for appending a new note. Otherwise, if IDENT corresponds to a directory, then prompt for the name of a child to add to that node. If the name entered ends with ".txt", a new note file will be created and opened for editing. Otherwise, a new subdirectory will be added to the node directory using the name provided. Use "0" as the IDENT to add to the root (data) node.
 10. Compare the installed version of nts with the latest version on GitHub (requires internet connection) and report the result.
 
-There are no commands in _nts_ to remove either a note file or a directory. Please use your favorite file manager for these risky actions and don't forget to restart _nts_ to update its display.
+There are no commands in _nts_ to remove either a file or a directory. Please use your favorite file manager for these risky actions and don't forget to restart _nts_ to update its display.
+
 
 ### Configuration
 
@@ -157,7 +158,8 @@ The _nts_ configuration file, "cfg.yaml" will also be created in this _home dire
 	# The following are examples using the editor vim
 	# To use the native version of vim under Mac OSX, replace
 	# 'vim' with '/Applications/MacVim.app/Contents/MacOS/Vim'
-	# in each of the following commands.
+	# in each of the following commands. Omit the '-g' argument
+	# to open vim in the same _nts_ terminal window.
 	#
 	# edit {filepath} at {linenum} - wait for completion
 	session_edit: vim -g -f +{linenum} {filepath}
@@ -172,11 +174,13 @@ The _nts_ configuration file, "cfg.yaml" will also be created in this _home dire
 	command_add: vim -g + {filepath}
 	#
 	##################        STYLE        ######################
-	# style hex colors for plain, prompt and highlight
+	# style hex colors for plain, prompt, message and highlight
 	style:
 		plain:        '#FFFAFA'
 		prompt:       '#FFF68F'
+		message:      '#90C57F'
 		highlight:    'bg:#FFF68F #000000'
+
 
 
 ### Organizing with Paths and Tags
@@ -193,7 +197,7 @@ Here are a few organizational ideas that have helped me. First, a reference sect
                 ├── python.txt
                 └── vim.txt
 
-Another example is a journal section for monthly notes
+Then a journal section for monthly notes
 
         └── journal
             ├── 2021
@@ -205,7 +209,7 @@ Another example is a journal section for monthly notes
                 ├── 02.txt
                 └── 03.txt
 
-and one for my projects
+and another for my projects
 
         └── projects
             ├── etm
@@ -232,13 +236,27 @@ delegated joe
 someday
 : review from time to time for possible action
 
-Better, if you use _!_ for _now_, _#_ for _next_, _%_ for _delegated_ and _>_ for _someday_, then these tags will always appear as the top branches in tag view because of the way these special characters are sorted.[^1]
+completed
+: finished and kept for reference
 
+In the default configuration file, these tags are listed for special treatment.
 
-[^1]: This is python's _dictionary order_ for common keyboard characters:
-'!', '#', '$', '%', '&', '(', ')', '*', '+', '-', '/', '1', '2', '3', ';', '<', '=', '>', '?', '@', 'A', 'B', 'C', '[', ']', '^', '_', 'a', 'b', 'c', '{', '}', '~'
+		tag_sort:
+			now:        '!'
+			next:       '#'
+			delegated:  '%'
+			someday:    '}'
+			completed:  '~'
 
-One of the nice things about tags is that they are so easy to change. When you've taken care of a _now_ item, e.g., just remove the tag or change the tag to _\~_ for _completed_ and it will still appear in tags view but now at the bottom.
+This means that tag view will be sorted so that items with the tag "now" will be sorted as if the tag were "!", items with the tag "next" as if the tag were "#" and so forth. Tags not listed in _tag_sort_ are sorted using the actual tag. Since the  _dictionary order_ for common keyboard characters in python is
+
+	'!', '#', '$', '%', '&', '(', ')', '*', '+', '-', '/',
+	'1', '2', '3', ';', '<', '=', '>', '?', '@', 'A', 'B', 'C',
+	'[', ']', '^', '_', 'a', 'b', 'c', '{', '}', '~'
+
+this means that "now" will appear first, "next" second and so forth with "someday" and "completed" last. Tags not listed in _tag_sort_ will appear in the normal dictionary order.
+
+One of the nice things about tags is that they are so easy to change. When you've taken care of a "now" item, e.g., just remove the tag or change the tag to "completed".
 
 Other ideas for tags from _GTD_ involve contexts such as _home_, _office_, _shop_, _phone_, _internet_, _driving_ and so forth.
 
