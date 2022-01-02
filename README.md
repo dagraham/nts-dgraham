@@ -135,7 +135,7 @@ There are no commands in _nts_ to remove either a file or a directory. Please us
 
 Before you start *nts* for the first time, think about where you would like to keep your personal data files and any log files that _nts_ will create. This will be your nts _home directory_. The _nts_ configuration file, "cfg.yaml" will be placed in this directory as well as the data and log files in the subdirectories _data_ and _logs_, respectively.
 
-The default is to use whatever directory you're in when you start _nts_ as the _home directory_ either 1) if it is empty (unused so far) or 2) if it contains  subdirectories called "data" and "logs" (not empty and already in use for _nts_). To use this option just change to this directory before starting _nts_.
+The default is to use whatever directory you're in when you start _nts_ as the _home directory_ either 1) if it is empty (unused so far) or 2) if it contains  subdirectories called "data" and "logs" or 3) if it contains a file called "cfg.yaml" and a subdirectory called "logs". To use this option just change to this directory before starting _nts_.
 
 Alternatively, if the current working directory doesn't satisfy the requirments but there is an environmental variable, `NTSHOME`, that contains the path to an existing directory, then *nts* will use this as its _home directory_. To use this option, first create the directory and then set the enivonmental variable by, e.g., appending the following to your "~/.bash_profile":
 
@@ -143,9 +143,7 @@ Alternatively, if the current working directory doesn't satisfy the requirments 
 
 Finally, if neither of the previous alternatives are satisfied, then *nts* will use "\~/nts" as its _home directory_, creating this directory if necessary.
 
-The _nts_ "data" and "logs" directories will be created if necessary. If "data" needs to be created, the user will additionally be offered the opportunity to populate it with the data for the grandchild.txt example discussed above.
-
-The _nts_ configuration file, "cfg.yaml" will also be created in this _home directory_. The default settings are for the editor _vim_.  If you prefer using another editor, you will need to edit this file and make the necessary changes. Here are the default contents of this file:
+The _nts_ "data" and "logs" directories will be created if necessary as well as the _nts_ configuration file, "cfg.yaml" using default settings. If "data" needs to be created, the user will additionally be offered the opportunity to populate it with the data for the grandchild.txt example discussed above. Here are the default contents of this file:
 
 
 	##################### IMPORTANT #############################
@@ -174,13 +172,24 @@ The _nts_ configuration file, "cfg.yaml" will also be created in this _home dire
 	command_add: vim -g + {filepath}
 	#
 	##################        STYLE        ######################
-	# style hex colors for plain, prompt, message and highlight
+	# style hex colors for plain, prompt and highlight
 	style:
 		plain:        '#FFFAFA'
 		prompt:       '#FFF68F'
 		message:      '#90C57F'
 		highlight:    'bg:#FFF68F #000000'
-
+	#
+	##################      TAG SORT       ######################
+	# for listed keys, sort by the corresponding value. E.g. In
+	# tag view items with the tag "now" will be sorted as if
+	# they had the tag "!". Replace the keys and values with
+	# whatever you find convenient
+	tag_sort:
+		now:        '!'
+		next:       '#'
+		delegated:  '$'
+		someday:    '}'
+		completed:  '~'
 
 
 ### Organizing with Paths and Tags
@@ -222,7 +231,7 @@ and another for my projects
                 └── ideas.txt
 
 
-For tags,  using the _GTD_ (Getting Things Done) classifiers is handy:
+For tags, the _GTD_ (Getting Things Done) classifiers are useful:
 
 now
 : action required as soon as possible
@@ -230,8 +239,8 @@ now
 next
 : action needed when time permits
 
-delegated joe
-: assigned to joe for action but follow up still required
+delegated _NAME_
+: assigned to _NAME_ for action but follow up still required
 
 someday
 : review from time to time for possible action
@@ -239,12 +248,12 @@ someday
 completed
 : finished and kept for reference
 
-In the default configuration file, these tags are listed for special treatment.
+In the default configuration file, shown above, these tags are listed for special treatment.
 
 		tag_sort:
 			now:        '!'
 			next:       '#'
-			delegated:  '%'
+			delegated:  '$'
 			someday:    '}'
 			completed:  '~'
 
@@ -254,9 +263,66 @@ This means that tag view will be sorted so that items with the tag "now" will be
 	'1', '2', '3', ';', '<', '=', '>', '?', '@', 'A', 'B', 'C',
 	'[', ']', '^', '_', 'a', 'b', 'c', '{', '}', '~'
 
-this means that "now" will appear first, "next" second and so forth with "someday" and "completed" last. Tags not listed in _tag_sort_ will appear in the normal dictionary order.
+"now" will appear first, "next" second, "delegated" third and then "someday" and "completed" last. "delegated" tags will be further sorted by the accompanying _NAME_. Tags not listed in _tag_sort_ will appear in the normal dictionary order.
 
-One of the nice things about tags is that they are so easy to change. When you've taken care of a "now" item, e.g., just remove the tag or change the tag to "completed".
+To illustrate tag sorting with the default configuration, if the content of "grandchild.txt" were expanded to:
+
+    ---------------- grandchild.txt begins ---------------
+	+ note a (red, green)
+		The body of note a goes here
+
+	+ note b (blue, green)
+		The body of note b goes here
+
+	+ note c (red, blue)
+		And the body of note c goes here
+
+	+ action required as soon as possible (now)
+		The body of as soon as possible goes here
+
+	+ action needed when time permits (next)
+		The body of when time permits action goes here
+
+	+ assigned to joe for action (delegated joe)
+		The body of assigned to joe goes here
+
+	+ assigned to bob for action (delegated bob)
+		The body of assigned to bob goes goes here
+
+	+ review from time to time for action (someday)
+		The body of review goes here
+
+	+ finished but kept for reference (completed)
+		The body of finished goes here
+    ---------------- grandchild.txt ends -----------------
+
+then _Tag View_ would appear as:
+
+	├── now 1
+	│       + action required as soon as possible (now) 1-1
+	├── next 2
+	│       + action needed when time permits (next) 2-1
+	├── delegated bob 3
+	│       + assigned to bob for action (delegated bob) 3-1
+	├── delegated joe 4
+	│       + assigned to joe for action (delegated joe) 4-1
+	├── blue 5
+	│       + note b (blue, green) 5-1
+	│       + note c (red, blue) 5-2
+	├── green 6
+	│       + note a (red, green) 6-1
+	│       + note b (blue, green) 6-2
+	├── red 7
+	│       + note a (red, green) 7-1
+	│       + note c (red, blue) 7-2
+	├── someday 8
+	│       + review from time to time for action (someday) 8-1
+	└── completed 9
+			+ finished but kept for reference (completed) 9-1
+
+
+
+One of the nice things about tags is that they are so easy to change. When you've taken care of a "now" item, e.g., just change the tag to "completed".
 
 Other ideas for tags from _GTD_ involve contexts such as _home_, _office_, _shop_, _phone_, _internet_, _driving_ and so forth.
 

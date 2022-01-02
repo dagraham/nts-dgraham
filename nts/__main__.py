@@ -47,13 +47,13 @@ style:
 #
 ##################      TAG SORT       ######################
 # for listed keys, sort by the corresponding value. E.g. In
-# tag view an items with the tag "now" will be sorted as if
+# tag view items with the tag "now" will be sorted as if
 # they had the tag "!". Replace the keys and values with
 # whatever you find convenient
 tag_sort:
     now:        '!'
     next:       '#'
-    delegated:  '%'
+    delegated:  '$'
     someday:    '}'
     completed:  '~'
 """
@@ -169,7 +169,7 @@ def main():
     dlst = [x for x in os.listdir(cwd) if not x.startswith('.')]
     NTSHOME = os.environ.get("NTSHOME")
     print(f"cwd: {cwd}; dlst: {dlst}; len(dlst): {len(dlst)}; NTSHOME: {NTSHOME}")
-    if len(dlst) == 0 or ('data' in dlst and 'logs' in dlst):
+    if len(dlst) == 0 or ('data' in dlst and 'logs' in dlst) or ('cfg.yaml' in dlst and 'logs' in dlst):
         # use cwd if it is empty or contains both data and logs
         ntshome = cwd
     elif NTSHOME and os.path.isdir(NTSHOME):
