@@ -27,7 +27,7 @@ Notes are recorded in plain text files with the extension ".txt" that are locate
 
 Suppose, e.g., that the *nts* data directory contains a single file
 
-	~/nts/data/parent/child/grandchild.txt
+    ~/nts/data/parent/child/grandchild.txt
 
 with this content:
 
@@ -78,24 +78,24 @@ The numeric identifiers appended to the lines in both views are provided by *nts
 
     Commands are entered at the terminal prompt. E.g., enter
 
-		$ nts -v p
+        $ nts -v p
 
-	to display the path view in the terminal window. The output can also be piped in the standard way, e.g.,
+    to display the path view in the terminal window. The output can also be piped in the standard way, e.g.,
 
-		$ nts -v p | less
+        $ nts -v p | less
 
 
 * Session mode
 
     Use the `-s` argument to begin session mode:
 
-		$ nts -s
+        $ nts -s
 
-	This begins a session in which data is loaded into memory and remains available for subsequent interaction. In this mode, *nts* assumes command of the terminal window and provides its own `>` command prompt. Then, e.g., entering `p` at the prompt
+    This begins a session in which data is loaded into memory and remains available for subsequent interaction. In this mode, *nts* assumes command of the terminal window and provides its own `>` command prompt. Then, e.g., entering `p` at the prompt
 
-		> p
+        > p
 
-	would display the path view. Session mode adds several features not available in command mode. E.g., when there are more lines to display than will fit in the terminal window, the lines are divided into pages with up and down cursor keys used to change pages.
+    would display the path view. Session mode adds several features not available in command mode. E.g., when there are more lines to display than will fit in the terminal window, the lines are divided into pages with up and down cursor keys used to change pages.
 
 #### Command Summary
 
@@ -139,7 +139,7 @@ The default is to use whatever directory you're in when you start _nts_ as the _
 
 Alternatively, if the current working directory doesn't satisfy the requirments but there is an environmental variable, `NTSHOME`, that contains the path to an existing directory, then *nts* will use this as its _home directory_. To use this option, first create the directory and then set the enivonmental variable by, e.g., appending the following to your "~/.bash_profile":
 
-		export NTSHOME="complete path to the nts home directory"
+        export NTSHOME="complete path to the nts home directory"
 
 Finally, if neither of the previous alternatives are satisfied, then *nts* will use "\~/nts" as its _home directory_, creating this directory if necessary.
 
@@ -187,9 +187,11 @@ The _nts_ "data" and "logs" directories will be created if necessary as well as 
     tag_sort:
         now:        '!'
         next:       '#'
-        delegated:  '$'
+        assigned:   '$'
         someday:    '}'
         completed:  '~'
+
+From time to time, new versions of _nts_ may add new options to "cfg.yaml". When this happens, you might consider renaming your existing "cfg.yaml" as, say, "cfg-orig.yaml". After you update _nts_ to the new version and restart it, a new version of "cfg.yaml" will be created. You can then cut and paste between "cfg-orig.yaml" and "cfg.yaml" to incorporate your settings into the new configuration.
 
 
 ### Organizing with Paths and Tags
@@ -239,7 +241,7 @@ now
 next
 : action needed when time permits
 
-delegated _NAME_
+assigned _NAME_
 : assigned to _NAME_ for action but follow up still required
 
 someday
@@ -253,7 +255,7 @@ In the default configuration file, shown above, these tags are listed for specia
         tag_sort:
             now:        '!'
             next:       '#'
-            delegated:  '$'
+            assigned:   '$'
             someday:    '}'
             completed:  '~'
 
@@ -263,11 +265,11 @@ This means that tag view will be sorted so that items with the tag "now" will be
     '1', '2', '3', ';', '<', '=', '>', '?', '@', 'A', 'B', 'C',
     '[', ']', '^', '_', 'a', 'b', 'c', '{', '}', '~'
 
-"now" will appear first, "next" second, "delegated" third and then "someday" and "completed" last. "delegated" tags will be further sorted by the accompanying _NAME_. Tags not listed in _tag_sort_ will appear in the normal dictionary order.
+"now" will appear first, "next" second, "assigned" third and then "someday" and "completed" last. "assigned" tags will be further sorted by the accompanying _NAME_. Tags not listed in _tag_sort_ will appear in the normal dictionary order.
 
 To illustrate this tag sorting with the default configuration, add the file
 
-	~/nts/data/parent/child/tagsort.txt
+    ~/nts/data/parent/child/tagsort.txt
 
 to the grandchild example given above and include the following content:
 
@@ -275,29 +277,29 @@ to the grandchild example given above and include the following content:
     ---------------- tagsort.txt begins ---------------
     + action required as soon as possible (now)
         In tag view, items with this tag will be sorted
-		first
+        first
 
     + action needed when time permits (next)
         In tag view, items with this tag will be sorted
-		second
+        second
 
-    + assigned to joe for action (delegated joe)
+    + assigned to joe for action (assigned joe)
         In tag view, items with this tag will be sorted
-		in a third group and, within that group, by the
-		name to whom it was delegated
+        in a third group and, within that group, by the
+        name to whom it was assigned
 
-    + assigned to bob for action (delegated bob)
+    + assigned to bob for action (assigned bob)
         In tag view, items with this tag will be sorted
-		in a third group and, within that group, by the
-		name to whom it was delegated
+        in a third group and, within that group, by the
+        name to whom it was assigned
 
     + review from time to time for action (someday)
         In tag view, items with this tag will be sorted
-		next to last
+        next to last
 
     + finished but kept for reference (completed)
         In tag view, items with this tag will be sorted
-		last
+        last
     ---------------- tagsort.txt ends -----------------
 
 and note the order in which tags are sorted in _Tag View_:
@@ -306,10 +308,10 @@ and note the order in which tags are sorted in _Tag View_:
     │       + action required as soon as possible (now) 1-1
     ├── next 2
     │       + action needed when time permits (next) 2-1
-    ├── delegated bob 3
-    │       + assigned to bob for action (delegated bob) 3-1
-    ├── delegated joe 4
-    │       + assigned to joe for action (delegated joe) 4-1
+    ├── assigned bob 3
+    │       + assigned to bob for action (assigned bob) 3-1
+    ├── assigned joe 4
+    │       + assigned to joe for action (assigned joe) 4-1
     ├── blue 5
     │       + note b (blue, green) 5-1
     │       + note c (red, blue) 5-2
@@ -332,19 +334,19 @@ Other ideas for tags from _GTD_ involve contexts such as _home_, _office_, _shop
 Sorting in path view is dictionary order for sibling nodes and file order for notes. Here is path view for the expanded example:
 
 
-	└── parent 1
-		└── child 2
-			├── grandchild.txt 3
-			│       + note a (red, green) 3-1
-			│       + note b (blue, green) 3-2
-			│       + note c (red, blue) 3-3
-			└── tagsort.txt 4
-					+ action required as soon as possible (now) 4-1
-					+ action needed when time permits (next) 4-2
-					+ assigned to joe for action (delegated joe) 4-3
-					+ assigned to bob for action (delegated bob) 4-4
-					+ review from time to time for action (someday) 4-5
-					+ finished but kept for reference (completed) 4-6
+    └── parent 1
+        └── child 2
+            ├── grandchild.txt 3
+            │       + note a (red, green) 3-1
+            │       + note b (blue, green) 3-2
+            │       + note c (red, blue) 3-3
+            └── tagsort.txt 4
+                    + action required as soon as possible (now) 4-1
+                    + action needed when time permits (next) 4-2
+                    + assigned to joe for action (assigned joe) 4-3
+                    + assigned to bob for action (assigned bob) 4-4
+                    + review from time to time for action (someday) 4-5
+                    + finished but kept for reference (completed) 4-6
 
 Note that the siblings "grandchild.txt" and "tagsort.txt" are in dictionary order but the notes in each of these files are listed in the order in which they occur in the file.
 
@@ -357,32 +359,32 @@ The steps for OS/X or linux are illustrated below. For details see [python-virtu
 
 Open a terminal and begin by creating a new directory/folder for the virtual environment, say `nts-pypi`, in your home directory:
 
-	$ mkdir ~/nts-pypi
-	$ cd ~/nts-pypi
+    $ mkdir ~/nts-pypi
+    $ cd ~/nts-pypi
 
 Now continue by creating the virtual environment (python >= 3.7.3 is required for nts):
 
-	$ python3 -m venv env
+    $ python3 -m venv env
 
 After a few seconds you will have an `./env` directory. Now activate the virtual environment:
 
-	$ source env/bin/activate
+    $ source env/bin/activate
 
 The prompt will now change to something containing `(env)` to indicate that the virtual environment is active. Updating pip is now recommended:
 
-	(env) $ pip install -U pip
+    (env) $ pip install -U pip
 
 Note that this invokes `./env/bin/pip`. Once this is finished, use pip to install nts:
 
-	(env) $ pip install -U nts-dgraham
+    (env) $ pip install -U nts-dgraham
 
 This will install nts and all its requirements in
 
-	./env/lib/python3.x/sitepackages
+    ./env/lib/python3.x/sitepackages
 
 and will also install an executable called `nts` in `./env/bin`.You can then start nts using
 
-	(env) nts ARGS
+    (env) nts ARGS
 
 using ARGS enumerated in the **Command Summary** section above.
 

@@ -53,7 +53,7 @@ style:
 tag_sort:
     now:        '!'
     next:       '#'
-    delegated:  '$'
+    assigned:   '$'
     someday:    '}'
     completed:  '~'
 """
@@ -78,15 +78,15 @@ def make_grandchild(rootdir):
     In tag view, items with this tag will be sorted
     second
 
-+ assigned to joe for action (delegated joe)
++ assigned to joe for action (assigned joe)
     In tag view, items with this tag will be sorted
     in a third group and, within that group, by the
-    name to whom it was delegated
+    name to whom it was assigned
 
-+ assigned to bob for action (delegated bob)
++ assigned to bob for action (assigned bob)
     In tag view, items with this tag will be sorted
     in a third group and, within that group, by the
-    name to whom it was delegated
+    name to whom it was assigned
 
 + review from time to time for action (someday)
     In tag view, items with this tag will be sorted
