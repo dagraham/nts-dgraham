@@ -298,27 +298,27 @@ To illustrate tag sorting with the default configuration, if the content of "gra
 
 then _Tag View_ would appear as:
 
-	├── now 1
-	│       + action required as soon as possible (now) 1-1
-	├── next 2
-	│       + action needed when time permits (next) 2-1
-	├── delegated bob 3
-	│       + assigned to bob for action (delegated bob) 3-1
-	├── delegated joe 4
-	│       + assigned to joe for action (delegated joe) 4-1
-	├── blue 5
-	│       + note b (blue, green) 5-1
-	│       + note c (red, blue) 5-2
-	├── green 6
-	│       + note a (red, green) 6-1
-	│       + note b (blue, green) 6-2
-	├── red 7
-	│       + note a (red, green) 7-1
-	│       + note c (red, blue) 7-2
-	├── someday 8
-	│       + review from time to time for action (someday) 8-1
-	└── completed 9
-			+ finished but kept for reference (completed) 9-1
+    ├── now 1
+    │       + action required as soon as possible (now) 1-1
+    ├── next 2
+    │       + action needed when time permits (next) 2-1
+    ├── delegated bob 3
+    │       + assigned to bob for action (delegated bob) 3-1
+    ├── delegated joe 4
+    │       + assigned to joe for action (delegated joe) 4-1
+    ├── blue 5
+    │       + note b (blue, green) 5-1
+    │       + note c (red, blue) 5-2
+    ├── green 6
+    │       + note a (red, green) 6-1
+    │       + note b (blue, green) 6-2
+    ├── red 7
+    │       + note a (red, green) 7-1
+    │       + note c (red, blue) 7-2
+    ├── someday 8
+    │       + review from time to time for action (someday) 8-1
+    └── completed 9
+            + finished but kept for reference (completed) 9-1
 
 
 
