@@ -146,50 +146,50 @@ Finally, if neither of the previous alternatives are satisfied, then *nts* will 
 The _nts_ "data" and "logs" directories will be created if necessary as well as the _nts_ configuration file, "cfg.yaml" using default settings. If "data" needs to be created, the user will additionally be offered the opportunity to populate it with the data for the grandchild.txt example discussed above. Here are the default contents of this file:
 
 
-	##################### IMPORTANT #############################
-	#
-	# Changes to this file only take effect when nts is restarted.
-	#
-	#############################################################
-	#
-	##################        EDIT      #########################
-	# The following are examples using the editor vim
-	# To use the native version of vim under Mac OSX, replace
-	# 'vim' with '/Applications/MacVim.app/Contents/MacOS/Vim'
-	# in each of the following commands. Omit the '-g' argument
-	# to open vim in the same _nts_ terminal window.
-	#
-	# edit {filepath} at {linenum} - wait for completion
-	session_edit: vim -g -f +{linenum} {filepath}
-	#
-	# edit {filepath} at end of file - wait for completion
-	session_add: vim -g -f + {filepath}
-	#
-	# edit {filepath} at {linenum} - do not wait for completion
-	command_edit: vim -g +{linenum} {filepath}
-	#
-	# edit {filepath} at end of file - do not wait for completion
-	command_add: vim -g + {filepath}
-	#
-	##################        STYLE        ######################
-	# style hex colors for plain, prompt and highlight
-	style:
-		plain:        '#FFFAFA'
-		prompt:       '#FFF68F'
-		message:      '#90C57F'
-		highlight:    'bg:#FFF68F #000000'
-	#
-	##################      TAG SORT       ######################
-	# for listed keys, sort by the corresponding value. E.g. In
-	# tag view items with the tag "now" will be sorted as if
-	# they had the tag "!". Replace the keys and values with
-	# whatever you find convenient
-	tag_sort:
-		now:        '!'
-		next:       '#'
-		delegated:  '$'
-		someday:    '}'
-		completed:  '~'
+    ##################### IMPORTANT #############################
+    #
+    # Changes to this file only take effect when nts is restarted.
+    #
+    #############################################################
+    #
+    ##################        EDIT      #########################
+    # The following are examples using the editor vim
+    # To use the native version of vim under Mac OSX, replace
+    # 'vim' with '/Applications/MacVim.app/Contents/MacOS/Vim'
+    # in each of the following commands. Omit the '-g' argument
+    # to open vim in the same _nts_ terminal window.
+    #
+    # edit {filepath} at {linenum} - wait for completion
+    session_edit: vim -g -f +{linenum} {filepath}
+    #
+    # edit {filepath} at end of file - wait for completion
+    session_add: vim -g -f + {filepath}
+    #
+    # edit {filepath} at {linenum} - do not wait for completion
+    command_edit: vim -g +{linenum} {filepath}
+    #
+    # edit {filepath} at end of file - do not wait for completion
+    command_add: vim -g + {filepath}
+    #
+    ##################        STYLE        ######################
+    # style hex colors for plain, prompt and highlight
+    style:
+        plain:        '#FFFAFA'
+        prompt:       '#FFF68F'
+        message:      '#90C57F'
+        highlight:    'bg:#FFF68F #000000'
+    #
+    ##################      TAG SORT       ######################
+    # for listed keys, sort by the corresponding value. E.g. In
+    # tag view items with the tag "now" will be sorted as if
+    # they had the tag "!". Replace the keys and values with
+    # whatever you find convenient
+    tag_sort:
+        now:        '!'
+        next:       '#'
+        delegated:  '$'
+        someday:    '}'
+        completed:  '~'
 
 
 ### Organizing with Paths and Tags
@@ -250,50 +250,50 @@ completed
 
 In the default configuration file, shown above, these tags are listed for special treatment.
 
-		tag_sort:
-			now:        '!'
-			next:       '#'
-			delegated:  '$'
-			someday:    '}'
-			completed:  '~'
+        tag_sort:
+            now:        '!'
+            next:       '#'
+            delegated:  '$'
+            someday:    '}'
+            completed:  '~'
 
 This means that tag view will be sorted so that items with the tag "now" will be sorted as if the tag were "!", items with the tag "next" as if the tag were "#" and so forth. Tags not listed in _tag_sort_ are sorted using the actual tag. Since the  _dictionary order_ for common keyboard characters in python is
 
-	'!', '#', '$', '%', '&', '(', ')', '*', '+', '-', '/',
-	'1', '2', '3', ';', '<', '=', '>', '?', '@', 'A', 'B', 'C',
-	'[', ']', '^', '_', 'a', 'b', 'c', '{', '}', '~'
+    '!', '#', '$', '%', '&', '(', ')', '*', '+', '-', '/',
+    '1', '2', '3', ';', '<', '=', '>', '?', '@', 'A', 'B', 'C',
+    '[', ']', '^', '_', 'a', 'b', 'c', '{', '}', '~'
 
 "now" will appear first, "next" second, "delegated" third and then "someday" and "completed" last. "delegated" tags will be further sorted by the accompanying _NAME_. Tags not listed in _tag_sort_ will appear in the normal dictionary order.
 
 To illustrate tag sorting with the default configuration, if the content of "grandchild.txt" were expanded to:
 
     ---------------- grandchild.txt begins ---------------
-	+ note a (red, green)
-		The body of note a goes here
+    + note a (red, green)
+        The body of note a goes here
 
-	+ note b (blue, green)
-		The body of note b goes here
+    + note b (blue, green)
+        The body of note b goes here
 
-	+ note c (red, blue)
-		And the body of note c goes here
+    + note c (red, blue)
+        And the body of note c goes here
 
-	+ action required as soon as possible (now)
-		The body of as soon as possible goes here
+    + action required as soon as possible (now)
+        The body of as soon as possible goes here
 
-	+ action needed when time permits (next)
-		The body of when time permits action goes here
+    + action needed when time permits (next)
+        The body of when time permits action goes here
 
-	+ assigned to joe for action (delegated joe)
-		The body of assigned to joe goes here
+    + assigned to joe for action (delegated joe)
+        The body of assigned to joe goes here
 
-	+ assigned to bob for action (delegated bob)
-		The body of assigned to bob goes goes here
+    + assigned to bob for action (delegated bob)
+        The body of assigned to bob goes goes here
 
-	+ review from time to time for action (someday)
-		The body of review goes here
+    + review from time to time for action (someday)
+        The body of review goes here
 
-	+ finished but kept for reference (completed)
-		The body of finished goes here
+    + finished but kept for reference (completed)
+        The body of finished goes here
     ---------------- grandchild.txt ends -----------------
 
 then _Tag View_ would appear as:

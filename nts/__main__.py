@@ -168,7 +168,6 @@ def main():
     cwd = os.getcwd()
     dlst = [x for x in os.listdir(cwd) if not x.startswith('.')]
     NTSHOME = os.environ.get("NTSHOME")
-    print(f"cwd: {cwd}; dlst: {dlst}; len(dlst): {len(dlst)}; NTSHOME: {NTSHOME}")
     if len(dlst) == 0 or ('data' in dlst and 'logs' in dlst) or ('cfg.yaml' in dlst and 'logs' in dlst):
         # use cwd if it is empty or contains both data and logs
         ntshome = cwd

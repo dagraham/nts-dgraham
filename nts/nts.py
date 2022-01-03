@@ -36,36 +36,7 @@ note_regex = re.compile(r'^[\+#]\s+([^\(]+)\s*(\(([^\)]*)\))?\s*$')
 separator = os.path.sep
 
 help = f"""\
-           nts: Note Taking Simplified version {nts_version}
-
-nts provides two ways of interacting with the data.
-
-* Command mode
-    Commands are entered at the terminal prompt. E.g., enter
-
-        $ nts -v p
-
-    to display the path view in the terminal window. The output can also be
-    piped in the standard way, e.g.,
-
-        $ nts -v p | less
-
-* Session mode
-    Use the -s argument to begin session mode:
-
-        $ nts -s
-
-    This begins a session in which data is loaded into memory and remains
-    available for subsequent interaction. In this mode, nts assumes command
-    of the terminal window and provides its own > command prompt. Then,
-    e.g., entering p at the prompt
-
-        > p
-
-    would display the path view. Session mode adds several features not
-    available in command mode. E.g., when there are more lines to display
-    than will fit in the terminal window, the lines are divided into pages
-    with up and down cursor keys used to change pages.
+       nts: Note Taking Simplified version {nts_version}
 
 Command Summary
     Action          | Command Mode | Session Mode | Notes
@@ -86,38 +57,49 @@ Command Summary
     add to IDENT    |  -a IDENT    |  a IDENT     |   9
     update check    |  -u          |  u           |  10
 
-1. Suppress showing notes in the outline. In session mode this
-   toggles the display of notes off and on.
-2. Suppress showing nodes in the outline, i.e., display only the
-   notes. In session mode this toggles the display of the nodes
-   off and on.
-3. Limit the diplay of nodes in the outline to the integer MAX
-   levels. Use MAX = 0 to display all levels.
+1. Suppress showing notes in the outline. In session mode
+this toggles the display of notes off and on.
+
+2. Suppress showing nodes in the outline, i.e., display
+only the notes. In session mode this toggles the display
+of the nodes off and on.
+
+3. Limit the diplay of nodes in the outline to the integer
+MAX levels. Use MAX = 0 to display all levels.
+
 4. Highlight displayed lines that contain a match for the
-   case-insensitive regular expression REGEX. Enter an empty REGEX
-   to clear highlighting.
-5. Display complete notes that contain a match in the title, tags
-   or body for the case-insensitive regular expression REGEX.
-6. If IDENT is the 2-number identifier for a note, then display
-   the contents of that note. Else if IDENT is the identifier for
-   a ".txt" file, then display the contents of that file. Otherwise
-   limit the display to that part of the outline which starts from
-   the corresponding node.
-7. In session mode, switch back and forth between the two most
-   recent displays.
-8. If IDENT corresponds to either a note or a ".txt" file, then
-   open that file for editing and, in the case of a note, scroll
-   to the beginning line of the note.
-9. If IDENT corresponds to either a note or a ".txt" file, then
-   open that file for appending a new note. Otherwise, if IDENT
-   corresponds to a directory, then prompt for the name of a child
-   to add to that node. If the name entered ends with ".txt", a
-   new note file will be created and opened for editing. Otherwise,
-   a new subdirectory will be added to the node directory using
-   the name provided. Use "0" as the IDENT to add to the root
-   (data) node.
-10. Compare the installed version of nts with the latest version
-   on GitHub (requires internet connection) and report the result.\
+case-insensitive regular expression REGEX. Enter an empty
+REGEX to clear highlighting.
+
+5. Display complete notes that contain a match in the
+title, tags or body for the case-insensitive regular
+expression REGEX.
+
+6. If IDENT is the 2-number identifier for a note, then
+display the contents of that note. Else if IDENT is the
+identifier for a ".txt" file, then display the contents of
+that file. Otherwise limit the display to that part of the
+outline which starts from the corresponding node.
+
+7. In session mode, switch back and forth between the two
+most recent displays.
+
+8. If IDENT corresponds to either a note or a ".txt" file,
+then open that file for editing and, in the case of a
+note, scroll to the beginning line of the note.
+
+9. If IDENT corresponds to either a note or a ".txt" file,
+then open that file for appending a new note. Otherwise,
+if IDENT corresponds to a directory, then prompt for the
+name of a child to add to that node. If the name entered
+ends with ".txt", a new note file will be created and
+opened for editing. Otherwise, a new subdirectory will be
+added to the node directory using the name provided. Use
+"0" as the IDENT to add to the root (data) node.
+
+10. Compare the installed version of nts with the latest
+version on GitHub (requires internet connection) and
+report the result.\
 """
 
 
@@ -488,12 +470,14 @@ class NodeData(object):
                         if self.shownodes:
                             excess = len(f"{fill}{title}{line[1]} {id}-{notenum}") - self.columns
                             if excess >= 0:
-                                title = textwrap.shorten(title, width=self.columns-excess-2)
+                                width = len(title) - excess - 1
+                                title = textwrap.shorten(title, width=width)
                             output_lines.append(f"{fill}{title}{line[1]} {id}-{notenum}")
                         else:
                             excess = len(f"{title}{line[1]} {id}-{notenum}") - self.columns
-                            if excess > 0:
-                                title = textwrap.shorten(title, width=self.columns-excess-2)
+                            if excess >= 0:
+                                width = len(title) - excess - 1
+                                title = textwrap.shorten(title, width=width)
                             output_lines.append(f"{title}{line[1]} {id}-{notenum}")
                         id2info[(id, notenum)] = line[2]
                 else:
@@ -811,7 +795,7 @@ def session():
         run_in_terminal(up)
 
     shortcuts.clear()
-    message = [("class:prompt", 'Enter ?, q or another command at the > prompt and press "return"')]
+    message = [("class:prompt", 'Enter ? or other command and press "return"')]
     regx = ""
     myprint(message)
 
