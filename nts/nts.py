@@ -79,7 +79,8 @@ expression REGEX.
 display the contents of that note. Else if IDENT is the
 identifier for a ".txt" file, then display the contents of
 that file. Otherwise limit the display to that part of the
-outline which starts from the corresponding node.
+outline which starts from the corresponding node. Use
+IDENT = 0 to start from the root node.
 
 7. In session mode, switch back and forth between the two
 most recent displays.

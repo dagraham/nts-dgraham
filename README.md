@@ -122,7 +122,7 @@ update check    | -u           |  u           |  10
 3. Limit the diplay of nodes in the outline to the integer MAX levels. Use MAX = 0 to display all levels.
 4. Highlight displayed lines that contain a match for the case-insensitive regular expression REGEX. Enter an empty REGEX to clear highlighting.
 5. Display complete notes that contain a match in the title, tags or body for the case-insensitive regular expression REGEX.
-6. If IDENT is the 2-number identifier for a note, then display the contents of that note. Else if IDENT is the identifier for a ".txt" file, then display the contents of that file. Otherwise limit the display to that part of the outline which starts from the corresponding node.
+6. If IDENT is the 2-number identifier for a note, then display the contents of that note. Else if IDENT is the identifier for a ".txt" file, then display the contents of that file. Otherwise limit the display to that part of the outline which starts from the corresponding node. Use IDENT = 0 to start from the root node.
 7. In session mode, switch back and forth between the two most recent displays.
 8. If IDENT corresponds to either a note or a ".txt" file, then open that file for editing and, in the case of a note, scroll to the beginning line of the note.
 9. If IDENT corresponds to either a note or a ".txt" file, then open that file for appending a new note. Otherwise, if IDENT corresponds to a directory, then prompt for the name of a child to add to that node. If the name entered ends with ".txt", a new note file will be created and opened for editing. Otherwise, a new subdirectory will be added to the node directory using the name provided. Use "0" as the IDENT to add to the root (data) node.
@@ -143,7 +143,7 @@ Alternatively, if the current working directory doesn't satisfy the requirments 
 
 Finally, if neither of the previous alternatives are satisfied, then *nts* will use "\~/nts" as its _home directory_, creating this directory if necessary.
 
-The _nts_ "data" and "logs" directories will be created if necessary as well as the _nts_ configuration file, "cfg.yaml" using default settings. If "data" needs to be created, the user will additionally be offered the opportunity to populate it with the data for the grandchild.txt example discussed above. Here are the default contents of this file:
+The _nts_ "data" and "logs" directories will be created if necessary as well as the _nts_ configuration file, "cfg.yaml" using default settings. If "data" needs to be created, the user will additionally be offered the opportunity to populate it with illustrative data. Here are the default contents of this file:
 
 
     ##################### IMPORTANT #############################
@@ -265,38 +265,42 @@ This means that tag view will be sorted so that items with the tag "now" will be
 
 "now" will appear first, "next" second, "delegated" third and then "someday" and "completed" last. "delegated" tags will be further sorted by the accompanying _NAME_. Tags not listed in _tag_sort_ will appear in the normal dictionary order.
 
-To illustrate tag sorting with the default configuration, if the content of "grandchild.txt" were expanded to:
+To illustrate this tag sorting with the default configuration, add the file
 
-    ---------------- grandchild.txt begins ---------------
-    + note a (red, green)
-        The body of note a goes here
+	~/nts/data/parent/child/tagsort.txt
 
-    + note b (blue, green)
-        The body of note b goes here
+to the grandchild example given above and include the following content:
 
-    + note c (red, blue)
-        And the body of note c goes here
 
+    ---------------- tagsort.txt begins ---------------
     + action required as soon as possible (now)
-        The body of as soon as possible goes here
+        In tag view, items with this tag will be sorted
+		first
 
     + action needed when time permits (next)
-        The body of when time permits action goes here
+        In tag view, items with this tag will be sorted
+		second
 
     + assigned to joe for action (delegated joe)
-        The body of assigned to joe goes here
+        In tag view, items with this tag will be sorted
+		in a third group and, within that group, by the
+		name to whom it was delegated
 
     + assigned to bob for action (delegated bob)
-        The body of assigned to bob goes goes here
+        In tag view, items with this tag will be sorted
+		in a third group and, within that group, by the
+		name to whom it was delegated
 
     + review from time to time for action (someday)
-        The body of review goes here
+        In tag view, items with this tag will be sorted
+		next to last
 
     + finished but kept for reference (completed)
-        The body of finished goes here
-    ---------------- grandchild.txt ends -----------------
+        In tag view, items with this tag will be sorted
+		last
+    ---------------- tagsort.txt ends -----------------
 
-then _Tag View_ would appear as:
+and note the order in which tags are sorted in _Tag View_:
 
     ├── now 1
     │       + action required as soon as possible (now) 1-1
@@ -321,10 +325,28 @@ then _Tag View_ would appear as:
             + finished but kept for reference (completed) 9-1
 
 
-
 One of the nice things about tags is that they are so easy to change. When you've taken care of a "now" item, e.g., just change the tag to "completed".
 
 Other ideas for tags from _GTD_ involve contexts such as _home_, _office_, _shop_, _phone_, _internet_, _driving_ and so forth.
+
+Sorting in path view is dictionary order for sibling nodes and file order for notes. Here is path view for the expanded example:
+
+
+	└── parent 1
+		└── child 2
+			├── grandchild.txt 3
+			│       + note a (red, green) 3-1
+			│       + note b (blue, green) 3-2
+			│       + note c (red, blue) 3-3
+			└── tagsort.txt 4
+					+ action required as soon as possible (now) 4-1
+					+ action needed when time permits (next) 4-2
+					+ assigned to joe for action (delegated joe) 4-3
+					+ assigned to bob for action (delegated bob) 4-4
+					+ review from time to time for action (someday) 4-5
+					+ finished but kept for reference (completed) 4-6
+
+Note that the siblings "grandchild.txt" and "tagsort.txt" are in dictionary order but the notes in each of these files are listed in the order in which they occur in the file.
 
 
 ### Installation

@@ -68,34 +68,47 @@ def make_grandchild(rootdir):
 
 + note c (red, blue)
     And the body of note c goes here
-
+"""
+    tagsort = """\
 + action required as soon as possible (now)
-    The body of as soon as possible goes here
+    In tag view, items with this tag will be sorted
+    first
 
 + action needed when time permits (next)
-    The body of when time permits action goes here
+    In tag view, items with this tag will be sorted
+    second
 
 + assigned to joe for action (delegated joe)
-    The body of assigned to joe goes here
+    In tag view, items with this tag will be sorted
+    in a third group and, within that group, by the
+    name to whom it was delegated
 
 + assigned to bob for action (delegated bob)
-    The body of assigned to bob goes goes here
+    In tag view, items with this tag will be sorted
+    in a third group and, within that group, by the
+    name to whom it was delegated
 
 + review from time to time for action (someday)
-    The body of review goes here
+    In tag view, items with this tag will be sorted
+    next to last
 
 + finished but kept for reference (completed)
-    The body of finished goes here
+    In tag view, items with this tag will be sorted
+    last
 """
     full_path = rootdir
     for path in ['parent', 'child']:
         full_path = os.path.join(full_path, path)
         if not os.path.isdir(full_path):
             os.mkdir(full_path)
-    full_path = os.path.join(full_path, 'grandchild.txt')
-    with open(full_path, 'w') as fo:
+    grandchild_path = os.path.join(full_path, 'grandchild.txt')
+    with open(grandchild_path, 'w') as fo:
         fo.write(grandchild)
+    print(f"created '{full_path}'")
 
+    tagsort_path = os.path.join(full_path, 'tagsort.txt')
+    with open(tagsort_path, 'w') as fo:
+        fo.write(tagsort)
     print(f"created '{full_path}'")
 
 def setup_logging(level, ntsdir, file=None):
@@ -205,10 +218,10 @@ def main():
     if not os.path.isdir(rootdir):
         os.makedirs(rootdir)
         logger.info(f"Created '{rootdir}'")
-        text = prompt(f"populate {rootdir} with grandchild example data? [yN] > ")
+        text = prompt(f"populate {rootdir} with example data? [yN] > ")
         if text.lower().strip() == 'y':
             make_grandchild(rootdir)
-            logger.info("added grandchild example")
+            logger.info("added example data")
     import nts.nts as nts
     Data = nts.NodeData(rootdir)
     nts.logger = logger
