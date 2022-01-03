@@ -627,7 +627,7 @@ class NodeData(object):
             editcmd = command_edit.format(**hsh)
         editcmd = [x.strip() for x in editcmd.split(" ") if x.strip()]
         subprocess.call(editcmd)
-        return
+        # return
 
 
     def addID(self, idstr, text=None):
@@ -972,23 +972,23 @@ def session():
                 Data.showID(idstr)
                 logger.debug(f"edit done; current_view: {current_view}; showingNodes: {Data.showingNodes}")
                 # new_mode = Data.mode
-                if Data.showingNodes:
-                    if current_view == 'path_list':
-                        path_list_index = path_list_view.current_page
-                        lines = Data.nodelines
-                        path_list_view.set_pages(lines)
-                        path_list_view.show_page()
-                    elif current_view == 'tags_list':
-                        tags_list_index = tags_list_view.current_page
-                        lines = Data.nodelines
-                        tags_list_view.set_pages(lines)
-                        tags_list_view.show_page()
-                    elif current_view == 'find':
-                        Data.find(find_view.find)
-                        lines = Data.findlines
-                        logger.debug(f"find: {find_view.find}; lines: {lines}")
-                        find_view.set_pages(lines)
-                        find_view.show_page()
+                # if Data.showingNodes:
+                if current_view == 'path_list':
+                    path_list_index = path_list_view.current_page
+                    lines = Data.nodelines
+                    path_list_view.set_pages(lines)
+                    path_list_view.show_page()
+                elif current_view == 'tags_list':
+                    tags_list_index = tags_list_view.current_page
+                    lines = Data.nodelines
+                    tags_list_view.set_pages(lines)
+                    tags_list_view.show_page()
+                elif current_view == 'find':
+                    Data.find(find_view.find)
+                    lines = Data.findlines
+                    logger.debug(f"find: {find_view.find}; lines: {lines}")
+                    find_view.set_pages(lines)
+                    find_view.show_page()
                 else:
                     leaf_index = leaf_view.current_page
                     lines = Data.notelines
@@ -1005,29 +1005,37 @@ def session():
             shortcuts.clear()
             entry = text[1:].strip()
             if entry:
-                idstr, *child = entry.split(" ")
+                tmp, *child = entry.split(" ")
+                idstr = tmp.split('-')[0]
+                logger.debug(f"tmp: {tmp}; idstr: {idstr}")
                 if child:
                     child = '_'.join(child)
                 Data.addID(idstr, child)
                 Data.getNodes()
-                Data.showID()
-                if Data.showingNodes:
-                    if current_view == 'path_list':
-                        path_list_index = path_list_view.current_page
-                        lines = Data.nodelines
-                        path_list_view.set_pages(lines)
-                        path_list_view.show_page()
-                    elif current_view == 'tags_list':
-                        tags_list_index = tags_list_view.current_page
-                        lines = Data.nodelines
-                        tags_list_view.set_pages(lines)
-                        tags_list_view.show_page()
-                    elif current_view == 'find':
-                        Data.find(find_view.find)
-                        lines = Data.findlines
-                        logger.debug(f"find: {find_view.find}; lines: {lines}")
-                        find_view.set_pages(lines)
-                        find_view.show_page()
+                Data.showID(idstr)
+                # if Data.showingNodes:
+                if current_view == 'path_list':
+                    path_list_index = path_list_view.current_page
+                    lines = Data.nodelines
+                    path_list_view.set_pages(lines)
+                    path_list_view.show_page()
+                elif current_view == 'tags_list':
+                    tags_list_index = tags_list_view.current_page
+                    lines = Data.nodelines
+                    tags_list_view.set_pages(lines)
+                    tags_list_view.show_page()
+                elif current_view == 'find':
+                    Data.find(find_view.find)
+                    lines = Data.findlines
+                    logger.debug(f"find: {find_view.find}; lines: {lines}")
+                    find_view.set_pages(lines)
+                    find_view.show_page()
+                else:
+                    leaf_index = leaf_view.current_page
+                    lines = Data.notelines
+                    logger.debug(f"leaf IDENT: {idstr}; notelines: {lines}")
+                    leaf_view.set_pages(lines)
+                    leaf_view.show_page()
             else:
                 show_message("an IDENT argument is required but missing")
 
