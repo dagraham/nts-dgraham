@@ -1224,7 +1224,6 @@ def main():
                         action="store_true")
 
 
-    shortcuts.clear()
     args = parser.parse_args()
     mode = args.view
     Data.setMode(mode)
@@ -1267,7 +1266,7 @@ def main():
             Data.showNodes()
             for line in Data.nodelines:
                 print(line)
-            print("_"*columns)
+            print('')
 
         if args.add:
             logger.debug(f"args.add: {args.add}")
