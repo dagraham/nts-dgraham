@@ -1,7 +1,7 @@
 import os, fnmatch
 import sys
 from pprint import pprint
-from anytree import Node, RenderTree, render
+from anytree import Node, RenderTree, search
 from base64 import b64encode, b64decode
 import base64
 import re
@@ -119,7 +119,6 @@ def check_update():
         url_version = None
     if url_version is None:
         res = "update information is unavailable"
-        status_char = "?"
     else:
         if url_version > nts_version:
             res = f"An update is available from {nts_version} (installed) to {url_version}"
@@ -359,13 +358,23 @@ class NodeData(object):
         self.shownotes = True
         self.shownodes = True
         self.sessionMode = False
+        # self.pathfind = None
+        # self.tagsfind = None
+        self.get = None
 
         self.setStart()
         self.setMaxLevel(None)
         self.getNodes()
+        # for key, value in self.pathnodes.items():
+        #     print(f"{key}:", value)
+        # for key, value in self.tagnodes.items():
+        #     print(f"{key}:", value)
+
         self.mode = 'path'
         self.showingNodes = True
 
+    def setGet(self, get=None):
+        self.get = re.compile(r'%s' % get, re.IGNORECASE) if get else None
 
     def setMaxLevel(self, maxlevel=0):
         self.maxlevel = maxlevel
@@ -441,9 +450,11 @@ class NodeData(object):
 
 
     def showNodes(self):
-
         self.columns, self.rows = shutil.get_terminal_size()
-        self.nodes = self.pathnodes if self.mode == 'path' else self.tagnodes
+        getnodes = self.get
+        logger.debug(f"1. getnodes: {getnodes}")
+        # self.nodes = self.pathnodes if self.mode == 'path' else self.tagnodes
+        # self.nodefind = self.pathfind if self.mode == 'path' else self.tagsfind
         id = 0
         id2info = {}
         linenum = 0
@@ -459,8 +470,13 @@ class NodeData(object):
             idstr = f" {id}"
             path = [x.name for x in node.path]
             pathstr = separator.join(path)
+            if getnodes:
+                pre = fill = ""
+                if not getnodes.search(pathstr):
+                    continue
             if node.name.endswith('.txt'):
                 pathstr = os.path.join(self.rootdir, pathstr[2:])
+
             if self.shownotes:
                 notenum = 0
                 if hasattr(node, 'lines') and node.lines:
@@ -484,7 +500,7 @@ class NodeData(object):
                 else:
                     id2info[(id,)] = (pathstr, None)
 
-                    if id > 0 and self.shownodes:
+                    if id > 0 and self.shownodes and not getnodes:
                         output_lines.append(f"{pre}{node.name}{idstr}")
             else:
                 if hasattr(node, 'lines'):
@@ -530,8 +546,14 @@ class NodeData(object):
 
         self.notelines = output_lines
 
+    def tags(self, tag=None):
+        if tag:
+            regex = re.compile(r'%s' % tag, re.IGNORECASE)
 
-    def find(self, find):
+
+
+
+    def find(self, find=None):
         matching_keys = []
         output_lines = []
         self.find_lines = []
@@ -807,9 +829,9 @@ def session():
         if highlight:
             message_parts.append(highlight)
         if Data.shownodes:
-            hidden = "" if Data.shownotes else 'leaf notes hidden - enter "n" to display them'
+            hidden = "" if Data.shownotes else 'notes hidden - enter "n" to display them'
         else:
-            hidden = 'branch nodes hidden - enter "N" to display them'
+            hidden = 'nodes hidden - enter "N" to display them'
         if hidden:
             message_parts.append(hidden)
         level = f'limiting levels to {Data.maxlevel} - enter "m 0" to display all levels' if  Data.maxlevel else ""
@@ -910,6 +932,54 @@ def session():
                     tags_list_view.show_page()
 
 
+        elif text.startswith('/'):
+            shortcuts.clear()
+            arg = text[1:]
+            regx = arg if arg else None
+            path_list_view.set_find(regx)
+            tags_list_view.set_find(regx)
+            leaf_view.set_find(regx)
+            if Data.showingNodes:
+                lines = Data.nodelines
+                if current_view == 'path_list':
+                    path_list_view.set_pages(lines)
+                    path_list_view.set_page(path_list_index)
+                    path_list_view.show_page()
+                elif current_view == 'tags_list':
+                    tags_list_view.set_pages(lines)
+                    tags_list_view.set_page(tags_list_index)
+                    tags_list_view.show_page()
+            else:
+                lines = Data.notelines
+                leaf_view.set_pages(lines)
+                leaf_view.set_page(leaf_index)
+                leaf_view.show_page()
+
+
+        elif text.startswith('g'):
+            find = text[1:].strip()
+            getnodes = find if find else None
+            logger.debug(f"2. getnodes: {getnodes}")
+            Data.setGet(getnodes)
+            Data.showNodes()
+            Data.showID()
+            if getnodes:
+                shortcuts.clear()
+                if Data.showingNodes:
+                    lines = Data.nodelines
+                    if current_view == 'path_list':
+                        path_list_view.set_pages(lines)
+                        path_list_view.show_page()
+                    elif current_view == 'tags_list':
+                        tags_list_view.set_pages(lines)
+                        tags_list_view.show_page()
+                else:
+                    lines = Data.notelines
+                    leaf_view.set_pages(lines)
+                    leaf_view.show_page()
+            Data.setGet()
+
+
         elif text.startswith('f'):
             if current_view != 'find':
                 previous_view = current_view
@@ -920,16 +990,38 @@ def session():
             tags_list_view.set_find(find)
             find_view.set_find(find)
             if regex:
+                shortcuts.clear()
                 Data.find(find)
                 lines = Data.findlines
                 logger.debug(f"find: {find}; lines: {lines}")
-                shortcuts.clear()
                 if lines:
                     find_view.set_pages(lines)
                     find_view.set_page(find_index)
                     find_view.show_page()
                 else:
                     print(f"nothing found matching '{find}'")
+            else:
+                # clear
+                shortcuts.clear()
+                if Data.showingNodes:
+                    lines = Data.nodelines
+                    if current_view == 'path_list':
+                        path_list_view.set_pages(lines)
+                        path_list_view.set_page(path_list_index)
+                        path_list_view.show_page()
+                    elif current_view == 'tags_list':
+                        tags_list_view.set_pages(lines)
+                        tags_list_view.set_page(tags_list_index)
+                        tags_list_view.show_page()
+                    elif current_view == 'find':
+                        find_view.set_pages(lines)
+                        find_view.set_page(tags_list_index)
+                        find_view.show_page()
+                else:
+                    lines = Data.notelines
+                    leaf_view.set_pages(lines)
+                    leaf_view.set_page(leaf_index)
+                    leaf_view.show_page()
 
 
         elif text.startswith("i"):
@@ -1075,29 +1167,6 @@ def session():
                 leaf_view.set_pages(lines)
                 leaf_view.show_page()
 
-        elif text.startswith('/'):
-            shortcuts.clear()
-
-            arg = text[1:]
-            regx = arg if arg else None
-            path_list_view.set_find(regx)
-            tags_list_view.set_find(regx)
-            leaf_view.set_find(regx)
-            if Data.showingNodes:
-                lines = Data.nodelines
-                if current_view == 'path_list':
-                    path_list_view.set_pages(lines)
-                    path_list_view.set_page(path_list_index)
-                    path_list_view.show_page()
-                elif current_view == 'tags_list':
-                    tags_list_view.set_pages(lines)
-                    tags_list_view.set_page(tags_list_index)
-                    tags_list_view.show_page()
-            else:
-                lines = Data.notelines
-                leaf_view.set_pages(lines)
-                leaf_view.set_page(leaf_index)
-                leaf_view.show_page()
 
         elif text == 'u':
             shortcuts.clear()
@@ -1141,7 +1210,9 @@ def main():
     parser.add_argument("-v", "--view", type=str, choices=['p', 't'],
                     help="view path or tags", default='p')
 
-    parser.add_argument("-f", "--find", type=str, help="show notes containing a match for FIND")
+    parser.add_argument("-f", "--find", type=str, help="show notes whose content contains a match for FIND")
+
+    parser.add_argument("-g", "--get", type=str, help="show note titles whose branches contain a match for GET")
 
     parser.add_argument("-i", "--id", type=str, help="inspect the node/leaf corresponding to ID")
 
@@ -1172,6 +1243,10 @@ def main():
                 print(line)
             print("_"*columns)
             return
+
+        if args.get:
+            Data.setGet(args.get)
+            Data.showNodes()
 
         if args.update:
             res = check_update()

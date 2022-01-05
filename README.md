@@ -111,22 +111,24 @@ hide nodes      | -N           |  N           |   2
 set max levels  | -m MAX       |  m MAX       |   3
 highlight REGEX |              |  / REGEX     |   4
 find REGEX      | -f REGEX     |  f REGEX     |   5
-inspect IDENT   | -i IDENT     |  i IDENT     |   6
-back            |    ~         |  b           |   7
-edit IDENT      | -e IDENT     |  e IDENT     |   8
-add to IDENT    | -a IDENT     |  a IDENT     |   9
-update check    | -u           |  u           |  10
+get REGEX       | -g REGEX     |  g REGEX     |   6
+inspect IDENT   | -i IDENT     |  i IDENT     |   7
+back            |    ~         |  b           |   8
+edit IDENT      | -e IDENT     |  e IDENT     |   9
+add to IDENT    | -a IDENT     |  a IDENT     |  10
+update check    | -u           |  u           |  11
 
 1. Suppress showing notes in the outline. In session mode this toggles the display of notes off and on.
 2. Suppress showing nodes in the outline, i.e., display only the notes. In session mode this toggles the display of the nodes off and on.
 3. Limit the diplay of nodes in the outline to the integer MAX levels. Use MAX = 0 to display all levels.
 4. Highlight displayed lines that contain a match for the case-insensitive regular expression REGEX. Enter an empty REGEX to clear highlighting.
 5. Display complete notes that contain a match in the title, tags or body for the case-insensitive regular expression REGEX.
-6. If IDENT is the 2-number identifier for a note, then display the contents of that note. Else if IDENT is the identifier for a ".txt" file, then display the contents of that file. Otherwise limit the display to that part of the outline which starts from the corresponding node. Use IDENT = 0 to start from the root node.
-7. In session mode, switch back and forth between the two most recent displays.
-8. If IDENT corresponds to either a note or a ".txt" file, then open that file for editing and, in the case of a note, scroll to the beginning line of the note.
-9. If IDENT corresponds to either a note or a ".txt" file, then open that file for appending a new note. Otherwise, if IDENT corresponds to a directory, then prompt for the name of a child to add to that node. If the name entered ends with ".txt", a new note file will be created and opened for editing. Otherwise, a new subdirectory will be added to the node directory using the name provided. Use "0" as the IDENT to add to the root (data) node.
-10. Compare the installed version of nts with the latest version on GitHub (requires internet connection) and report the result.
+6. Display note tiles that contain a match in the nodes leading to the note for the case-insensitive regular expression REGEX.
+7. If IDENT is the 2-number identifier for a note, then display the contents of that note. Else if IDENT is the identifier for a ".txt" file, then display the contents of that file. Otherwise limit the display to that part of the outline which starts from the corresponding node. Use IDENT = 0 to start from the root node.
+8. In session mode, switch back and forth between the two most recent displays.
+9. If IDENT corresponds to either a note or a ".txt" file, then open that file for editing and, in the case of a note, scroll to the beginning line of the note.
+10. If IDENT corresponds to either a note or a ".txt" file, then open that file for appending a new note. Otherwise, if IDENT corresponds to a directory, then prompt for the name of a child to add to that node. If the name entered ends with ".txt", a new note file will be created and opened for editing. Otherwise, a new subdirectory will be added to the node directory using the name provided. Use "0" as the IDENT to add to the root (data) node.
+11. Compare the installed version of nts with the latest version on GitHub (requires internet connection) and report the result.
 
 There are no commands in _nts_ to remove either a file or a directory. Please use your favorite file manager for these risky actions and don't forget to restart _nts_ to update its display.
 
@@ -208,7 +210,7 @@ Here are a few organizational ideas that have helped me. First, a reference sect
                 ├── python.txt
                 └── vim.txt
 
-Then a journal section for monthly notes
+then a journal section for monthly notes
 
         └── journal
             ├── 2021
