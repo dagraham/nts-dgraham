@@ -103,20 +103,20 @@ Action          | Command Mode | Session Mode | Notes
 ----------------|--------------|--------------|------
 help            |  -h          |  h or ?      |   ~
 begin session   |  -s          |  ~           |   ~
-end session     |    ~         |  q           |   ~
-path view       |  -v p        |  p           |   ~
-tags view       |  -v t        |  t           |   ~
-hide notes      | -n           |  n           |   1
-hide nodes      | -N           |  N           |   2
-set max levels  | -m MAX       |  m MAX       |   3
+end session     |   ~          |  q           |   ~
+path view       |  -p          |  p           |   ~
+tags view       |  -t          |  t           |   ~
+hide notes      |  -n          |  n           |   1
+hide nodes      |  -N          |  N           |   2
+set max levels  |  -m MAX      |  m MAX       |   3
 highlight REGEX |              |  / REGEX     |   4
-find REGEX      | -f REGEX     |  f REGEX     |   5
-get REGEX       | -g REGEX     |  g REGEX     |   6
-inspect IDENT   | -i IDENT     |  i IDENT     |   7
-back            |    ~         |  b           |   8
-edit IDENT      | -e IDENT     |  e IDENT     |   9
-add to IDENT    | -a IDENT     |  a IDENT     |  10
-update check    | -u           |  u           |  11
+find REGEX      |  -f REGEX    |  f REGEX     |   5
+get REGEX       |  -g REGEX    |  g REGEX     |   6
+inspect IDENT   |  -i IDENT    |  i IDENT     |   7
+back            |   ~          |  b           |   8
+edit IDENT      |  -e IDENT    |  e IDENT     |   9
+add to IDENT    |  -a IDENT    |  a IDENT     |  10
+update check    |  -u          |  u           |  11
 
 1. Suppress showing notes in the outline. In session mode this toggles the display of notes off and on.
 2. Suppress showing nodes in the outline, i.e., display only the notes. In session mode this toggles the display of the nodes off and on.

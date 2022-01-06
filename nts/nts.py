@@ -44,18 +44,20 @@ Command Summary
     help            |  -h          |  h or ?      |   ~
     begin session   |  -s          |  ~           |   ~
     end session     |   ~          |  q           |   ~
-    path view       |  -v p        |  p           |   ~
-    tags view       |  -v t        |  t           |   ~
+    path view       |  -p          |  p           |   ~
+    tags view       |  -t          |  t           |   ~
     hide notes      |  -n          |  n           |   1
     hide nodes      |  -N          |  N           |   2
     set max levels  |  -m MAX      |  m MAX       |   3
     highlight REGEX |              |  / REGEX     |   4
     find REGEX      |  -f REGEX    |  f REGEX     |   5
-    inspect IDENT   |  -i IDENT    |  i IDENT     |   6
-    back            |   ~          |  b           |   7
-    edit IDENT      |  -e IDENT    |  e IDENT     |   8
-    add to IDENT    |  -a IDENT    |  a IDENT     |   9
-    update check    |  -u          |  u           |  10
+    get REGEX       |  -g REGEX    |  g REGEX     |   6
+    inspect IDENT   |  -i IDENT    |  i IDENT     |   7
+    back            |   ~          |  b           |   8
+    edit IDENT      |  -e IDENT    |  e IDENT     |   9
+    add to IDENT    |  -a IDENT    |  a IDENT     |  10
+    update check    |  -u          |  u           |  11
+
 
 1. Suppress showing notes in the outline. In session mode
 this toggles the display of notes off and on.
@@ -264,6 +266,7 @@ class ListView(object):
                     line = (self.style_class, f"{text} \n")
                 self.lines.append(line)
 
+
     def set_pages(self, lines):
         """
         Break lines into pages satisfying the available number of rows
@@ -393,11 +396,11 @@ class NodeData(object):
             self.shownotes = True
 
     def setMode(self, mode):
-        if mode not in ['p', 't']:
+        if mode not in ['path', 'tags']:
             print(f"error: bad mode {mode}")
             return
-        self.mode = 'path' if mode == 'p' else "tags"
-        self.nodes = self.pathnodes if mode == 'p' else self.tagnodes
+        self.mode = 'path' if mode == 'path' else "tags"
+        self.nodes = self.pathnodes if mode == 'path' else self.tagnodes
 
     def setStart(self, start='.'):
         self.start = start
@@ -1192,7 +1195,6 @@ def session():
                 leaf_view.show_page()
 
 
-
 def main():
     columns, rows = shutil.get_terminal_size()
     parser = argparse.ArgumentParser(description=f"nts: Note Taking Simplified version {nts_version}")
@@ -1207,8 +1209,15 @@ def main():
     parser.add_argument("-N",  "--nodes", help="suppress nodes",
                         action="store_true")
 
-    parser.add_argument("-v", "--view", type=str, choices=['p', 't'],
-                    help="view path or tags", default='p')
+    # parser.add_argument("-v", "--view", type=str, choices=['p', 't'],
+    #                 help="view path or tags", default='p')
+
+    parser.add_argument("-p", "--path",
+                    help="view path", action="store_true")
+
+    parser.add_argument("-t", "--tags",
+                    help="view tags", action="store_true")
+
 
     parser.add_argument("-f", "--find", type=str, help="show notes whose content contains a match for FIND")
 
@@ -1220,12 +1229,12 @@ def main():
 
     parser.add_argument("-e", "--edit", type=str, help="edit the node/leaf corresponding to EDIT")
 
-    parser.add_argument("-u",  "--update", help="check for an available nts update",
+    parser.add_argument("-v",  "--version", help="check for an update to a later nts version",
                         action="store_true")
 
 
     args = parser.parse_args()
-    mode = args.view
+    mode = 'path' if args.path else 'tags'
     Data.setMode(mode)
 
     if args.session:
@@ -1247,7 +1256,7 @@ def main():
             Data.setGet(args.get)
             Data.showNodes()
 
-        if args.update:
+        if args.version:
             res = check_update()
             print(res)
             return
@@ -1261,8 +1270,17 @@ def main():
         if args.nodes:
             Data.toggleShowNodes()
 
-        if args.view:
-            mode = args.view
+        if args.path:
+            print('args.path')
+            Data.setMode('path')
+            Data.showNodes()
+            for line in Data.nodelines:
+                print(line)
+            print('')
+
+        if args.tags:
+            print('args.tags')
+            Data.setMode('tags')
             Data.showNodes()
             for line in Data.nodelines:
                 print(line)
@@ -1278,7 +1296,6 @@ def main():
 
         elif args.id:
             Data.showID(args.id)
-
 
 
 if __name__ == "__main__":
