@@ -106,21 +106,21 @@ begin session   |  -s          |  ~           |   ~
 end session     |   ~          |  q           |   ~
 path view       |  -p          |  p           |   ~
 tags view       |  -t          |  t           |   ~
-hide notes      |  -n          |  n           |   1
-hide nodes      |  -N          |  N           |   2
+hide leaves     |  -l          |  l           |   1
+hide branches   |  -b          |  b           |   2
 set max levels  |  -m MAX      |  m MAX       |   3
 highlight REGEX |              |  / REGEX     |   4
 find REGEX      |  -f REGEX    |  f REGEX     |   5
 get REGEX       |  -g REGEX    |  g REGEX     |   6
 inspect IDENT   |  -i IDENT    |  i IDENT     |   7
-back            |   ~          |  b           |   8
+revert          |   ~          |  r           |   8
 edit IDENT      |  -e IDENT    |  e IDENT     |   9
 add to IDENT    |  -a IDENT    |  a IDENT     |  10
 update check    |  -u          |  u           |  11
 
-1. Suppress showing notes in the outline. In session mode this toggles the display of notes off and on.
-2. Suppress showing nodes in the outline, i.e., display only the notes. In session mode this toggles the display of the nodes off and on.
-3. Limit the diplay of nodes in the outline to the integer MAX levels. Use MAX = 0 to display all levels.
+1. Suppress showing leaves in the outline. In session mode this toggles the display of leaves off and on.
+2. Suppress showing branches in the outline, i.e., display only the leaves. In session mode this toggles the display of the branches off and on.
+3. Limit the diplay of nodes in the branches to the integer MAX levels. Use MAX = 0 to display all levels.
 4. Highlight displayed lines that contain a match for the case-insensitive regular expression REGEX. Enter an empty REGEX to clear highlighting.
 5. Display complete notes that contain a match in the title, tags or body for the case-insensitive regular expression REGEX.
 6. Display note tiles that contain a match in the nodes leading to the note for the case-insensitive regular expression REGEX.

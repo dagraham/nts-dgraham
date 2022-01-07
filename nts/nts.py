@@ -46,27 +46,27 @@ Command Summary
     end session     |   ~          |  q           |   ~
     path view       |  -p          |  p           |   ~
     tags view       |  -t          |  t           |   ~
-    hide notes      |  -n          |  n           |   1
-    hide nodes      |  -N          |  N           |   2
+    hide leaves     |  -l          |  l           |   1
+    hide branches   |  -b          |  b           |   2
     set max levels  |  -m MAX      |  m MAX       |   3
     highlight REGEX |              |  / REGEX     |   4
     find REGEX      |  -f REGEX    |  f REGEX     |   5
     get REGEX       |  -g REGEX    |  g REGEX     |   6
     inspect IDENT   |  -i IDENT    |  i IDENT     |   7
-    back            |   ~          |  b           |   8
+    revert          |   ~          |  r           |   8
     edit IDENT      |  -e IDENT    |  e IDENT     |   9
     add to IDENT    |  -a IDENT    |  a IDENT     |  10
     update check    |  -u          |  u           |  11
 
 
-1. Suppress showing notes in the outline. In session mode
-this toggles the display of notes off and on.
+1. Suppress showing leaves in the outline. In session mode
+this toggles the display of leaves off and on.
 
-2. Suppress showing nodes in the outline, i.e., display
-only the notes. In session mode this toggles the display
-of the nodes off and on.
+2. Suppress showing branches in the outline, i.e., display
+only the leaves. In session mode this toggles the display
+of the branches off and on.
 
-3. Limit the diplay of nodes in the outline to the integer
+3. Limit the diplay of nodes in the branches to the integer
 MAX levels. Use MAX = 0 to display all levels.
 
 4. Highlight displayed lines that contain a match for the
@@ -383,13 +383,13 @@ class NodeData(object):
         self.maxlevel = maxlevel
 
 
-    def toggleShowNotes(self):
+    def toggleShowLeaves(self):
         self.shownotes = not self.shownotes
         # if notes are hidden, make sure nodes are not hidden
         if not self.shownotes:
             self.shownodes = True
 
-    def toggleShowNodes(self):
+    def toggleShowBranches(self):
         self.shownodes = not self.shownodes
         # if nodes are hidden, make sure notes are not hidden
         if not self.shownodes:
@@ -871,7 +871,7 @@ def session():
                 previous_view = current_view
                 current_view = 'path_list'
             shortcuts.clear()
-            Data.setMode('p')
+            Data.setMode('path')
             ok, msg = Data.showID()
             if ok:
                 lines = Data.nodelines if Data.showingNodes else Data.notelines
@@ -885,7 +885,7 @@ def session():
             if current_view != 'tags_list':
                 previous_view = current_view
                 current_view = 'tags_list'
-            Data.setMode('t')
+            Data.setMode('tags')
             ok, msg = Data.showID()
             if ok:
                 lines = Data.nodelines if Data.showingNodes else Data.notelines
@@ -916,7 +916,7 @@ def session():
             else:
                 show_message("an integer LEVEL argument was either missing or invalid")
 
-        elif text == 'b':
+        elif text == 'r':
             logger.debug(f"current_view: {current_view}; previous_view: {previous_view}")
             shortcuts.clear()
             if previous_view and current_view:
@@ -1136,9 +1136,9 @@ def session():
                 show_message("an IDENT argument is required but missing")
 
 
-        elif text == 'n':
+        elif text == 'l':
             shortcuts.clear()
-            Data.toggleShowNotes()
+            Data.toggleShowLeaves()
             Data.showID()
             if Data.showingNodes:
                 lines = Data.nodelines
@@ -1153,9 +1153,9 @@ def session():
                 leaf_view.set_pages(lines)
                 leaf_view.show_page()
 
-        elif text == 'N':
+        elif text == 'b':
             shortcuts.clear()
-            Data.toggleShowNodes()
+            Data.toggleShowBranches()
             Data.showID()
             if Data.showingNodes:
                 lines = Data.nodelines
@@ -1201,10 +1201,10 @@ def main():
 
     parser.add_argument("-s",  "--session", help="begin an interactive session", action="store_true")
 
-    parser.add_argument("-n",  "--notes", help="suppress notes",
+    parser.add_argument("-l",  "--leaves", help="hide leaves",
                         action="store_true")
 
-    parser.add_argument("-N",  "--nodes", help="suppress nodes",
+    parser.add_argument("-b",  "--branches", help="hide branches",
                         action="store_true")
 
     # parser.add_argument("-v", "--view", type=str, choices=['p', 't'],
@@ -1264,11 +1264,11 @@ def main():
         if args.max:
             Data.setMaxLevel(args.max)
 
-        if args.notes:
-            Data.toggleShowNotes()
+        if args.leaves:
+            Data.toggleShowLeaves()
 
-        if args.nodes:
-            Data.toggleShowNodes()
+        if args.branches:
+            Data.toggleShowBranches()
 
         if args.path:
             print('args.path')
