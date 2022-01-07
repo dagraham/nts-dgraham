@@ -8,6 +8,9 @@ import re
 from prompt_toolkit import prompt
 from prompt_toolkit.formatted_text import FormattedText
 from prompt_toolkit.styles import Style
+from prompt_toolkit.widgets import TextArea, SearchToolbar
+from prompt_toolkit.application import Application
+from prompt_toolkit.layout.layout import Layout
 
 from prompt_toolkit import PromptSession
 from prompt_toolkit import shortcuts
@@ -15,6 +18,14 @@ from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.application import run_in_terminal
 from prompt_toolkit.filters import Condition
 from prompt_toolkit.validation import Validator, ValidationError
+from prompt_toolkit.layout.controls import BufferControl
+from prompt_toolkit.styles.named_colors import NAMED_COLORS
+
+from prompt_toolkit.buffer import Buffer
+from prompt_toolkit.filters import Condition
+from prompt_toolkit.application.current import get_app
+from prompt_toolkit.layout.containers import HSplit, Window, ConditionalContainer
+
 import subprocess
 import requests
 
@@ -41,7 +52,7 @@ help = f"""\
 Command Summary
     Action          | Command Mode | Session Mode | Notes
     ----------------|--------------|--------------|------
-    help            |  -h          |  h or ?      |   ~
+    help            |  -h          |  h           |   ~
     begin session   |  -s          |  ~           |   ~
     end session     |   ~          |  q           |   ~
     path view       |  -p          |  p           |   ~
@@ -377,10 +388,15 @@ class NodeData(object):
         self.showingNodes = True
 
     def setGet(self, get=None):
-        self.get = re.compile(r'%s' % get, re.IGNORECASE) if get else None
+        logger.debug(f"setGet: {get}")
+        self.get = re.compile(r'%s' % get.strip(), re.IGNORECASE) if get else None
+        self.showNodes()
 
     def setMaxLevel(self, maxlevel=0):
-        self.maxlevel = maxlevel
+        try:
+            self.maxlevel = int(maxlevel)
+        except:
+            self.maxlevel = 0
 
 
     def toggleShowLeaves(self):
@@ -454,10 +470,9 @@ class NodeData(object):
 
     def showNodes(self):
         self.columns, self.rows = shutil.get_terminal_size()
+        column_adjust = 3 if self.sessionMode else 1
         getnodes = self.get
         logger.debug(f"1. getnodes: {getnodes}")
-        # self.nodes = self.pathnodes if self.mode == 'path' else self.tagnodes
-        # self.nodefind = self.pathfind if self.mode == 'path' else self.tagsfind
         id = 0
         id2info = {}
         linenum = 0
@@ -488,15 +503,15 @@ class NodeData(object):
                         notenum += 1
                         title = line[0]
                         if self.shownodes:
-                            excess = len(f"{fill}{title}{line[1]} {id}-{notenum}") - self.columns
+                            excess = len(f"{fill}{title}{line[1]} {id}-{notenum}") + column_adjust - self.columns
                             if excess >= 0:
-                                width = len(title) - excess - 1
+                                width = len(title) - excess - column_adjust
                                 title = textwrap.shorten(title, width=width)
                             output_lines.append(f"{fill}{title}{line[1]} {id}-{notenum}")
                         else:
-                            excess = len(f"{title}{line[1]} {id}-{notenum}") - self.columns
+                            excess = len(f"{title}{line[1]} {id}-{notenum}") + column_adjust - self.columns
                             if excess >= 0:
-                                width = len(title) - excess - 1
+                                width = len(title) - excess - column_adjust
                                 title = textwrap.shorten(title, width=width)
                             output_lines.append(f"{title}{line[1]} {id}-{notenum}")
                         id2info[(id, notenum)] = line[2]
@@ -554,8 +569,6 @@ class NodeData(object):
             regex = re.compile(r'%s' % tag, re.IGNORECASE)
 
 
-
-
     def find(self, find=None):
         matching_keys = []
         output_lines = []
@@ -563,7 +576,7 @@ class NodeData(object):
         if not find:
             return output_lines
         regex = re.compile(r'%s' % find, re.IGNORECASE)
-        # print(f"find: {regex}")
+        logger.debug(f"find: {regex}")
         for key, lines in self.notedetails.items():
             match = False
             for line in lines:
@@ -594,9 +607,9 @@ class NodeData(object):
             if output_lines and not output_lines[-1]:
                 output_lines = output_lines[:-1]
         self.findlines = output_lines
+        logger.debug(f"findlines: {self.findlines}")
 
     def showID(self, idstr="0"):
-        shortcuts.clear()
         self.showNodes()
         if idstr == "0":
             info = ('.', )
@@ -713,6 +726,246 @@ class NodeData(object):
             print(f"error: bad index {info}")
             pprint(self.nodes.keys())
         return
+
+def session_app():
+    columns, rows = shutil.get_terminal_size()
+    Data.sessionMode = True
+
+    active_key = 'start'
+
+    def get_statusbar_text():
+        return [
+            ('class:status', pendulum.now().format(" h:mmA ddd MMM D") + ": "),
+            ('class:status', '{}'.format(
+                text_area.document.cursor_position_row + 1)),
+            ('class:status', ' - Press '),
+            ('class:status.key', 'q'),
+            ('class:status', ' to exit, '),
+            ('class:status.key', '/'),
+            ('class:status', ' to search'),
+        ]
+
+
+    search_field = SearchToolbar(text_if_not_searching=[
+        ('class:not-searching', "Press '/' to start searching.")], ignore_case=True)
+
+    @Condition
+    def is_querying():
+        return get_app().layout.has_focus(query_area)
+
+    @Condition
+    def is_not_typing():
+        return not (get_app().layout.has_focus(search_field) or
+                get_app().layout.has_focus(query_area)
+                )
+    text_area = TextArea(
+        text="",
+        read_only=True,
+        scrollbar=True,
+        search_field=search_field
+        )
+
+    def set_text(txt, row=0):
+        text_area.text = txt
+
+    # for testing
+    Data.setMode('path')
+    Data.showNodes()
+    text = "\n".join(Data.nodelines)
+
+    set_text(text)
+
+    ask_buffer = Buffer()
+
+    ask_window = Window(BufferControl(buffer=ask_buffer, focusable=False), height=1, style='class:status')
+
+    query_window = TextArea(
+        style='class:status',
+        multiline=False,
+        focusable=True,
+        height=1,
+        wrap_lines=False,
+        prompt='> ',
+        )
+
+    def accept(buf):
+        global active_key
+        arg = query_window.text
+        logger.debug(f"key: {active_key}; arg: {arg} dispatch: {dispatch[active_key][1]}")
+        dispatch[active_key][1](arg)
+        if active_key == 'f':
+            text = "\n".join(Data.findlines)
+        else:
+            if Data.showingNodes:
+                text = "\n".join(Data.nodelines)
+            else:
+                text = "\n".join(Data.notelines)
+        set_text(text)
+        show_query_area = False
+        application.layout.focus(text_area)
+
+
+    query_window.accept_handler = accept
+
+    query_area = HSplit([
+        ask_window,
+        query_window,
+        ], style='class:entry')
+
+
+    root_container = HSplit([
+        # The top toolbar.
+        # Window(
+        #     content=FormattedTextControl(
+        #     get_statusbar_text),
+        #     height=D.exact(1),
+        #     style='class:status'),
+
+        # The main content.
+        text_area,
+        ConditionalContainer(
+            content=query_area,
+            filter=is_querying),
+        search_field,
+    ])
+
+
+    def show_find(regex):
+        Data.find(regex)
+        set_text("\n".join(Data.findlines))
+
+
+    # Key bindings.
+    bindings = KeyBindings()
+
+    dispatch = {
+            'm': [
+                'show at most MAX nodes in branches. Use MAX = 0 for all',
+                Data.setMaxLevel
+                ],
+            'f': ['show notes matching REGEX',
+                Data.find
+                ],
+            'g': [
+                'show branches matching REGEX',
+                Data.setGet
+                ],
+            'i': [
+                'inspect the node/leaf corresponding to IDENT',
+                Data.showID
+                ],
+            'e': [
+                'edit the note corresponding to IDENT',
+                None
+                ],
+            'a': [
+                'add to the node/leaf corresponding to IDENT',
+                None,
+                ]
+            }
+
+    def show_help():
+        set_text(help)
+
+    def show_path():
+        Data.setMode('path')
+        Data.showNodes()
+        set_text("\n".join(Data.nodelines))
+
+
+    def show_tags():
+        Data.setMode('tags')
+        Data.showNodes()
+        set_text("\n".join(Data.nodelines))
+
+    def toggle_leaves():
+        Data.toggleShowLeaves()
+        Data.showNodes()
+        set_text("\n".join(Data.nodelines))
+
+    def toggle_branches():
+        Data.toggleShowBranches()
+        Data.showNodes()
+        set_text("\n".join(Data.nodelines))
+
+    def show_update_info():
+        set_text(check_update)
+
+    execute = {
+            'h': show_help,
+            'p': show_path,
+            't': show_tags,
+            'l': toggle_leaves,
+            'b': toggle_branches,
+            'v': show_update_info,
+            }
+
+    # for commands without an argument
+    @bindings.add('h', filter=is_not_typing)
+    @bindings.add('p', filter=is_not_typing)
+    @bindings.add('t', filter=is_not_typing)
+    @bindings.add('l', filter=is_not_typing)
+    @bindings.add('b', filter=is_not_typing)
+    @bindings.add('v', filter=is_not_typing)
+    def _(event):
+        key = event.key_sequence[0].key
+        execute[key]()
+
+
+    # for commands that need an argument
+    @bindings.add('m', filter=is_not_typing)
+    @bindings.add('f', filter=is_not_typing)
+    @bindings.add('g', filter=is_not_typing)
+    @bindings.add('i', filter=is_not_typing)
+    @bindings.add('e', filter=is_not_typing)
+    @bindings.add('a', filter=is_not_typing)
+    def _(event):
+        global active_key
+        "toggle query_area"
+        # show_query_area = True
+        # set_text("\n".join([x for x in event.__dict__.keys()]))
+        # set_text(f"{TextArea.__dict__.keys()}")
+        # set_text(f"{event.key_sequence[0].key}")
+        key = event.key_sequence[0].key
+        active_key = key
+        instruction, command = dispatch.get(key, (None, None))
+        if instruction:
+            ask_buffer.text = instruction
+            application.layout.focus(query_area)
+        else:
+            set_text(f"'{key}' is an unrecognized command")
+
+
+
+    @bindings.add('q')
+    @bindings.add('f8')
+    def _(event):
+        " Quit. "
+        event.app.exit()
+
+    style = Style.from_dict({
+        'status': '{} bg:{}'.format(NAMED_COLORS['White'], NAMED_COLORS['DimGrey']),
+        'status.position': '#aaaa00',
+        'status.key': '#ffaa00',
+        'not-searching': '#888888',
+    })
+
+
+    # create application.
+    application = Application(
+        layout=Layout(
+            root_container,
+            focused_element=text_area,
+        ),
+        key_bindings=bindings,
+        enable_page_navigation_bindings=True,
+        mouse_support=True,
+        style=style,
+        full_screen=True)
+
+
+    application.run()
+
 
 
 def session():
@@ -1240,7 +1493,7 @@ def main():
     if args.session:
         Data.sessionMode = True
         Data.showID()
-        session()
+        session_app()
 
     else:
 
