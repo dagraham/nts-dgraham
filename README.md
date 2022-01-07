@@ -78,11 +78,11 @@ The numeric identifiers appended to the lines in both views are provided by *nts
 
     Commands are entered at the terminal prompt. E.g., enter
 
-        $ nts -v p
+        $ nts -p
 
     to display the path view in the terminal window. The output can also be piped in the standard way, e.g.,
 
-        $ nts -v p | less
+        $ nts -p | less
 
 
 * Session mode

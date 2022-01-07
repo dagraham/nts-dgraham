@@ -1201,8 +1201,6 @@ def main():
 
     parser.add_argument("-s",  "--session", help="begin an interactive session", action="store_true")
 
-    parser.add_argument("-m", "--max", type=int, help="display at most MAX levels of outlines. Use MAX = 0 to show all levels.")
-
     parser.add_argument("-n",  "--notes", help="suppress notes",
                         action="store_true")
 
@@ -1219,15 +1217,17 @@ def main():
                     help="view tags", action="store_true")
 
 
-    parser.add_argument("-f", "--find", type=str, help="show notes whose content contains a match for FIND")
+    parser.add_argument("-m", "--max", type=int, help="display at most MAX levels of outlines. Use MAX = 0 to show all levels.")
 
-    parser.add_argument("-g", "--get", type=str, help="show note titles whose branches contain a match for GET")
+    parser.add_argument("-f", "--find", type=str, help="show notes whose content contains a match for the case-insensitive regex FIND")
+
+    parser.add_argument("-g", "--get", type=str, help="show note titles whose branches contain a match for the case-insensitive regex GET")
 
     parser.add_argument("-i", "--id", type=str, help="inspect the node/leaf corresponding to ID")
 
-    parser.add_argument("-a", "--add", type=str, help="add to the node/leaf corresponding to ADD")
-
     parser.add_argument("-e", "--edit", type=str, help="edit the node/leaf corresponding to EDIT")
+
+    parser.add_argument("-a", "--add", type=str, help="add to the node/leaf corresponding to ADD")
 
     parser.add_argument("-v",  "--version", help="check for an update to a later nts version",
                         action="store_true")
