@@ -223,8 +223,8 @@ def main():
             make_grandchild(rootdir)
             logger.info("added example data")
     import nts.nts as nts
-    Data = nts.NodeData(rootdir)
-    nts.logger = logger
+    Data = nts.NodeData(rootdir, logger)
+    # nts.logger = logger
     nts.Data = Data
     if os.path.isfile(cfg_path):
         with open(cfg_path, 'r') as fo:

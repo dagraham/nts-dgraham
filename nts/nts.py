@@ -11,6 +11,8 @@ from prompt_toolkit.styles import Style
 from prompt_toolkit.widgets import TextArea, SearchToolbar
 from prompt_toolkit.application import Application
 from prompt_toolkit.layout.layout import Layout
+from prompt_toolkit.layout.controls import FormattedTextControl
+from prompt_toolkit.layout.dimension import LayoutDimension as D
 
 from prompt_toolkit import PromptSession
 from prompt_toolkit import shortcuts
@@ -222,121 +224,11 @@ def getnotes(filepath):
     return notes
 
 
-class ListView(object):
-
-    def __init__(self, lines=[], style_class='class:plain'):
-        self.columns, rows = shutil.get_terminal_size()
-        self.rows = rows - 4 # integer number of allowed display rows
-        self.find = None
-        self.regx = None
-        self.lines = lines
-        self.style_class = style_class
-        self.pages = {}
-        self.page_numbers = []
-        self.current_page = None
-        self.set_pages(lines)
-
-
-    def set_find(self, find):
-        if find:
-            self.find = find
-            self.regx = re.compile(r'%s' % find , re.IGNORECASE)
-        else:
-            self.find = None
-            self.regx = None
-        self.set_lines(self.lines)
-
-
-    def set_lines(self, lines):
-        """
-        Format the lines according to whether or not they match the find regex
-        """
-        self.lines = []
-        if self.regx:
-            for line in lines:
-                if isinstance(line, (tuple, list)):
-                    text = line[1].rstrip()
-                else:
-                    text = line.rstrip()
-                if self.regx.search(text):
-                    line = ('class:highlight', f"{text} \n")
-                elif text.startswith('IDENT:'):
-                    line = ('class:prompt', f"{text} \n")
-                else:
-                    line = (self.style_class, f"{text} \n")
-                self.lines.append(line)
-        else:
-            for line in lines:
-                if isinstance(line, (tuple, list)):
-                    text = line[1].rstrip()
-                else:
-                    text = line.rstrip()
-                if text.startswith('IDENT:'):
-                    line = ('class:prompt', f"{text} \n")
-                else:
-                    line = (self.style_class, f"{text} \n")
-                self.lines.append(line)
-
-
-    def set_pages(self, lines):
-        """
-        Break lines into pages satisfying the available number of rows
-        """
-        self.set_lines(lines)
-        self.pages = {}
-        page_num = 0
-        while True:
-            page_num += 1
-            beg_line = (page_num - 1) * (self.rows )
-            page_lines = self.lines[beg_line:beg_line + self.rows]
-            if page_lines:
-                self.pages[str(page_num)] = page_lines
-            else:
-                break
-
-        self.page_numbers = [x for x in self.pages.keys()]
-        self.num_pages = len(self.page_numbers)
-        self.current_page = 0 # current page number = self.page_numbers[0] = 1
-
-    def get_page_footer(self):
-        if self.num_pages < 2:
-            return [('class:prompt', f"{self.columns*'_'}")]
-        page_num = self.page_numbers[self.current_page]
-        prompt = "Use up and down cursor keys to change pages"
-        return [('class:prompt', f"{self.columns*'_'}\n"),
-                ('class:prompt', f"Page {page_num}/{self.num_pages}. {prompt}.")]
-
-    def show_page(self):
-        if not self.page_numbers:
-            return
-        page_num = self.page_numbers[self.current_page]
-        lines = [x for x in self.pages[page_num]]
-        page_footer = self.get_page_footer()
-        if page_footer:
-            lines.extend(page_footer)
-        myprint(lines)
-
-    def set_page(self, page_index):
-        self.current_page = page_index
-
-
-    def scroll_up(self):
-        if self.current_page > 0:
-            self.current_page -= 1
-            shortcuts.clear()
-            self.show_page()
-
-    def scroll_down(self):
-        if self.current_page < self.num_pages - 1:
-            self.current_page += 1
-            shortcuts.clear()
-            self.show_page()
-
-
 class NodeData(object):
 
-    def __init__(self, rootdir):
+    def __init__(self, rootdir, logger):
         self.rootdir = rootdir
+        self.logger = logger
 
         self.pathnodes = {} # nodeid -> node for path tree
         # nodeid = relative filepath to directory or file
@@ -372,24 +264,19 @@ class NodeData(object):
         self.shownotes = True
         self.shownodes = True
         self.sessionMode = False
-        # self.pathfind = None
-        # self.tagsfind = None
         self.get = None
 
         self.setStart()
         self.setMaxLevel(None)
         self.getNodes()
-        # for key, value in self.pathnodes.items():
-        #     print(f"{key}:", value)
-        # for key, value in self.tagnodes.items():
-        #     print(f"{key}:", value)
 
         self.mode = 'path'
         self.showingNodes = True
 
     def setGet(self, get=None):
         logger.debug(f"setGet: {get}")
-        self.get = re.compile(r'%s' % get.strip(), re.IGNORECASE) if get else None
+        self.getstr = get.strip()
+        self.get = re.compile(r'%s' % self.getstr, re.IGNORECASE) if self.getstr else None
         self.showNodes()
 
     def setMaxLevel(self, maxlevel=0):
@@ -419,6 +306,7 @@ class NodeData(object):
         self.nodes = self.pathnodes if mode == 'path' else self.tagnodes
 
     def setStart(self, start='.'):
+        self.logger.debug(f"start: {start}")
         self.start = start
 
     def getNodes(self):
@@ -585,12 +473,9 @@ class NodeData(object):
                     break
             if match:
                 matching_keys.append(key)
-        # print(f"matching_keys: {matching_keys}")
-        # print(self.id2info.keys())
         if matching_keys:
             self.columns, rows = shutil.get_terminal_size()
             for identifier, key in self.id2info.items():
-                # print(f"checking identifier: {identifier}; keys: {keys}")
                 if key in matching_keys:
                     lines = self.notedetails.get(key, [])
                     idstr = "-".join([str(x) for x in identifier])
@@ -727,7 +612,7 @@ class NodeData(object):
             pprint(self.nodes.keys())
         return
 
-def session_app():
+def session():
     columns, rows = shutil.get_terminal_size()
     Data.sessionMode = True
 
@@ -735,14 +620,15 @@ def session_app():
 
     def get_statusbar_text():
         return [
-            ('class:status', pendulum.now().format(" h:mmA ddd MMM D") + ": "),
-            ('class:status', '{}'.format(
-                text_area.document.cursor_position_row + 1)),
+            ('class:status', ' nts'),
+            ('class:highlight', f' {Data.mode} view'),
             ('class:status', ' - Press '),
             ('class:status.key', 'q'),
             ('class:status', ' to exit, '),
             ('class:status.key', '/'),
-            ('class:status', ' to search'),
+            ('class:status', ' to search, '),
+            ('class:status.key', 'h'),
+            ('class:status', ' for help'),
         ]
 
 
@@ -751,13 +637,14 @@ def session_app():
 
     @Condition
     def is_querying():
-        return get_app().layout.has_focus(query_area)
+        return get_app().layout.has_focus(entry_area)
 
     @Condition
     def is_not_typing():
         return not (get_app().layout.has_focus(search_field) or
-                get_app().layout.has_focus(query_area)
+                get_app().layout.has_focus(entry_area)
                 )
+
     text_area = TextArea(
         text="",
         read_only=True,
@@ -768,12 +655,6 @@ def session_app():
     def set_text(txt, row=0):
         text_area.text = txt
 
-    # for testing
-    Data.setMode('path')
-    Data.showNodes()
-    text = "\n".join(Data.nodelines)
-
-    set_text(text)
 
     ask_buffer = Buffer()
 
@@ -801,13 +682,13 @@ def session_app():
             else:
                 text = "\n".join(Data.notelines)
         set_text(text)
-        show_query_area = False
+        show_entry_area = False
         application.layout.focus(text_area)
 
 
     query_window.accept_handler = accept
 
-    query_area = HSplit([
+    entry_area = HSplit([
         ask_window,
         query_window,
         ], style='class:entry')
@@ -815,16 +696,16 @@ def session_app():
 
     root_container = HSplit([
         # The top toolbar.
-        # Window(
-        #     content=FormattedTextControl(
-        #     get_statusbar_text),
-        #     height=D.exact(1),
-        #     style='class:status'),
+        Window(
+            content=FormattedTextControl(
+            get_statusbar_text),
+            height=D.exact(1),
+            style='class:status'),
 
         # The main content.
         text_area,
         ConditionalContainer(
-            content=query_area,
+            content=entry_area,
             filter=is_querying),
         search_field,
     ])
@@ -870,13 +751,15 @@ def session_app():
     def show_path():
         Data.setMode('path')
         Data.showNodes()
-        set_text("\n".join(Data.nodelines))
+        lines =  Data.nodelines
+        set_text("\n".join(lines))
 
 
     def show_tags():
         Data.setMode('tags')
         Data.showNodes()
-        set_text("\n".join(Data.nodelines))
+        lines =  Data.nodelines
+        set_text("\n".join(lines))
 
     def toggle_leaves():
         Data.toggleShowLeaves()
@@ -921,8 +804,8 @@ def session_app():
     @bindings.add('a', filter=is_not_typing)
     def _(event):
         global active_key
-        "toggle query_area"
-        # show_query_area = True
+        "toggle entry_area"
+        # show_entry_area = True
         # set_text("\n".join([x for x in event.__dict__.keys()]))
         # set_text(f"{TextArea.__dict__.keys()}")
         # set_text(f"{event.key_sequence[0].key}")
@@ -931,13 +814,13 @@ def session_app():
         instruction, command = dispatch.get(key, (None, None))
         if instruction:
             ask_buffer.text = instruction
-            application.layout.focus(query_area)
+            application.layout.focus(entry_area)
         else:
             set_text(f"'{key}' is an unrecognized command")
 
 
 
-    @bindings.add('q')
+    @bindings.add('q', filter=is_not_typing)
     @bindings.add('f8')
     def _(event):
         " Quit. "
@@ -950,6 +833,9 @@ def session_app():
         'not-searching': '#888888',
     })
 
+
+    # start with path view
+    show_path()
 
     # create application.
     application = Application(
@@ -967,487 +853,6 @@ def session_app():
     application.run()
 
 
-
-def session():
-    columns, rows = shutil.get_terminal_size()
-    Data.sessionMode = True
-    bindings = KeyBindings()
-    session = PromptSession(key_bindings=bindings)
-    path_list_view = ListView()
-    path_list_index = 0
-    tags_list_view = ListView()
-    tags_list_index = 0
-    help_view = ListView(helplines, 'class:message')
-    leaf_view = ListView()
-    leaf_index = 0
-    find_view = ListView()
-    find_index = 0
-    current_view = ''
-    previous_view = ''
-    logger.debug("Opened session")
-
-    def prompt_continuation(width, line_number, is_soft_wrap):
-        return f"{'.'*(width-1)} "
-
-    @Condition
-    def entry_not_active():
-        return not myValidator.entryactive
-
-    @Condition
-    def is_showing_path():
-        return current_view == 'path_list'
-
-    @Condition
-    def is_showing_tags():
-        return current_view == 'tags_list'
-
-    @Condition
-    def is_showing_help():
-        return current_view == 'help'
-
-    @Condition
-    def is_showing_leaf():
-        return current_view == 'leaf'
-
-    @Condition
-    def is_showing_find():
-        return current_view == 'find'
-
-    @bindings.add('down', filter=is_showing_leaf)
-    def _(event):
-        def down():
-            leaf_view.scroll_down()
-        run_in_terminal(down)
-
-    @bindings.add('up', filter=is_showing_leaf)
-    def _(event):
-        def up():
-            leaf_view.scroll_up()
-        run_in_terminal(up)
-
-    @bindings.add('down', filter=is_showing_path)
-    def _(event):
-        def down():
-            path_list_view.scroll_down()
-        run_in_terminal(down)
-
-    @bindings.add('up', filter=is_showing_path)
-    def _(event):
-        def up():
-            path_list_view.scroll_up()
-        run_in_terminal(up)
-
-    @bindings.add('down', filter=is_showing_tags)
-    def _(event):
-        def down():
-            tags_list_view.scroll_down()
-        run_in_terminal(down)
-
-    @bindings.add('up', filter=is_showing_tags)
-    def _(event):
-        def up():
-            tags_list_view.scroll_up()
-        run_in_terminal(up)
-
-    @bindings.add('down', filter=is_showing_help)
-    def _(event):
-        def down():
-            help_view.scroll_down()
-        run_in_terminal(down)
-
-    @bindings.add('up', filter=is_showing_help)
-    def _(event):
-        def up():
-            help_view.scroll_up()
-        run_in_terminal(up)
-
-    @bindings.add('down', filter=is_showing_find)
-    def _(event):
-        def down():
-            find_view.scroll_down()
-        run_in_terminal(down)
-
-    @bindings.add('up', filter=is_showing_find)
-    def _(event):
-        def up():
-            find_view.scroll_up()
-        run_in_terminal(up)
-
-    shortcuts.clear()
-    message = [("class:prompt", 'Enter ? or other command and press "return"')]
-    regx = ""
-    myprint(message)
-
-    run = True
-    while run:
-        message_parts = []
-        highlight = f'highlighting "{regx.strip()}" - enter "/" to clear highlighting' if regx else ""
-        if highlight:
-            message_parts.append(highlight)
-        if Data.shownodes:
-            hidden = "" if Data.shownotes else 'notes hidden - enter "n" to display them'
-        else:
-            hidden = 'nodes hidden - enter "N" to display them'
-        if hidden:
-            message_parts.append(hidden)
-        level = f'limiting levels to {Data.maxlevel} - enter "m 0" to display all levels' if  Data.maxlevel else ""
-        if level:
-            message_parts.append(level)
-        if message_parts:
-            message_str = "; ".join(message_parts) + " "
-        else:
-            message_str = ""
-
-        if message_str:
-            msg_lines = textwrap.wrap(message_str, width=columns-2)
-            message_str = "\n".join(msg_lines)
-
-        message =  [("class:prompt", f"{message_str}\n> ")] if message_str else [("class:prompt", f"> ")]
-
-        text = session.prompt(message, style=style_obj,
-                prompt_continuation=prompt_continuation)
-        text = text.strip()
-
-        if text == 'q':
-            shortcuts.clear()
-            break
-
-        elif text in ['?', 'h']:
-            if current_view != 'help':
-                previous_view = current_view
-                current_view = 'help'
-            shortcuts.clear()
-            help_view.show_page()
-
-        elif text == 'p':
-            if current_view != 'path_list':
-                previous_view = current_view
-                current_view = 'path_list'
-            shortcuts.clear()
-            Data.setMode('path')
-            ok, msg = Data.showID()
-            if ok:
-                lines = Data.nodelines if Data.showingNodes else Data.notelines
-                path_list_view.set_pages(lines)
-                path_list_view.show_page()
-            else:
-                myprint(msg)
-
-        elif text == 't':
-            shortcuts.clear()
-            if current_view != 'tags_list':
-                previous_view = current_view
-                current_view = 'tags_list'
-            Data.setMode('tags')
-            ok, msg = Data.showID()
-            if ok:
-                lines = Data.nodelines if Data.showingNodes else Data.notelines
-                tags_list_view.set_pages(lines)
-                tags_list_view.show_page()
-            else:
-                myprint(msg)
-
-        elif text.startswith('m'):
-            # if current_view not in ['path_list_view', 'tags_list_view']:
-            #     return
-            msg = ""
-            level = text[1:] if len(text) > 1 else 0
-            try:
-                level = int(level.strip())
-            except:
-                level = None
-            if level is not None:
-                Data.setMaxLevel(level)
-                ok, msg = Data.showID()
-                lines = Data.nodelines if Data.showingNodes else Data.notelines
-                if current_view == 'path_list':
-                    path_list_view.set_pages(lines)
-                    path_list_view.show_page()
-                elif current_view == 'tags_list':
-                    tags_list_view.set_pages(lines)
-                    tags_list_view.show_page()
-            else:
-                show_message("an integer LEVEL argument was either missing or invalid")
-
-        elif text == 'r':
-            logger.debug(f"current_view: {current_view}; previous_view: {previous_view}")
-            shortcuts.clear()
-            if previous_view and current_view:
-                tmp = previous_view
-                previous_view = current_view
-                current_view = tmp
-                if current_view == 'help':
-                    help_view.show_page()
-                elif current_view == 'find':
-                    find_view.show_page()
-                elif current_view == 'leaf':
-                    leaf_view.show_page()
-                elif current_view == 'path_list':
-                    path_list_view.show_page()
-                elif current_view == 'tags_list':
-                    tags_list_view.show_page()
-
-
-        elif text.startswith('/'):
-            shortcuts.clear()
-            arg = text[1:]
-            regx = arg if arg else None
-            path_list_view.set_find(regx)
-            tags_list_view.set_find(regx)
-            leaf_view.set_find(regx)
-            if Data.showingNodes:
-                lines = Data.nodelines
-                if current_view == 'path_list':
-                    path_list_view.set_pages(lines)
-                    path_list_view.set_page(path_list_index)
-                    path_list_view.show_page()
-                elif current_view == 'tags_list':
-                    tags_list_view.set_pages(lines)
-                    tags_list_view.set_page(tags_list_index)
-                    tags_list_view.show_page()
-            else:
-                lines = Data.notelines
-                leaf_view.set_pages(lines)
-                leaf_view.set_page(leaf_index)
-                leaf_view.show_page()
-
-
-        elif text.startswith('g'):
-            find = text[1:].strip()
-            getnodes = find if find else None
-            logger.debug(f"2. getnodes: {getnodes}")
-            Data.setGet(getnodes)
-            Data.showNodes()
-            Data.showID()
-            if getnodes:
-                shortcuts.clear()
-                if Data.showingNodes:
-                    lines = Data.nodelines
-                    if current_view == 'path_list':
-                        path_list_view.set_pages(lines)
-                        path_list_view.show_page()
-                    elif current_view == 'tags_list':
-                        tags_list_view.set_pages(lines)
-                        tags_list_view.show_page()
-                else:
-                    lines = Data.notelines
-                    leaf_view.set_pages(lines)
-                    leaf_view.show_page()
-            Data.setGet()
-
-
-        elif text.startswith('f'):
-            if current_view != 'find':
-                previous_view = current_view
-                current_view = 'find'
-            find = text[1:].strip()
-            regex = find if find else None
-            path_list_view.set_find(find)
-            tags_list_view.set_find(find)
-            find_view.set_find(find)
-            if regex:
-                shortcuts.clear()
-                Data.find(find)
-                lines = Data.findlines
-                logger.debug(f"find: {find}; lines: {lines}")
-                if lines:
-                    find_view.set_pages(lines)
-                    find_view.set_page(find_index)
-                    find_view.show_page()
-                else:
-                    print(f"nothing found matching '{find}'")
-            else:
-                # clear
-                shortcuts.clear()
-                if Data.showingNodes:
-                    lines = Data.nodelines
-                    if current_view == 'path_list':
-                        path_list_view.set_pages(lines)
-                        path_list_view.set_page(path_list_index)
-                        path_list_view.show_page()
-                    elif current_view == 'tags_list':
-                        tags_list_view.set_pages(lines)
-                        tags_list_view.set_page(tags_list_index)
-                        tags_list_view.show_page()
-                    elif current_view == 'find':
-                        find_view.set_pages(lines)
-                        find_view.set_page(tags_list_index)
-                        find_view.show_page()
-                else:
-                    lines = Data.notelines
-                    leaf_view.set_pages(lines)
-                    leaf_view.set_page(leaf_index)
-                    leaf_view.show_page()
-
-
-        elif text.startswith("i"):
-            shortcuts.clear()
-            idstr = text[1:].strip()
-            if idstr:
-                ok, msg = Data.showID(idstr)
-                if ok:
-                    if Data.showingNodes:
-                        if current_view == 'path_list':
-                            path_list_index = path_list_view.current_page
-                            lines = Data.nodelines
-                            path_list_view.set_pages(lines)
-                            path_list_view.show_page()
-                        elif current_view == 'tags_list':
-                            tags_list_index = tags_list_view.current_page
-                            lines = Data.nodelines
-                            tags_list_view.set_pages(lines)
-                            tags_list_view.show_page()
-                    else:
-                        previous_view = current_view
-                        current_view = 'leaf'
-                        leaf_index = leaf_view.current_page
-                        lines = Data.notelines
-                        lines.insert(0, f"IDENT: {idstr}")
-                        leaf_view.set_pages(lines)
-                        leaf_view.show_page()
-                else: # not ok
-                    show_message(msg)
-            else:
-                show_message("an IDENT argument is required but missing")
-
-        elif text.startswith("e"):
-            shortcuts.clear()
-            idstr = text[1:].strip()
-            if idstr:
-                orig_mode = Data.mode
-                Data.editID(idstr)
-                Data.getNodes()
-                Data.setMode(orig_mode)
-                Data.showID(idstr)
-                logger.debug(f"edit done; current_view: {current_view}; showingNodes: {Data.showingNodes}")
-                # new_mode = Data.mode
-                # if Data.showingNodes:
-                if current_view == 'path_list':
-                    path_list_index = path_list_view.current_page
-                    lines = Data.nodelines
-                    path_list_view.set_pages(lines)
-                    path_list_view.show_page()
-                elif current_view == 'tags_list':
-                    tags_list_index = tags_list_view.current_page
-                    lines = Data.nodelines
-                    tags_list_view.set_pages(lines)
-                    tags_list_view.show_page()
-                elif current_view == 'find':
-                    Data.find(find_view.find)
-                    lines = Data.findlines
-                    logger.debug(f"find: {find_view.find}; lines: {lines}")
-                    find_view.set_pages(lines)
-                    find_view.show_page()
-                else:
-                    leaf_index = leaf_view.current_page
-                    lines = Data.notelines
-                    logger.debug(f"leaf IDENT: {idstr}; notelines: {lines}")
-                    lines.insert(0, f"IDENT: {idstr}")
-                    leaf_view.set_pages(lines)
-                    leaf_view.show_page()
-
-            else:
-                show_message("an IDENT argument is required but missing")
-
-
-        elif text.startswith("a"):
-            shortcuts.clear()
-            entry = text[1:].strip()
-            if entry:
-                tmp, *child = entry.split(" ")
-                idstr = tmp.split('-')[0]
-                logger.debug(f"tmp: {tmp}; idstr: {idstr}")
-                if child:
-                    child = '_'.join(child)
-                Data.addID(idstr, child)
-                Data.getNodes()
-                Data.showID(idstr)
-                # if Data.showingNodes:
-                if current_view == 'path_list':
-                    path_list_index = path_list_view.current_page
-                    lines = Data.nodelines
-                    path_list_view.set_pages(lines)
-                    path_list_view.show_page()
-                elif current_view == 'tags_list':
-                    tags_list_index = tags_list_view.current_page
-                    lines = Data.nodelines
-                    tags_list_view.set_pages(lines)
-                    tags_list_view.show_page()
-                elif current_view == 'find':
-                    Data.find(find_view.find)
-                    lines = Data.findlines
-                    logger.debug(f"find: {find_view.find}; lines: {lines}")
-                    find_view.set_pages(lines)
-                    find_view.show_page()
-                else:
-                    leaf_index = leaf_view.current_page
-                    lines = Data.notelines
-                    logger.debug(f"leaf IDENT: {idstr}; notelines: {lines}")
-                    leaf_view.set_pages(lines)
-                    leaf_view.show_page()
-            else:
-                show_message("an IDENT argument is required but missing")
-
-
-        elif text == 'l':
-            shortcuts.clear()
-            Data.toggleShowLeaves()
-            Data.showID()
-            if Data.showingNodes:
-                lines = Data.nodelines
-                if current_view == 'path_list':
-                    path_list_view.set_pages(lines)
-                    path_list_view.show_page()
-                elif current_view == 'tags_list':
-                    tags_list_view.set_pages(lines)
-                    tags_list_view.show_page()
-            else:
-                lines = Data.notelines
-                leaf_view.set_pages(lines)
-                leaf_view.show_page()
-
-        elif text == 'b':
-            shortcuts.clear()
-            Data.toggleShowBranches()
-            Data.showID()
-            if Data.showingNodes:
-                lines = Data.nodelines
-                if current_view == 'path_list':
-                    path_list_view.set_pages(lines)
-                    path_list_view.show_page()
-                elif current_view == 'tags_list':
-                    tags_list_view.set_pages(lines)
-                    tags_list_view.show_page()
-            else:
-                lines = Data.notelines
-                leaf_view.set_pages(lines)
-                leaf_view.show_page()
-
-
-        elif text == 'u':
-            shortcuts.clear()
-            res = check_update()
-            show_message(res)
-
-        elif text:
-            shortcuts.clear()
-            print(f"unrecognized command: '{text}'")
-
-        else:
-            shortcuts.clear()
-            if Data.showingNodes:
-                if current_view == 'path_list':
-                    path_list_view.show_page()
-                elif current_view == 'tags_list':
-                    tags_list_view.show_page()
-                elif current_view == 'find':
-                    find_view.show_page()
-                elif current_view == 'help':
-                    help_view.show_page()
-            else:
-                leaf_view.show_page()
-
-
 def main():
     columns, rows = shutil.get_terminal_size()
     parser = argparse.ArgumentParser(description=f"nts: Note Taking Simplified version {nts_version}")
@@ -1460,8 +865,6 @@ def main():
     parser.add_argument("-b",  "--branches", help="hide branches",
                         action="store_true")
 
-    # parser.add_argument("-v", "--view", type=str, choices=['p', 't'],
-    #                 help="view path or tags", default='p')
 
     parser.add_argument("-p", "--path",
                     help="view path", action="store_true")
@@ -1493,7 +896,7 @@ def main():
     if args.session:
         Data.sessionMode = True
         Data.showID()
-        session_app()
+        session()
 
     else:
 
@@ -1524,7 +927,7 @@ def main():
             Data.toggleShowBranches()
 
         if args.path:
-            print('args.path')
+            print('path view')
             Data.setMode('path')
             Data.showNodes()
             for line in Data.nodelines:
@@ -1532,7 +935,7 @@ def main():
             print('')
 
         if args.tags:
-            print('args.tags')
+            print('tags view')
             Data.setMode('tags')
             Data.showNodes()
             for line in Data.nodelines:
