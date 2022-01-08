@@ -101,34 +101,54 @@ The numeric identifiers appended to the lines in both views are provided by *nts
 
 Action          | Command Mode | Session Mode | Notes
 ----------------|--------------|--------------|------
-help            |  -h          |  h or ?      |   ~
-begin session   |  -s          |  ~           |   ~
-end session     |   ~          |  q           |   ~
-path view       |  -p          |  p           |   ~
-tags view       |  -t          |  t           |   ~
-hide leaves     |  -l          |  l           |   1
-hide branches   |  -b          |  b           |   2
-set max levels  |  -m MAX      |  m MAX       |   3
-highlight REGEX |              |  / REGEX     |   4
-find REGEX      |  -f REGEX    |  f REGEX     |   5
-get REGEX       |  -g REGEX    |  g REGEX     |   6
-inspect IDENT   |  -i IDENT    |  i IDENT     |   7
-revert          |   ~          |  r           |   8
-edit IDENT      |  -e IDENT    |  e IDENT     |   9
-add to IDENT    |  -a IDENT    |  a IDENT     |  10
-update check    |  -u          |  u           |  11
+help            |  -h          |  h           |  ~
+begin session   |  -s          |  ~           |  ~
+end session     |   ~          |  q           |  ~
+path view       |  -p          |  p           |  ~
+tags view       |  -t          |  t           |  ~
+hide leaves     |  -l          |  l           |  l
+hide branches   |  -b          |  b           |  b
+set max levels  |  -m MAX      |  m MAX       |  m
+highlight REGEX |              |  / REGEX     |  /
+find REGEX      |  -f REGEX    |  f REGEX     |  f
+get REGEX       |  -g REGEX    |  g REGEX     |  g
+inspect IDENT   |  -i IDENT    |  i IDENT     |  i
+edit IDENT      |  -e IDENT    |  e IDENT     |  e
+add to IDENT    |  -a IDENT    |  a IDENT     |  a
+version check   |  -v          |  v           |  v
 
-1. Suppress showing leaves in the outline. In session mode this toggles the display of leaves off and on.
-2. Suppress showing branches in the outline, i.e., display only the leaves. In session mode this toggles the display of the branches off and on.
-3. Limit the diplay of nodes in the branches to the integer MAX levels. Use MAX = 0 to display all levels.
-4. Highlight displayed lines that contain a match for the case-insensitive regular expression REGEX. Enter an empty REGEX to clear highlighting.
-5. Display complete notes that contain a match in the title, tags or body for the case-insensitive regular expression REGEX.
-6. Display note tiles that contain a match in the nodes leading to the note for the case-insensitive regular expression REGEX.
-7. If IDENT is the 2-number identifier for a note, then display the contents of that note. Else if IDENT is the identifier for a ".txt" file, then display the contents of that file. Otherwise limit the display to that part of the outline which starts from the corresponding node. Use IDENT = 0 to start from the root node.
-8. In session mode, switch back and forth between the two most recent displays.
-9. If IDENT corresponds to either a note or a ".txt" file, then open that file for editing and, in the case of a note, scroll to the beginning line of the note.
-10. If IDENT corresponds to either a note or a ".txt" file, then open that file for appending a new note. Otherwise, if IDENT corresponds to a directory, then prompt for the name of a child to add to that node. If the name entered ends with ".txt", a new note file will be created and opened for editing. Otherwise, a new subdirectory will be added to the node directory using the name provided. Use "0" as the IDENT to add to the root (data) node.
-11. Compare the installed version of nts with the latest version on GitHub (requires internet connection) and report the result.
+l
+: Suppress showing leaves in the outline. In session mode this toggles the display of leaves off and on.
+
+b
+: Suppress showing branches in the outline, i.e., display only the leaves. In session mode this toggles the display of the branches off and on.
+
+m
+: Limit the diplay of nodes in the branches to the integer MAX levels. Use MAX = 0 to display all levels.
+
+/
+: Incrementally search for matches for the case-insensitive regular expression REGEX.
+
+f
+: Display complete notes that contain a match in the title, tags or body for the case-insensitive regular expression REGEX.
+
+g
+: Display note titles that contain a match in the nodes leading to the note for the case-insensitive regular expression REGEX.
+
+i
+: If IDENT is the 2-number identifier for a note, then display the contents of that note. Else if IDENT is the identifier for a ".txt" file, then display the contents of that file. Otherwise limit the display to that part of the outline which starts from the corresponding node. Use IDENT = 0 to start from the root node.
+
+e
+: If IDENT corresponds to either a note or a ".txt" file, then open that file for editing and, in the case of a note, scroll to the beginning line of the note.
+
+a
+: If IDENT corresponds to either a note or a ".txt" file, then open that file for appending a new note. Otherwise, if IDENT corresponds to a directory, then prompt for the name of a child to add to that node. If the name entered ends with ".txt", a new note file will be created and opened for editing. Otherwise, a new subdirectory will be added to the node directory using the name provided. Use "0" as the IDENT to add to the root (data) node.
+
+v
+: Compare the installed version of nts with the latest version on GitHub (requires internet connection) and report the result.
+
+
+
 
 There are no commands in _nts_ to remove either a file or a directory. Please use your favorite file manager for these risky actions and don't forget to restart _nts_ to update its display.
 

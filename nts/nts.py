@@ -48,78 +48,41 @@ note_regex = re.compile(r'^[\+#]\s+([^\(]+)\s*(\(([^\)]*)\))?\s*$')
 
 separator = os.path.sep
 
-help = f"""\
-       nts: Note Taking Simplified version {nts_version}
+help_table = f"""\
+             nts: Note Taking Simplified version {nts_version}
 
-Command Summary
-    Action          | Command Mode | Session Mode | Notes
-    ----------------|--------------|--------------|------
-    help            |  -h          |  h           |   ~
-    begin session   |  -s          |  ~           |   ~
-    end session     |   ~          |  q           |   ~
-    path view       |  -p          |  p           |   ~
-    tags view       |  -t          |  t           |   ~
-    hide leaves     |  -l          |  l           |   1
-    hide branches   |  -b          |  b           |   2
-    set max levels  |  -m MAX      |  m MAX       |   3
-    highlight REGEX |              |  / REGEX     |   4
-    find REGEX      |  -f REGEX    |  f REGEX     |   5
-    get REGEX       |  -g REGEX    |  g REGEX     |   6
-    inspect IDENT   |  -i IDENT    |  i IDENT     |   7
-    revert          |   ~          |  r           |   8
-    edit IDENT      |  -e IDENT    |  e IDENT     |   9
-    add to IDENT    |  -a IDENT    |  a IDENT     |  10
-    update check    |  -u          |  u           |  11
+        Action          | Command Mode | Session Mode | Notes
+        ----------------|--------------|--------------|------
+        help            |  -h          |  h           |  ~
+        begin session   |  -s          |  ~           |  ~
+        end session     |   ~          |  q           |  ~
+        path view       |  -p          |  p           |  ~
+        tags view       |  -t          |  t           |  ~
+        hide leaves     |  -l          |  l           |  l
+        hide branches   |  -b          |  b           |  b
+        set max levels  |  -m MAX      |  m MAX       |  m
+        search          |              |  / REGEX     |  /
+        find REGEX      |  -f REGEX    |  f REGEX     |  f
+        get REGEX       |  -g REGEX    |  g REGEX     |  g
+        inspect IDENT   |  -i IDENT    |  i IDENT     |  i
+        edit IDENT      |  -e IDENT    |  e IDENT     |  e
+        add to IDENT    |  -a IDENT    |  a IDENT     |  a
+        version check   |  -v          |  v           |  v
 
-
-1. Suppress showing leaves in the outline. In session mode
-this toggles the display of leaves off and on.
-
-2. Suppress showing branches in the outline, i.e., display
-only the leaves. In session mode this toggles the display
-of the branches off and on.
-
-3. Limit the diplay of nodes in the branches to the integer
-MAX levels. Use MAX = 0 to display all levels.
-
-4. Highlight displayed lines that contain a match for the
-case-insensitive regular expression REGEX. Enter an empty
-REGEX to clear highlighting.
-
-5. Display complete notes that contain a match in the
-title, tags or body for the case-insensitive regular
-expression REGEX.
-
-6. If IDENT is the 2-number identifier for a note, then
-display the contents of that note. Else if IDENT is the
-identifier for a ".txt" file, then display the contents of
-that file. Otherwise limit the display to that part of the
-outline which starts from the corresponding node. Use
-IDENT = 0 to start from the root node.
-
-7. In session mode, switch back and forth between the two
-most recent displays.
-
-8. If IDENT corresponds to either a note or a ".txt" file,
-then open that file for editing and, in the case of a
-note, scroll to the beginning line of the note.
-
-9. If IDENT corresponds to either a note or a ".txt" file,
-then open that file for appending a new note. Otherwise,
-if IDENT corresponds to a directory, then prompt for the
-name of a child to add to that node. If the name entered
-ends with ".txt", a new note file will be created and
-opened for editing. Otherwise, a new subdirectory will be
-added to the node directory using the name provided. Use
-"0" as the IDENT to add to the root (data) node.
-
-10. Compare the installed version of nts with the latest
-version on GitHub (requires internet connection) and
-report the result.\
 """
 
-
-helplines = help.split("\n")
+help_notes = [
+'l. Suppress showing leaves in the outline. In session mode toggle the display of leaves off and on.',
+'b. Suppress showing branches in the outline, i.e., display only the leaves. In session mode toggle the display of the branches off and on.',
+'m. Limit the diplay of nodes in the branches to the integer MAX levels. Use MAX = 0 to display all levels.',
+'/. Incrementally search for matches for the case-insensitive regular expression REGEX in the current display.',
+'f. Display complete notes that contain a match in the title, tags or body for the case-insensitive regular expression REGEX.',
+'g. Display note titles that contain a match in the branch nodes leading to the note for the case-insensitive regular expression REGEX.',
+'i. If IDENT is the 2-number identifier for a note, then display the contents of that note. Else if IDENT is the identifier for a ".txt" file, then display the contents of that file. Otherwise limit the display to that part of the outline which starts from the corresponding node. Use IDENT = 0 to start from the root node.',
+'e. If IDENT corresponds to either a note or a ".txt" file, then open that file for editing and, in the case of a note, scroll to the beginning line of the note.',
+'a. If IDENT corresponds to either a note or a ".txt" file, then open that file for appending a new note. Otherwise, if IDENT corresponds to a directory, then prompt for the name of a child to add to that node. If the name entered ends with ".txt", a new note file will be created and opened for editing. Otherwise, a new subdirectory will be added to the node directory using the name provided. Use "0" as the IDENT to add to the root (data) node.',
+'v. Compare the installed version of nts with the latest version on GitHub (requires internet connection) and report the result.',
+]
 
 
 def check_update():
@@ -226,9 +189,8 @@ def getnotes(filepath):
 
 class NodeData(object):
 
-    def __init__(self, rootdir, logger):
+    def __init__(self, rootdir):
         self.rootdir = rootdir
-        self.logger = logger
 
         self.pathnodes = {} # nodeid -> node for path tree
         # nodeid = relative filepath to directory or file
@@ -265,25 +227,56 @@ class NodeData(object):
         self.shownodes = True
         self.sessionMode = False
         self.get = None
+        self.getstr = ''
 
         self.setStart()
-        self.setMaxLevel(None)
+        self.setMaxLevel(0)
         self.getNodes()
 
         self.mode = 'path'
         self.showingNodes = True
 
+    def setRestrictions(self):
+        # startmsg = "" if self.start == '.' else f'showing branches starting from "{self.start}" - press "i" and enter 0 to show all branches'
+        # getmsg = f'showing notes in branches matching "{self.getstr}" - press "g" and enter nothing to clear' if self.getstr else ""
+        # maxmsg = "" if self.maxlevel in [None, 0] else f'displaying at most {self.maxlevel} levels - press "m" and enter 0 to show all levels'
+        # leafmsg = "" if self.shownotes else 'hiding leaves - press "l" to display them'
+        # branchmsg = "" if self.shownodes else 'hiding branches - press "b" to display them'
+        # msglist = []
+        msg = []
+        if self.start != '.':
+            msg.append('i')
+        if self.getstr:
+            msg.append('g')
+        if self.maxlevel not in [None, 0]:
+            msg.append('m')
+        if not self.shownotes:
+            msg.append('l')
+        if not self.shownodes:
+            msg.append('b')
+
+        # for msg in [startmsg, getmsg, maxmsg, leafmsg, branchmsg]:
+        #     if msg:
+        #         msglist.append(msg)
+        self.restrictions = msg
+        logger.debug(f"restrictions: '{self.restrictions}'")
+
+
     def setGet(self, get=None):
-        logger.debug(f"setGet: {get}")
-        self.getstr = get.strip()
-        self.get = re.compile(r'%s' % self.getstr, re.IGNORECASE) if self.getstr else None
+        get = get.strip()
+        logger.debug(f"getstr: {get}")
+        self.getstr = get if get else ''
+        self.get = re.compile(r'%s' % get, re.IGNORECASE) if self.getstr else None
         self.showNodes()
 
     def setMaxLevel(self, maxlevel=0):
+        self.maxlevel = None if maxlevel == 0 else maxlevel
         try:
-            self.maxlevel = int(maxlevel)
-        except:
-            self.maxlevel = 0
+            self.maxlevel = int(self.maxlevel)
+        except Exception as e:
+            logger.debug(f"exception: {e}")
+            self.maxlevel = None
+        logger.debug(f"set maxlevel: {self.maxlevel}")
 
 
     def toggleShowLeaves(self):
@@ -306,7 +299,7 @@ class NodeData(object):
         self.nodes = self.pathnodes if mode == 'path' else self.tagnodes
 
     def setStart(self, start='.'):
-        self.logger.debug(f"start: {start}")
+        logger.debug(f"start: {start}")
         self.start = start
 
     def getNodes(self):
@@ -360,7 +353,7 @@ class NodeData(object):
         self.columns, self.rows = shutil.get_terminal_size()
         column_adjust = 3 if self.sessionMode else 1
         getnodes = self.get
-        logger.debug(f"1. getnodes: {getnodes}")
+        self.setRestrictions()
         id = 0
         id2info = {}
         linenum = 0
@@ -551,7 +544,7 @@ class NodeData(object):
             editcmd = command_edit.format(**hsh)
         editcmd = [x.strip() for x in editcmd.split(" ") if x.strip()]
         subprocess.call(editcmd)
-        # return
+        return
 
 
     def addID(self, idstr, text=None):
@@ -619,21 +612,31 @@ def session():
     active_key = 'start'
 
     def get_statusbar_text():
-        return [
+        lst = [
             ('class:status', ' nts'),
-            ('class:highlight', f' {Data.mode} view'),
+            ('class:status', f' {Data.mode} view'),
             ('class:status', ' - Press '),
-            ('class:status.key', 'q'),
-            ('class:status', ' to exit, '),
-            ('class:status.key', '/'),
-            ('class:status', ' to search, '),
             ('class:status.key', 'h'),
             ('class:status', ' for help'),
         ]
+        if Data.restrictions:
+            lst.append(('class:status', ' - restrictions in effect: '))
+            for key in Data.restrictions[:-1]:
+                lst.extend([
+                    ('class:status.key', f'{key}'),
+                    ('class:status', ', '),
+                    ]
+                    )
+            lst.append(('class:status.key', f'{Data.restrictions[-1]}'))
+        return lst
 
+
+    # def get_message_text():
+    #     return Data.restrictions
 
     search_field = SearchToolbar(text_if_not_searching=[
         ('class:not-searching', "Press '/' to start searching.")], ignore_case=True)
+
 
     @Condition
     def is_querying():
@@ -654,6 +657,11 @@ def session():
 
     def set_text(txt, row=0):
         text_area.text = txt
+
+    msg_buffer = Buffer()
+
+    msg_window = Window(BufferControl(buffer=msg_buffer, focusable=False), height=1, style='class:status')
+
 
 
     ask_buffer = Buffer()
@@ -715,6 +723,24 @@ def session():
         Data.find(regex)
         set_text("\n".join(Data.findlines))
 
+    def set_max(level):
+        Data.setMaxLevel(level)
+        Data.getNodes()
+        Data.showNodes()
+
+    def edit_ident(ident):
+        Data.editID(ident)
+        Data.showNodes()
+
+    def add_ident(ident):
+        Data.addID(ident)
+        Data.getNodes()
+        Data.showNodes()
+
+    def show_ident(ident):
+        Data.showID(ident)
+        Data.getNodes()
+        Data.showNodes()
 
     # Key bindings.
     bindings = KeyBindings()
@@ -722,31 +748,39 @@ def session():
     dispatch = {
             'm': [
                 'show at most MAX nodes in branches. Use MAX = 0 for all',
-                Data.setMaxLevel
+                set_max
                 ],
             'f': ['show notes matching REGEX',
                 Data.find
                 ],
             'g': [
-                'show branches matching REGEX',
+                'show notes in branches matching REGEX - enter nothing to clear',
                 Data.setGet
                 ],
             'i': [
-                'inspect the node/leaf corresponding to IDENT',
-                Data.showID
+                'inspect the node/leaf corresponding to IDENT - enter 0 to clear',
+                show_ident
                 ],
             'e': [
                 'edit the note corresponding to IDENT',
-                None
+                edit_ident
                 ],
             'a': [
                 'add to the node/leaf corresponding to IDENT',
-                None,
+                add_ident,
                 ]
             }
 
     def show_help():
-        set_text(help)
+        note_lines = []
+        for line in help_notes:
+            note_lines.extend(textwrap.wrap(line, width=columns-3, subsequent_indent="    ", initial_indent=" "))
+        txt = help_table + "\n".join(note_lines)
+        set_text(txt)
+
+    def show_restrictions():
+        txt = "\n".join(Data.restrictions)
+        set_text(txt)
 
     def show_path():
         Data.setMode('path')
@@ -772,7 +806,7 @@ def session():
         set_text("\n".join(Data.nodelines))
 
     def show_update_info():
-        set_text(check_update)
+        set_text(check_update())
 
     execute = {
             'h': show_help,
@@ -781,6 +815,7 @@ def session():
             'l': toggle_leaves,
             'b': toggle_branches,
             'v': show_update_info,
+            'r': show_restrictions
             }
 
     # for commands without an argument
@@ -790,6 +825,7 @@ def session():
     @bindings.add('l', filter=is_not_typing)
     @bindings.add('b', filter=is_not_typing)
     @bindings.add('v', filter=is_not_typing)
+    @bindings.add('r', filter=is_not_typing)
     def _(event):
         key = event.key_sequence[0].key
         execute[key]()
@@ -819,7 +855,6 @@ def session():
             set_text(f"'{key}' is an unrecognized command")
 
 
-
     @bindings.add('q', filter=is_not_typing)
     @bindings.add('f8')
     def _(event):
@@ -827,7 +862,8 @@ def session():
         event.app.exit()
 
     style = Style.from_dict({
-        'status': '{} bg:{}'.format(NAMED_COLORS['White'], NAMED_COLORS['DimGrey']),
+        'status': f'{NAMED_COLORS["White"]} bg:{NAMED_COLORS["DimGrey"]}',
+        'message': '#fff86f',
         'status.position': '#aaaa00',
         'status.key': '#ffaa00',
         'not-searching': '#888888',
