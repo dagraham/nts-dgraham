@@ -49,25 +49,25 @@ note_regex = re.compile(r'^[\+#]\s+([^\(]+)\s*(\(([^\)]*)\))?\s*$')
 separator = os.path.sep
 
 help_table = f"""\
-             nts: Note Taking Simplified version {nts_version}
+               nts: Note Taking Simplified version {nts_version}
 
-        Action          | Command Mode | Session Mode | Notes
-        ----------------|--------------|--------------|------
-        help            |  -h          |  h           |  ~
-        begin session   |  -s          |  ~           |  ~
-        end session     |   ~          |  q           |  ~
-        path view       |  -p          |  p           |  ~
-        tags view       |  -t          |  t           |  ~
-        hide leaves     |  -l          |  l           |  l
-        hide branches   |  -b          |  b           |  b
-        set max levels  |  -m MAX      |  m MAX       |  m
-        search          |              |  / REGEX     |  /
-        find REGEX      |  -f REGEX    |  f REGEX     |  f
-        get REGEX       |  -g REGEX    |  g REGEX     |  g
-        inspect IDENT   |  -i IDENT    |  i IDENT     |  i
-        edit IDENT      |  -e IDENT    |  e IDENT     |  e
-        add to IDENT    |  -a IDENT    |  a IDENT     |  a
-        version check   |  -v          |  v           |  v
+        Action          | Command Mode     | Session Mode    | Notes
+        ----------------|------------------|-----------------|------
+        help            |  -h              |  h              |  ~
+        begin session   |  -s              |  ~              |  ~
+        end session     |   ~              |  q              |  ~
+        path view       |  -p              |  p              |  ~
+        tags view       |  -t              |  t              |  ~
+        hide leaves     |  -l              |  l              |  l
+        hide branches   |  -b              |  b              |  b
+        set max levels  |  -m MAX          |  m MAX          |  m
+        highlight REGEX |                  |  / REGEX        |  /
+        find REGEX      |  -f REGEX        |  f REGEX        |  f
+        get REGEX       |  -g REGEX        |  g REGEX        |  g
+        inspect IDENT   |  -i IDENT        |  i IDENT        |  i
+        edit IDENT      |  -e IDENT        |  e IDENT        |  e
+        add to IDENT    |  -a IDENT [NAME] |  a IDENT [NAME] |  a
+        version check   |  -v              |  v              |  v
 
 """
 
@@ -80,7 +80,7 @@ help_notes = [
 'g. Display note titles that contain a match in the branch nodes leading to the note for the case-insensitive regular expression REGEX.',
 'i. If IDENT is the 2-number identifier for a note, then display the contents of that note. Else if IDENT is the identifier for a ".txt" file, then display the contents of that file. Otherwise limit the display to that part of the outline which starts from the corresponding node. Use IDENT = 0 to start from the root node.',
 'e. If IDENT corresponds to either a note or a ".txt" file, then open that file for editing and, in the case of a note, scroll to the beginning line of the note.',
-'a. If IDENT corresponds to either a note or a ".txt" file, then open that file for appending a new note. Otherwise, if IDENT corresponds to a directory, then prompt for the name of a child to add to that node. If the name entered ends with ".txt", a new note file will be created and opened for editing. Otherwise, a new subdirectory will be added to the node directory using the name provided. Use "0" as the IDENT to add to the root (data) node.',
+'a. If IDENT corresponds to either a note or a ".txt" file, then open that file for appending a new note. Otherwise, if IDENT corresponds to a directory and NAME is provided, add a child called NAME to that node. If NAME ends with ".txt", a new note file will be created and opened for editing. Otherwise, a new subdirectory called NAME will be added to the node directory. Use "0" as the IDENT to add to the root (data) node. In command mode, "IDENT NAME" should be wrapped in quotes.',
 'v. Compare the installed version of nts with the latest version on GitHub (requires internet connection) and report the result.',
 ]
 
@@ -780,7 +780,7 @@ def session():
                 edit_ident
                 ],
             'a': [
-                'add to the node/leaf corresponding to IDENT',
+                'add to the node/leaf corresponding to IDENT [NAME]',
                 add_ident,
                 ]
             }
@@ -994,7 +994,11 @@ def main():
 
         if args.add:
             logger.debug(f"args.add: {args.add}")
-            Data.addID(args.add)
+            tmp, *child = args.add.split(" ")
+            idstr = tmp.split('-')[0]
+            if child:
+                child = '_'.join(child)
+            Data.addID(idstr, child)
 
         if args.edit:
             logger.debug(f"args.edit: {args.edit}")

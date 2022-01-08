@@ -91,31 +91,27 @@ The numeric identifiers appended to the lines in both views are provided by *nts
 
         $ nts -s
 
-    This begins a session in which data is loaded into memory and remains available for subsequent interaction. In this mode, *nts* assumes command of the terminal window and provides its own `>` command prompt. Then, e.g., entering `p` at the prompt
-
-        > p
-
-    would display the path view. Session mode adds several features not available in command mode. E.g., when there are more lines to display than will fit in the terminal window, the lines are divided into pages with up and down cursor keys used to change pages.
+    This begins a session in which data is loaded into memory and remains available for subsequent interaction. In this mode, *nts* assumes command of the terminal window. Then, e.g., pressing `p` would display the path view. Session mode adds several features not available in command mode. E.g., scrolling and incremental search are supported.
 
 #### Command Summary
 
-Action          | Command Mode | Session Mode | Notes
-----------------|--------------|--------------|------
-help            |  -h          |  h           |  ~
-begin session   |  -s          |  ~           |  ~
-end session     |   ~          |  q           |  ~
-path view       |  -p          |  p           |  ~
-tags view       |  -t          |  t           |  ~
-hide leaves     |  -l          |  l           |  l
-hide branches   |  -b          |  b           |  b
-set max levels  |  -m MAX      |  m MAX       |  m
-highlight REGEX |              |  / REGEX     |  /
-find REGEX      |  -f REGEX    |  f REGEX     |  f
-get REGEX       |  -g REGEX    |  g REGEX     |  g
-inspect IDENT   |  -i IDENT    |  i IDENT     |  i
-edit IDENT      |  -e IDENT    |  e IDENT     |  e
-add to IDENT    |  -a IDENT    |  a IDENT     |  a
-version check   |  -v          |  v           |  v
+Action          | Command Mode     | Session Mode    | Notes
+----------------|------------------|-----------------|------
+help            |  -h              |  h              |  ~
+begin session   |  -s              |  ~              |  ~
+end session     |   ~              |  q              |  ~
+path view       |  -p              |  p              |  ~
+tags view       |  -t              |  t              |  ~
+hide leaves     |  -l              |  l              |  l
+hide branches   |  -b              |  b              |  b
+set max levels  |  -m MAX          |  m MAX          |  m
+highlight REGEX |                  |  / REGEX        |  /
+find REGEX      |  -f REGEX        |  f REGEX        |  f
+get REGEX       |  -g REGEX        |  g REGEX        |  g
+inspect IDENT   |  -i IDENT        |  i IDENT        |  i
+edit IDENT      |  -e IDENT        |  e IDENT        |  e
+add to IDENT    |  -a IDENT [NAME] |  a IDENT [NAME] |  a
+version check   |  -v              |  v              |  v
 
 l
 : Suppress showing leaves in the outline. In session mode this toggles the display of leaves off and on.
@@ -142,12 +138,10 @@ e
 : If IDENT corresponds to either a note or a ".txt" file, then open that file for editing and, in the case of a note, scroll to the beginning line of the note.
 
 a
-: If IDENT corresponds to either a note or a ".txt" file, then open that file for appending a new note. Otherwise, if IDENT corresponds to a directory, then prompt for the name of a child to add to that node. If the name entered ends with ".txt", a new note file will be created and opened for editing. Otherwise, a new subdirectory will be added to the node directory using the name provided. Use "0" as the IDENT to add to the root (data) node.
+: If IDENT corresponds to either a note or a ".txt" file, then open that file for appending a new note. Otherwise, if IDENT corresponds to a directory and NAME is provided, add a child called NAME to that node. If NAME ends with ".txt", a new note file will be created and opened for editing. Otherwise, a new subdirectory called NAME will be added to the node directory. Use "0" as the IDENT to add to the root (data) node. In command mode, "IDENT NAME" should be wrapped in quotes.
 
 v
 : Compare the installed version of nts with the latest version on GitHub (requires internet connection) and report the result.
-
-
 
 
 There are no commands in _nts_ to remove either a file or a directory. Please use your favorite file manager for these risky actions and don't forget to restart _nts_ to update its display.
