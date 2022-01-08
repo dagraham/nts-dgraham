@@ -728,14 +728,28 @@ def session():
         Data.getNodes()
         Data.showNodes()
 
-    def edit_ident(ident):
-        Data.editID(ident)
-        Data.showNodes()
-
-    def add_ident(ident):
-        Data.addID(ident)
+    def edit_ident(idstr):
+        if not idstr:
+            return
+        orig_mode = Data.mode
+        Data.editID(idstr)
         Data.getNodes()
-        Data.showNodes()
+        Data.setMode(orig_mode)
+        Data.showID(idstr)
+
+    def add_ident(entry):
+        if not entry:
+            return
+        orig_mode = Data.mode
+        tmp, *child = entry.split(" ")
+        idstr = tmp.split('-')[0]
+        if child:
+            child = '_'.join(child)
+        Data.addID(idstr, child)
+        Data.getNodes()
+        Data.setMode(orig_mode)
+        Data.showID(idstr)
+
 
     def show_ident(ident):
         Data.showID(ident)
