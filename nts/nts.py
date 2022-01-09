@@ -620,7 +620,7 @@ def session():
             ('class:status', ' for help'),
         ]
         if Data.restrictions:
-            lst.append(('class:status', ' - restrictions in effect: '))
+            lst.append(('class:status', ' - restrictions: '))
             for key in Data.restrictions[:-1]:
                 lst.extend([
                     ('class:status.key', f'{key}'),
@@ -789,7 +789,7 @@ def session():
         note_lines = []
         for line in help_notes:
             note_lines.extend(textwrap.wrap(line, width=columns-3, subsequent_indent="    ", initial_indent=" "))
-        txt = help_table + "\n".join(note_lines)
+        txt = help_table + "\n".join(note_lines) + "\n"
         set_text(txt)
 
     def show_restrictions():

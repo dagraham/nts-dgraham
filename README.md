@@ -113,35 +113,25 @@ edit IDENT      |  -e IDENT        |  e IDENT        |  e
 add to IDENT    |  -a IDENT [NAME] |  a IDENT [NAME] |  a
 version check   |  -v              |  v              |  v
 
-l
-: Suppress showing leaves in the outline. In session mode this toggles the display of leaves off and on.
+- l: Suppress showing leaves in the outline. In session mode this toggles the display of leaves off and on.
 
-b
-: Suppress showing branches in the outline, i.e., display only the leaves. In session mode this toggles the display of the branches off and on.
+- b: Suppress showing branches in the outline, i.e., display only the leaves. In session mode this toggles the display of the branches off and on.
 
-m
-: Limit the diplay of nodes in the branches to the integer MAX levels. Use MAX = 0 to display all levels.
+- m: Limit the diplay of nodes in the branches to the integer MAX levels. Use MAX = 0 to display all levels.
 
-/
-: Incrementally search for matches for the case-insensitive regular expression REGEX.
+- /: Incrementally search for matches for the case-insensitive regular expression REGEX.
 
-f
-: Display complete notes that contain a match in the title, tags or body for the case-insensitive regular expression REGEX.
+- f: Display complete notes that contain a match in the title, tags or body for the case-insensitive regular expression REGEX.
 
-g
-: Display note titles that contain a match in the nodes leading to the note for the case-insensitive regular expression REGEX.
+- g: Display note titles that contain a match in the nodes leading to the note for the case-insensitive regular expression REGEX.
 
-i
-: If IDENT is the 2-number identifier for a note, then display the contents of that note. Else if IDENT is the identifier for a ".txt" file, then display the contents of that file. Otherwise limit the display to that part of the outline which starts from the corresponding node. Use IDENT = 0 to start from the root node.
+- i: If IDENT is the 2-number identifier for a note, then display the contents of that note. Else if IDENT is the identifier for a ".txt" file, then display the contents of that file. Otherwise limit the display to that part of the outline which starts from the corresponding node. Use IDENT = 0 to start from the root node.
 
-e
-: If IDENT corresponds to either a note or a ".txt" file, then open that file for editing and, in the case of a note, scroll to the beginning line of the note.
+- e: If IDENT corresponds to either a note or a ".txt" file, then open that file for editing and, in the case of a note, scroll to the beginning line of the note.
 
-a
-: If IDENT corresponds to either a note or a ".txt" file, then open that file for appending a new note. Otherwise, if IDENT corresponds to a directory and NAME is provided, add a child called NAME to that node. If NAME ends with ".txt", a new note file will be created and opened for editing. Otherwise, a new subdirectory called NAME will be added to the node directory. Use "0" as the IDENT to add to the root (data) node. In command mode, "IDENT NAME" should be wrapped in quotes.
+- a: If IDENT corresponds to either a note or a ".txt" file, then open that file for appending a new note. Otherwise, if IDENT corresponds to a directory and NAME is provided, add a child called NAME to that node. If NAME ends with ".txt", a new note file will be created and opened for editing. Otherwise, a new subdirectory called NAME will be added to the node directory. Use "0" as the IDENT to add to the root (data) node. In command mode, "IDENT NAME" should be wrapped in quotes.
 
-v
-: Compare the installed version of nts with the latest version on GitHub (requires internet connection) and report the result.
+- v: Compare the installed version of nts with the latest version on GitHub (requires internet connection) and report the result.
 
 
 There are no commands in _nts_ to remove either a file or a directory. Please use your favorite file manager for these risky actions and don't forget to restart _nts_ to update its display.
