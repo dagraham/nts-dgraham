@@ -1,92 +1,88 @@
-Recent changes as of 2022-01-05T09:29:29.765455-05:00:
-- 0 seconds ago (HEAD -> working, tag: 1.0.16) Daniel Graham
-    a71190c 2022-01-05 09:29:29 -0500
+Recent changes as of 2022-01-08T21:49:52.569847-05:00:
+- 0 seconds ago (HEAD -> working, tag: 1.1.0) Daniel Graham
+    1049179 2022-01-08 21:49:52 -0500
+    Tagged version 1.1.0. Replaced prompt based session with
+    full-screen application based session."
+
+- 4 minutes ago Daniel Graham
+    d269e58 2022-01-08 21:45:29 -0500
+    Tweaks for README and help.
+
+- 3 hours ago Daniel Graham
+    b4266eb 2022-01-08 18:30:26 -0500
+    For add, accept both IDENT and NAME at the prompt.
+
+- 6 hours ago Daniel Graham
+    81c8ddc 2022-01-08 16:15:02 -0500
+    Edit and Add seem to be working.
+
+- 6 hours ago Daniel Graham
+    5744170 2022-01-08 15:32:07 -0500
+    Much work on help and README to reflect the new full-screen
+    session. First pass at edit and add but not working.
+
+- 12 hours ago Daniel Graham
+    0dfbade 2022-01-08 09:49:18 -0500
+    Removed original, non fullscreen session and ListView class.
+
+- 28 hours ago Daniel Graham
+    2fe96b8 2022-01-07 18:05:14 -0500
+    First pass at session_app
+
+- 2 days ago (origin/master, session, master) Daniel Graham
+    bd48658 2022-01-07 08:13:36 -0500
+    n)otes, N)odes => l)eaves, b)ranches; b)ach => r)evert
+
+- 2 days ago Daniel Graham
+    cecddb9 2022-01-07 07:24:05 -0500
+    README abd help tweaks
+
+- 2 days ago Daniel Graham
+    5b3091e 2022-01-06 18:14:55 -0500
+    Changed command mode -v {p, t} => -p, -t and -u => -v
+
+- 4 days ago Daniel Graham
+    5e98024 2022-01-05 09:29:29 -0500
     Tagged version 1.0.16.
 
-- 35 seconds ago Daniel Graham
+- 4 days ago Daniel Graham
     8cddca6 2022-01-05 09:28:54 -0500
     Added CHANGES.txt and removed shortcuts.clear from command mode.
 
-- 11 hours ago (tag: 1.0.15, origin/master, master) Daniel Graham
+- 4 days ago (tag: 1.0.15) Daniel Graham
     f2a606f 2022-01-04 22:38:19 -0500
     Tagged version 1.0.15.
 
-- 11 hours ago Daniel Graham
+- 4 days ago Daniel Graham
     22c603f 2022-01-04 22:36:48 -0500
     Implemented 'get' bound to '-g' in command mode and 'g' in session
     mode. Takes a case-insensitive regular expression and displays in
     either path or tags mode the note titles and IDENTs for notes
     whose branch nodes contain a match for regex.
 
-- 2 days ago (tag: 1.0.14) Daniel Graham
+- 5 days ago (tag: 1.0.14) Daniel Graham
     4593d3e 2022-01-03 13:32:24 -0500
     Tagged version 1.0.14.
 
-- 2 days ago Daniel Graham
+- 5 days ago Daniel Graham
     91a25bd 2022-01-03 13:28:14 -0500
     tabs to spaces in README...
 
-- 2 days ago (tag: 1.0.13) Daniel Graham
+- 5 days ago (tag: 1.0.13) Daniel Graham
     2e82d52 2022-01-03 12:50:28 -0500
     Tagged version 1.0.13.
 
-- 2 days ago Daniel Graham
+- 5 days ago Daniel Graham
     78dc731 2022-01-03 12:49:47 -0500
     README and help tweaks. Added tagsort.txt example and modified the
     'populate data directory' option when starting with a missing data
     directory to add both this file and grandchild.txt.
 
-- 2 days ago (tag: 1.0.12) Daniel Graham
+- 5 days ago (tag: 1.0.12) Daniel Graham
     d1e8404 2022-01-03 11:27:43 -0500
     Tagged version 1.0.12.
 
-- 2 days ago Daniel Graham
+- 5 days ago Daniel Graham
     b40bb98 2022-01-03 11:26:08 -0500
     Improved flow - when editing or adding from any view, return to
     the same view but updated to reflect the changes.
-
-- 2 days ago Daniel Graham
-    c5ebd47 2022-01-03 09:45:18 -0500
-    Fixed bug in shortening title to fit available columns. README
-    tweaks. Shortened 'help'.
-
-- 3 days ago Daniel Graham
-    94a1d70 2022-01-02 19:10:31 -0500
-    README tweaks
-
-- 3 days ago (tag: 1.0.11) Daniel Graham
-    9df9d50 2022-01-02 18:28:46 -0500
-    Tagged version 1.0.11.
-
-- 3 days ago (tag: 1.0.10) Daniel Graham
-    1727265 2022-01-02 18:22:56 -0500
-    Tagged version 1.0.10.
-
-- 3 days ago Daniel Graham
-    61779ad 2022-01-02 18:22:37 -0500
-    Trial of recording all changes in bump.py.
-
-- 3 days ago Daniel Graham
-    7c749ff 2022-01-02 18:18:27 -0500
-    Tag sorting tweaks. Expanded README discussion to include expanded
-    example of grandchild.txt and the associated Tag View.
-
-- 3 days ago (tag: 1.0.9) Daniel Graham
-    8ee706c 2022-01-02 15:45:28 -0500
-    Tagged version 1.0.9.
-
-- 3 days ago Daniel Graham
-    41372cb 2022-01-02 15:45:10 -0500
-    Implemented tag_sort with cfg.yaml supporting entry. Don't count
-    hidden files toward using the cwd for nts. Expanded the example
-    file to include now, next and other gtd items to illustrate
-    sorting. Wrap session message when necessary.
-
-- 4 days ago (tag: 1.0.8) Daniel Graham
-    2909229 2022-01-01 16:09:54 -0500
-    Tagged version 1.0.8.
-
-- 4 days ago Daniel Graham
-    b10bb11 2022-01-01 16:09:01 -0500
-    Added 'message' color class with check to use default colors when
-    missing from cfg.yaml. Use message color for messages and help.
