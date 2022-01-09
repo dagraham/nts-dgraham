@@ -105,7 +105,7 @@ tags view       |  -t              |  t              |  ~
 hide leaves     |  -l              |  l              |  l
 hide branches   |  -b              |  b              |  b
 set max levels  |  -m MAX          |  m MAX          |  m
-highlight REGEX |                  |  / REGEX        |  /
+highlight REGEX |                  |  / SEARCH       |  /
 find REGEX      |  -f REGEX        |  f REGEX        |  f
 get REGEX       |  -g REGEX        |  g REGEX        |  g
 inspect IDENT   |  -i IDENT        |  i IDENT        |  i
@@ -119,7 +119,7 @@ version check   |  -v              |  v              |  v
 
 - m: Limit the diplay of nodes in the branches to the integer MAX levels. Use MAX = 0 to display all levels.
 
-- /: Incrementally search for matches for the case-insensitive regular expression REGEX.
+- /. Incrementally search for matches for the case-insensitive string SEARCH in the current display. When the search is active, press ",," (two commas successively) to clear the search or ".." to extend the search for matches to the complete notes for the active view. This is equivalent to invoking "f" with the same SEARCH argument.
 
 - f: Display complete notes that contain a match in the title, tags or body for the case-insensitive regular expression REGEX.
 

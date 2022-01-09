@@ -1,11 +1,11 @@
 import os, fnmatch
 import sys
 from pprint import pprint
-from anytree import Node, RenderTree, search
+from anytree import Node, RenderTree #, search
 from base64 import b64encode, b64decode
 import base64
 import re
-from prompt_toolkit import prompt
+from prompt_toolkit import prompt, search
 from prompt_toolkit.formatted_text import FormattedText
 from prompt_toolkit.styles import Style
 from prompt_toolkit.widgets import TextArea, SearchToolbar
@@ -49,25 +49,25 @@ note_regex = re.compile(r'^[\+#]\s+([^\(]+)\s*(\(([^\)]*)\))?\s*$')
 separator = os.path.sep
 
 help_table = f"""\
-               nts: Note Taking Simplified version {nts_version}
+            nts: Note Taking Simplified version {nts_version}
 
-        Action          | Command Mode     | Session Mode    | Notes
-        ----------------|------------------|-----------------|------
-        help            |  -h              |  h              |  ~
-        begin session   |  -s              |  ~              |  ~
-        end session     |   ~              |  q              |  ~
-        path view       |  -p              |  p              |  ~
-        tags view       |  -t              |  t              |  ~
-        hide leaves     |  -l              |  l              |  l
-        hide branches   |  -b              |  b              |  b
-        set max levels  |  -m MAX          |  m MAX          |  m
-        highlight REGEX |                  |  / REGEX        |  /
-        find REGEX      |  -f REGEX        |  f REGEX        |  f
-        get REGEX       |  -g REGEX        |  g REGEX        |  g
-        inspect IDENT   |  -i IDENT        |  i IDENT        |  i
-        edit IDENT      |  -e IDENT        |  e IDENT        |  e
-        add to IDENT    |  -a IDENT [NAME] |  a IDENT [NAME] |  a
-        version check   |  -v              |  v              |  v
+    Action          | Command Mode     | Session Mode    | Notes
+    ----------------|------------------|-----------------|------
+    help            |  -h              |  h              |  ~
+    begin session   |  -s              |  ~              |  ~
+    end session     |   ~              |  q              |  ~
+    path view       |  -p              |  p              |  ~
+    tags view       |  -t              |  t              |  ~
+    hide leaves     |  -l              |  l              |  l
+    hide branches   |  -b              |  b              |  b
+    set max levels  |  -m MAX          |  m MAX          |  m
+    highlight REGEX |                  |  / REGEX        |  /
+    find REGEX      |  -f REGEX        |  f REGEX        |  f
+    get REGEX       |  -g REGEX        |  g REGEX        |  g
+    inspect IDENT   |  -i IDENT        |  i IDENT        |  i
+    edit IDENT      |  -e IDENT        |  e IDENT        |  e
+    add to IDENT    |  -a IDENT [NAME] |  a IDENT [NAME] |  a
+    version check   |  -v              |  v              |  v
 
 """
 
@@ -75,7 +75,7 @@ help_notes = [
 'l. Suppress showing leaves in the outline. In session mode toggle the display of leaves off and on.',
 'b. Suppress showing branches in the outline, i.e., display only the leaves. In session mode toggle the display of the branches off and on.',
 'm. Limit the diplay of nodes in the branches to the integer MAX levels. Use MAX = 0 to display all levels.',
-'/. Incrementally search for matches for the case-insensitive regular expression REGEX in the current display.',
+'/. Incrementally search for matches for the case-insensitive string SEARCH in the current display. When the search is active, press ",," (two commas successively) to clear the search or ".." to extend the search for matches to the complete notes for the active view. This is equivalent to invoking "f" with the same SEARCH argument.',
 'f. Display complete notes that contain a match in the title, tags or body for the case-insensitive regular expression REGEX.',
 'g. Display note titles that contain a match in the branch nodes leading to the note for the case-insensitive regular expression REGEX.',
 'i. If IDENT is the 2-number identifier for a note, then display the contents of that note. Else if IDENT is the identifier for a ".txt" file, then display the contents of that file. Otherwise limit the display to that part of the outline which starts from the corresponding node. Use IDENT = 0 to start from the root node.',
@@ -230,7 +230,7 @@ class NodeData(object):
         self.getstr = ''
 
         self.setStart()
-        self.setMaxLevel(0)
+        self.setMaxLevel()
         self.getNodes()
 
         self.mode = 'path'
@@ -259,7 +259,6 @@ class NodeData(object):
         #     if msg:
         #         msglist.append(msg)
         self.restrictions = msg
-        logger.debug(f"restrictions: '{self.restrictions}'")
 
 
     def setGet(self, get=None):
@@ -269,13 +268,14 @@ class NodeData(object):
         self.get = re.compile(r'%s' % get, re.IGNORECASE) if self.getstr else None
         self.showNodes()
 
-    def setMaxLevel(self, maxlevel=0):
-        self.maxlevel = None if maxlevel == 0 else maxlevel
-        try:
-            self.maxlevel = int(self.maxlevel)
-        except Exception as e:
-            logger.debug(f"exception: {e}")
-            self.maxlevel = None
+    def setMaxLevel(self, maxlevel=None):
+        self.maxlevel = None if maxlevel in [0, str(0), None] else maxlevel
+        if self.maxlevel is not None:
+            try:
+                self.maxlevel = int(self.maxlevel)
+            except Exception as e:
+                logger.debug(f"exception: {e}; maxlevel: {maxlevel}")
+                self.maxlevel = None
         logger.debug(f"set maxlevel: {self.maxlevel}")
 
 
@@ -485,7 +485,6 @@ class NodeData(object):
             if output_lines and not output_lines[-1]:
                 output_lines = output_lines[:-1]
         self.findlines = output_lines
-        logger.debug(f"findlines: {self.findlines}")
 
     def showID(self, idstr="0"):
         self.showNodes()
@@ -631,16 +630,17 @@ def session():
         return lst
 
 
-    # def get_message_text():
-    #     return Data.restrictions
-
     search_field = SearchToolbar(text_if_not_searching=[
-        ('class:not-searching', "Press '/' to start searching.")], ignore_case=True)
+        ('class:not-searching', "Press '/' to start searching.")], ignore_case=True, vi_mode=True)
 
 
     @Condition
     def is_querying():
         return get_app().layout.has_focus(entry_area)
+
+    @Condition
+    def is_not_searching():
+        return not get_app().layout.has_focus(search_field)
 
     @Condition
     def is_not_typing():
@@ -720,8 +720,15 @@ def session():
 
 
     def show_find(regex):
+        search_state = get_app().current_search_state
+        search_state.text = regex
         Data.find(regex)
         set_text("\n".join(Data.findlines))
+        direction = search_state.direction
+        search.accept_search()
+        logger.debug(f"search_state: {search_state}; direction: {search_state.direction}; text: {search_state.text}")
+        logger.debug(f"search: {search.__dict__.keys()}; state: {search.SearchState}; text: {search.SearchState.text}")
+        search.start_search()
 
     def set_max(level):
         Data.setMaxLevel(level)
@@ -765,7 +772,7 @@ def session():
                 set_max
                 ],
             'f': ['show notes matching REGEX',
-                Data.find
+                show_find
                 ],
             'g': [
                 'show notes in branches matching REGEX - enter nothing to clear',
@@ -874,6 +881,24 @@ def session():
     def _(event):
         " Quit. "
         event.app.exit()
+
+    @bindings.add(',', ',', filter=is_not_typing)
+    def _(event):
+        search_state = get_app().current_search_state
+        text = search_state.text
+        logger.debug(f"search: {search.__dict__.keys()}; text: {text}")
+        search_state.text = ''
+
+    @bindings.add('.', '.', filter=is_not_typing)
+    def _(event):
+        search_state = get_app().current_search_state
+        text = search_state.text
+        logger.debug(f"search: {search.__dict__.keys()}; text: {text}")
+        if not text:
+            return
+        Data.find(text)
+        set_text("\n".join(Data.findlines))
+
 
     style = Style.from_dict({
         'status': f'{NAMED_COLORS["White"]} bg:{NAMED_COLORS["DimGrey"]}',
