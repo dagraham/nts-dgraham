@@ -1,89 +1,90 @@
-Recent changes as of 2022-01-09T17:16:33.202043-05:00:
-- 0 seconds ago (HEAD -> working, tag: 1.1.1) Daniel Graham
-    5be6b9a 2022-01-09 17:16:33 -0500
+Recent changes as of 2022-01-10T17:59:31.611063-05:00:
+- 0 seconds ago (HEAD -> working, tag: 1.1.2) Daniel Graham
+    dadf457 2022-01-10 17:59:31 -0500
+    Tagged version 1.1.2.
+
+- 21 seconds ago Daniel Graham
+    99763b6 2022-01-10 17:59:10 -0500
+    Split header into left (nts current view), center (limits if any)
+    and right (help).
+
+- 6 hours ago (origin/master, master) Daniel Graham
+    7213ced 2022-01-10 11:52:43 -0500
+    Handle empty note files correctly. Emphasized that incremental
+    search does not handle regular expressions. Cleaned up comments.
+    Corrected whitespace for 'def'.
+
+- 25 hours ago Daniel Graham
+    12ae481 2022-01-09 17:16:33 -0500
     Tagged version 1.1.1.
 
-- 25 seconds ago Daniel Graham
+- 25 hours ago Daniel Graham
     0832bcb 2022-01-09 17:16:08 -0500
     Figured out a way to clear incremental search highlighting and
     bound it to ',,'. Added a command bound to '..' to extend the
     incremental search to 'find' with the same expression.
 
-- 19 hours ago (origin/master, master) Daniel Graham
+- 2 days ago Daniel Graham
     9e16589 2022-01-08 21:49:52 -0500
     Tagged version 1.1.0. Replaced prompt based session with
     full-screen application based session."
 
-- 20 hours ago Daniel Graham
+- 2 days ago Daniel Graham
     d269e58 2022-01-08 21:45:29 -0500
     Tweaks for README and help.
 
-- 23 hours ago Daniel Graham
+- 2 days ago Daniel Graham
     b4266eb 2022-01-08 18:30:26 -0500
     For add, accept both IDENT and NAME at the prompt.
 
-- 25 hours ago Daniel Graham
+- 2 days ago Daniel Graham
     81c8ddc 2022-01-08 16:15:02 -0500
     Edit and Add seem to be working.
 
-- 26 hours ago Daniel Graham
+- 2 days ago Daniel Graham
     5744170 2022-01-08 15:32:07 -0500
     Much work on help and README to reflect the new full-screen
     session. First pass at edit and add but not working.
 
-- 31 hours ago Daniel Graham
+- 2 days ago Daniel Graham
     0dfbade 2022-01-08 09:49:18 -0500
     Removed original, non fullscreen session and ListView class.
 
-- 2 days ago Daniel Graham
+- 3 days ago Daniel Graham
     2fe96b8 2022-01-07 18:05:14 -0500
     First pass at session_app
 
-- 2 days ago (session) Daniel Graham
+- 3 days ago (session) Daniel Graham
     bd48658 2022-01-07 08:13:36 -0500
     n)otes, N)odes => l)eaves, b)ranches; b)ach => r)evert
 
-- 2 days ago Daniel Graham
+- 3 days ago Daniel Graham
     cecddb9 2022-01-07 07:24:05 -0500
     README abd help tweaks
 
-- 3 days ago Daniel Graham
+- 4 days ago Daniel Graham
     5b3091e 2022-01-06 18:14:55 -0500
     Changed command mode -v {p, t} => -p, -t and -u => -v
 
-- 4 days ago Daniel Graham
+- 5 days ago Daniel Graham
     5e98024 2022-01-05 09:29:29 -0500
     Tagged version 1.0.16.
 
-- 4 days ago Daniel Graham
+- 5 days ago Daniel Graham
     8cddca6 2022-01-05 09:28:54 -0500
     Added CHANGES.txt and removed shortcuts.clear from command mode.
 
-- 5 days ago (tag: 1.0.15) Daniel Graham
+- 6 days ago (tag: 1.0.15) Daniel Graham
     f2a606f 2022-01-04 22:38:19 -0500
     Tagged version 1.0.15.
 
-- 5 days ago Daniel Graham
+- 6 days ago Daniel Graham
     22c603f 2022-01-04 22:36:48 -0500
     Implemented 'get' bound to '-g' in command mode and 'g' in session
     mode. Takes a case-insensitive regular expression and displays in
     either path or tags mode the note titles and IDENTs for notes
     whose branch nodes contain a match for regex.
 
-- 6 days ago (tag: 1.0.14) Daniel Graham
+- 7 days ago (tag: 1.0.14) Daniel Graham
     4593d3e 2022-01-03 13:32:24 -0500
     Tagged version 1.0.14.
-
-- 6 days ago Daniel Graham
-    91a25bd 2022-01-03 13:28:14 -0500
-    tabs to spaces in README...
-
-- 6 days ago (tag: 1.0.13) Daniel Graham
-    2e82d52 2022-01-03 12:50:28 -0500
-    Tagged version 1.0.13.
-
-- 6 days ago Daniel Graham
-    78dc731 2022-01-03 12:49:47 -0500
-    README and help tweaks. Added tagsort.txt example and modified the
-    'populate data directory' option when starting with a missing data
-    directory to add both this file and grandchild.txt.
