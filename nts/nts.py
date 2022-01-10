@@ -26,7 +26,7 @@ from prompt_toolkit.styles.named_colors import NAMED_COLORS
 from prompt_toolkit.buffer import Buffer
 from prompt_toolkit.filters import Condition
 from prompt_toolkit.application.current import get_app
-from prompt_toolkit.layout.containers import HSplit, Window, ConditionalContainer
+from prompt_toolkit.layout.containers import HSplit, VSplit, Window, WindowAlign, ConditionalContainer
 
 import subprocess
 import requests
@@ -242,7 +242,7 @@ class NodeData(object):
         self.showingNodes = True
 
 
-    def setRestrictions(self):
+    def setlimits(self):
         # startmsg = "" if self.start == '.' else f'showing branches starting from "{self.start}" - press "i" and enter 0 to show all branches'
         # getmsg = f'showing notes in branches matching "{self.getstr}" - press "g" and enter nothing to clear' if self.getstr else ""
         # maxmsg = "" if self.maxlevel in [None, 0] else f'displaying at most {self.maxlevel} levels - press "m" and enter 0 to show all levels'
@@ -264,7 +264,7 @@ class NodeData(object):
         # for msg in [startmsg, getmsg, maxmsg, leafmsg, branchmsg]:
         #     if msg:
         #         msglist.append(msg)
-        self.restrictions = msg
+        self.limits = msg
 
 
     def setGet(self, get=None):
@@ -365,7 +365,7 @@ class NodeData(object):
         self.columns, self.rows = shutil.get_terminal_size()
         column_adjust = 3 if self.sessionMode else 1
         getnodes = self.get
-        self.setRestrictions()
+        self.setlimits()
         id = 0
         id2info = {}
         linenum = 0
@@ -628,21 +628,40 @@ def session():
     def get_statusbar_text():
         lst = [
             ('class:status', ' nts'),
-            ('class:status', f' {Data.mode} view'),
-            ('class:status', ' - Press '),
-            ('class:status.key', 'h'),
-            ('class:status', ' for help'),
+            ('class:status.key', f' {Data.mode[0]}'),
+            ('class:status', f'){Data.mode[1:]} view'),
+            # ('class:status', ' - Press '),
         ]
-        if Data.restrictions:
-            lst.append(('class:status', ' - restrictions: '))
-            for key in Data.restrictions[:-1]:
+        return lst
+
+    def get_statusbar_center_text():
+        lst = []
+        if Data.limits:
+            lst.append(('class:status', 'limits: '))
+            for key in Data.limits[:-1]:
                 lst.extend([
                     ('class:status.key', f'{key}'),
                     ('class:status', ', '),
                     ]
                     )
-            lst.append(('class:status.key', f'{Data.restrictions[-1]}'))
+            lst.append(('class:status.key', f'{Data.limits[-1]}'))
         return lst
+
+    def get_statusbar_right_text():
+        lst = [
+            # ('class:status', 'Press '),
+            ('class:status.key', 'h'),
+            ('class:status', ')elp '),
+        ]
+        return lst
+    status_area = VSplit([
+                Window(FormattedTextControl(get_statusbar_text), style='class:status', width=15),
+                Window(FormattedTextControl(get_statusbar_center_text),
+                    style='class:status', align=WindowAlign.CENTER),
+                Window(FormattedTextControl(get_statusbar_right_text),
+                    style='class:status', width=15, align=WindowAlign.RIGHT),
+            ], height=1)
+
 
 
     search_field = SearchToolbar(text_if_not_searching=[
@@ -723,14 +742,10 @@ def session():
 
     root_container = HSplit([
         # The top toolbar.
-        Window(
-            content=FormattedTextControl(
-            get_statusbar_text),
-            height=D.exact(1),
-            style='class:status'),
-
+        status_area,
         # The main content.
         text_area,
+        #command description and entry
         ConditionalContainer(
             content=entry_area,
             filter=is_querying),
@@ -765,9 +780,11 @@ def session():
             return
         orig_mode = Data.mode
         Data.editID(idstr)
-        Data.getNodes()
+        # Data.getNodes()
         Data.setMode(orig_mode)
         Data.showID(idstr)
+        Data.getNodes()
+        Data.showNodes()
 
 
     def add_ident(entry):
@@ -827,8 +844,8 @@ def session():
         set_text(txt)
 
 
-    def show_restrictions():
-        txt = "\n".join(Data.restrictions)
+    def show_limits():
+        txt = "\n".join(Data.limits)
         set_text(txt)
 
 
@@ -869,7 +886,7 @@ def session():
             'l': toggle_leaves,
             'b': toggle_branches,
             'v': show_update_info,
-            'r': show_restrictions
+            'r': show_limits
             }
 
     # for commands without an argument
