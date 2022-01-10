@@ -91,7 +91,7 @@ The numeric identifiers appended to the lines in both views are provided by *nts
 
         $ nts -s
 
-    This begins a session in which data is loaded into memory and remains available for subsequent interaction. In this mode, *nts* assumes command of the terminal window. Then, e.g., pressing `p` would display the path view. Session mode adds several features not available in command mode. E.g., scrolling and incremental search are supported.
+    This begins a session in which data is loaded into memory and remains available for subsequent interaction. In this mode, *nts* assumes command of the terminal window. Then, e.g., pressing `p` would display the path view. Session mode adds several features not available in command mode, e.g., scrolling and incremental search.
 
 #### Command Summary
 
@@ -105,7 +105,7 @@ tags view       |  -t              |  t              |  ~
 hide leaves     |  -l              |  l              |  l
 hide branches   |  -b              |  b              |  b
 set max levels  |  -m MAX          |  m MAX          |  m
-highlight REGEX |                  |  / SEARCH       |  /
+search          |                  |  / SEARCH       |  /
 find REGEX      |  -f REGEX        |  f REGEX        |  f
 get REGEX       |  -g REGEX        |  g REGEX        |  g
 inspect IDENT   |  -i IDENT        |  i IDENT        |  i
@@ -119,7 +119,7 @@ version check   |  -v              |  v              |  v
 
 - m: Limit the diplay of nodes in the branches to the integer MAX levels. Use MAX = 0 to display all levels.
 
-- /. Incrementally search for matches for the case-insensitive string SEARCH in the current display. When the search is active, press ",," (two commas successively) to clear the search or ".." to extend the search for matches to the complete notes for the active view. This is equivalent to invoking "f" with the same SEARCH argument.
+- /: Incrementally search for matches for the case-insensitive string (not regular expression) SEARCH in the current display. When the search is active, press ",," (two commas successively) to clear the search or ".." to extend the search for matches to the complete notes for the active view. This is equivalent to invoking "f" with the same SEARCH argument.
 
 - f: Display complete notes that contain a match in the title, tags or body for the case-insensitive regular expression REGEX.
 

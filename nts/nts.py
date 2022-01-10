@@ -61,7 +61,7 @@ help_table = f"""\
     hide leaves     |  -l              |  l              |  l
     hide branches   |  -b              |  b              |  b
     set max levels  |  -m MAX          |  m MAX          |  m
-    highlight REGEX |                  |  / REGEX        |  /
+    search          |                  |  / SEARCH       |  /
     find REGEX      |  -f REGEX        |  f REGEX        |  f
     get REGEX       |  -g REGEX        |  g REGEX        |  g
     inspect IDENT   |  -i IDENT        |  i IDENT        |  i
@@ -75,7 +75,7 @@ help_notes = [
 'l. Suppress showing leaves in the outline. In session mode toggle the display of leaves off and on.',
 'b. Suppress showing branches in the outline, i.e., display only the leaves. In session mode toggle the display of the branches off and on.',
 'm. Limit the diplay of nodes in the branches to the integer MAX levels. Use MAX = 0 to display all levels.',
-'/. Incrementally search for matches for the case-insensitive string SEARCH in the current display. When the search is active, press ",," (two commas successively) to clear the search or ".." to extend the search for matches to the complete notes for the active view. This is equivalent to invoking "f" with the same SEARCH argument.',
+'/. Incrementally search for matches for the case-insensitive string (not regular expression) SEARCH in the current display. When the search is active, press ",," (two commas successively) to clear the search or ".." to extend the search for matches to the complete notes for the active view. This is equivalent to invoking "f" with the same SEARCH argument.',
 'f. Display complete notes that contain a match in the title, tags or body for the case-insensitive regular expression REGEX.',
 'g. Display note titles that contain a match in the branch nodes leading to the note for the case-insensitive regular expression REGEX.',
 'i. If IDENT is the 2-number identifier for a note, then display the contents of that note. Else if IDENT is the identifier for a ".txt" file, then display the contents of that file. Otherwise limit the display to that part of the outline which starts from the corresponding node. Use IDENT = 0 to start from the root node.',
@@ -121,13 +121,17 @@ def splitall(path):
             allparts.insert(0, parts[1])
     return allparts
 
+
 def mypathsort(items):
     return sorted(items, key=lambda item: item.name)
+
 
 def mytagsort(items):
     return sorted(items, key=lambda item: tag_sort.get(item.name.split(' ')[0], item.name.split(' ')[0]) + ' '.join(item.name.split(' ')[1:]))
 
+
 _to_esc = re.compile(r'\s')
+
 def _esc_char(match):
     return r"\ "
 
@@ -138,6 +142,7 @@ def myescape(name):
 
 def myprint(tokenlines, color=None):
     print_formatted_text(FormattedText(tokenlines), style=style_obj)
+
 
 def show_message(msg):
     shortcuts.clear()
@@ -236,6 +241,7 @@ class NodeData(object):
         self.mode = 'path'
         self.showingNodes = True
 
+
     def setRestrictions(self):
         # startmsg = "" if self.start == '.' else f'showing branches starting from "{self.start}" - press "i" and enter 0 to show all branches'
         # getmsg = f'showing notes in branches matching "{self.getstr}" - press "g" and enter nothing to clear' if self.getstr else ""
@@ -268,6 +274,7 @@ class NodeData(object):
         self.get = re.compile(r'%s' % get, re.IGNORECASE) if self.getstr else None
         self.showNodes()
 
+
     def setMaxLevel(self, maxlevel=None):
         self.maxlevel = None if maxlevel in [0, str(0), None] else maxlevel
         if self.maxlevel is not None:
@@ -285,11 +292,13 @@ class NodeData(object):
         if not self.shownotes:
             self.shownodes = True
 
+
     def toggleShowBranches(self):
         self.shownodes = not self.shownodes
         # if nodes are hidden, make sure notes are not hidden
         if not self.shownodes:
             self.shownotes = True
+
 
     def setMode(self, mode):
         if mode not in ['path', 'tags']:
@@ -298,9 +307,11 @@ class NodeData(object):
         self.mode = 'path' if mode == 'path' else "tags"
         self.nodes = self.pathnodes if mode == 'path' else self.tagnodes
 
+
     def setStart(self, start='.'):
         logger.debug(f"start: {start}")
         self.start = start
+
 
     def getNodes(self):
         """
@@ -328,18 +339,19 @@ class NodeData(object):
                 self.pathnodes[f"{key}{separator}{file}"] = Node(file, self.pathnodes[key])
                 tmp = f"{key}{separator}{file}"
                 notes = getnotes(filepath)
-                notelines = []
-                for x in notes:
-                    #  x: [title, [tags], linenum, [body]]
-                    titlestr = f"+ {x[0]}"
-                    tagstr = f" ({', '.join(x[1])})" if x[1] else ""
-                    tmp = [f"{titlestr}{tagstr}"]
-                    tmp.extend(x[3])
-                    self.notedetails[(filepath, x[2])] = tmp
-                    notelines.append([titlestr, tagstr,  (filepath, x[2])])
-                    for tag in x[1]:
-                        taghash.setdefault(tag, []).append([titlestr, tagstr, (filepath, x[2])])
-                self.pathnodes[f"{key}{separator}{file}{separator}notes"] = Node('notes', self.pathnodes[f"{key}{separator}{file}"], lines=notelines)
+                if notes:
+                    notelines = []
+                    for x in notes:
+                        #  x: [title, [tags], linenum, [body]]
+                        titlestr = f"+ {x[0]}"
+                        tagstr = f" ({', '.join(x[1])})" if x[1] else ""
+                        tmp = [f"{titlestr}{tagstr}"]
+                        tmp.extend(x[3])
+                        self.notedetails[(filepath, x[2])] = tmp
+                        notelines.append([titlestr, tagstr,  (filepath, x[2])])
+                        for tag in x[1]:
+                            taghash.setdefault(tag, []).append([titlestr, tagstr, (filepath, x[2])])
+                    self.pathnodes[f"{key}{separator}{file}{separator}notes"] = Node('notes', self.pathnodes[f"{key}{separator}{file}"], lines=notelines)
 
 
         self.tagnodes['.'] = Node('.')
@@ -414,6 +426,7 @@ class NodeData(object):
         self.id2info = id2info
         self.nodelines = output_lines
 
+
     def showNotes(self, filepath, linenum=None):
         """display the contens of filepath starting with linenum"""
 
@@ -445,6 +458,7 @@ class NodeData(object):
 
         self.notelines = output_lines
 
+
     def tags(self, tag=None):
         if tag:
             regex = re.compile(r'%s' % tag, re.IGNORECASE)
@@ -472,7 +486,6 @@ class NodeData(object):
                 if key in matching_keys:
                     lines = self.notedetails.get(key, [])
                     idstr = "-".join([str(x) for x in identifier])
-                    # output_lines.append(f"IDENT: {idstr}\n{lines[0]} {idstr}")
                     output_lines.append(f"{lines[0]} {idstr}")
                     for line in lines[1:]:
                         line.rstrip()
@@ -485,6 +498,7 @@ class NodeData(object):
             if output_lines and not output_lines[-1]:
                 output_lines = output_lines[:-1]
         self.findlines = output_lines
+
 
     def showID(self, idstr="0"):
         self.showNodes()
@@ -604,6 +618,7 @@ class NodeData(object):
             pprint(self.nodes.keys())
         return
 
+
 def session():
     columns, rows = shutil.get_terminal_size()
     Data.sessionMode = True
@@ -631,16 +646,18 @@ def session():
 
 
     search_field = SearchToolbar(text_if_not_searching=[
-        ('class:not-searching', "Press '/' to start searching.")], ignore_case=True, vi_mode=True)
+        ('class:not-searching', "Press '/' to start searching.")], ignore_case=True)
 
 
     @Condition
     def is_querying():
         return get_app().layout.has_focus(entry_area)
 
+
     @Condition
     def is_not_searching():
         return not get_app().layout.has_focus(search_field)
+
 
     @Condition
     def is_not_typing():
@@ -654,6 +671,7 @@ def session():
         scrollbar=True,
         search_field=search_field
         )
+
 
     def set_text(txt, row=0):
         text_area.text = txt
@@ -676,6 +694,7 @@ def session():
         wrap_lines=False,
         prompt='> ',
         )
+
 
     def accept(buf):
         global active_key
@@ -720,20 +739,26 @@ def session():
 
 
     def show_find(regex):
+        search.start_search()
+        layout = get_app().layout
+        search_control = layout.current_control
+        search_control.buffer.text = regex
         search_state = get_app().current_search_state
         search_state.text = regex
+        search.accept_search()
         Data.find(regex)
         set_text("\n".join(Data.findlines))
-        direction = search_state.direction
-        search.accept_search()
+        # direction = search_state.direction
         logger.debug(f"search_state: {search_state}; direction: {search_state.direction}; text: {search_state.text}")
         logger.debug(f"search: {search.__dict__.keys()}; state: {search.SearchState}; text: {search.SearchState.text}")
         search.start_search()
+
 
     def set_max(level):
         Data.setMaxLevel(level)
         Data.getNodes()
         Data.showNodes()
+
 
     def edit_ident(idstr):
         if not idstr:
@@ -743,6 +768,7 @@ def session():
         Data.getNodes()
         Data.setMode(orig_mode)
         Data.showID(idstr)
+
 
     def add_ident(entry):
         if not entry:
@@ -792,6 +818,7 @@ def session():
                 ]
             }
 
+
     def show_help():
         note_lines = []
         for line in help_notes:
@@ -799,9 +826,11 @@ def session():
         txt = help_table + "\n".join(note_lines) + "\n"
         set_text(txt)
 
+
     def show_restrictions():
         txt = "\n".join(Data.restrictions)
         set_text(txt)
+
 
     def show_path():
         Data.setMode('path')
@@ -810,21 +839,25 @@ def session():
         set_text("\n".join(lines))
 
 
+
     def show_tags():
         Data.setMode('tags')
         Data.showNodes()
         lines =  Data.nodelines
         set_text("\n".join(lines))
 
+
     def toggle_leaves():
         Data.toggleShowLeaves()
         Data.showNodes()
         set_text("\n".join(Data.nodelines))
 
+
     def toggle_branches():
         Data.toggleShowBranches()
         Data.showNodes()
         set_text("\n".join(Data.nodelines))
+
 
     def show_update_info():
         set_text(check_update())
@@ -862,10 +895,6 @@ def session():
     def _(event):
         global active_key
         "toggle entry_area"
-        # show_entry_area = True
-        # set_text("\n".join([x for x in event.__dict__.keys()]))
-        # set_text(f"{TextArea.__dict__.keys()}")
-        # set_text(f"{event.key_sequence[0].key}")
         key = event.key_sequence[0].key
         active_key = key
         instruction, command = dispatch.get(key, (None, None))
