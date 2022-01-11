@@ -349,8 +349,12 @@ class NodeData(object):
                         tmp.extend(x[3])
                         self.notedetails[(filepath, x[2])] = tmp
                         notelines.append([titlestr, tagstr,  (filepath, x[2])])
-                        for tag in x[1]:
-                            taghash.setdefault(tag, []).append([titlestr, tagstr, (filepath, x[2])])
+                        if x[1]:
+                            for tag in x[1]:
+                                taghash.setdefault(tag, []).append([titlestr, tagstr, (filepath, x[2])])
+                        else:
+                            # assign the no-tag tag '~'
+                            taghash.setdefault('~', []).append([titlestr, tagstr, (filepath, x[2])])
                     self.pathnodes[f"{key}{separator}{file}{separator}notes"] = Node('notes', self.pathnodes[f"{key}{separator}{file}"], lines=notelines)
 
 
@@ -542,7 +546,7 @@ class NodeData(object):
         idtup = tuple([int(x) for x in idstr.split('-')])
         info = self.id2info.get(idtup, ('.', ))
         if not os.path.isfile(info[0]):
-            return
+            return (False, f"Bad IDENT {idstr}")
         info = list(info)
         if len(info) < 2 or not info[1]:
             info[1] = 0
@@ -557,7 +561,7 @@ class NodeData(object):
             editcmd = command_edit.format(**hsh)
         editcmd = [x.strip() for x in editcmd.split(" ") if x.strip()]
         subprocess.call(editcmd)
-        return
+        return (True, f"Called {editcmd}")
 
 
     def addID(self, idstr, text=None):
@@ -1028,16 +1032,18 @@ def main():
         showing_details = args.find or args.add or args.edit or args.id
 
         if args.id:
-            Data.showID(args.id)
+            ok, res = Data.showID(args.id)
+            if not ok:
+                print(res)
 
         if args.find:
             showing_dtails = True
             Data.showNodes()
             Data.find(args.find)
-            for line in Data.findlines:
-                print(line)
-            print("_"*columns)
-            return
+            if not (args.add or args.edit or args.id):
+                for line in Data.findlines:
+                    print(line)
+                print("_"*columns)
 
         if args.get:
             showing_dtails = True
@@ -1086,7 +1092,9 @@ def main():
 
         if args.edit:
             logger.debug(f"args.edit: {args.edit}")
-            Data.editID(args.edit)
+            ok, res = Data.editID(args.edit)
+            if not ok:
+                print(res)
 
 
 
