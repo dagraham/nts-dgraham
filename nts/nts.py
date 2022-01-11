@@ -976,7 +976,7 @@ def session():
 
 def main():
     columns, rows = shutil.get_terminal_size()
-    parser = argparse.ArgumentParser(description=f"nts: Note Taking Simplified version {nts_version}")
+    parser = argparse.ArgumentParser(description=f"Note Taking Simplified version {nts_version}", formatter_class=argparse.ArgumentDefaultsHelpFormatter, prog='nts')
 
     parser.add_argument("-s",  "--session", help="begin an interactive session", action="store_true")
 
@@ -996,19 +996,23 @@ def main():
 
     parser.add_argument("-m", "--max", type=int, help="display at most MAX levels of outlines. Use MAX = 0 to show all levels.")
 
-    parser.add_argument("-f", "--find", type=str, help="show notes whose content contains a match for the case-insensitive regex FIND")
+    parser.add_argument("-f", "--find", type=str, help="show notes in the current view whose content contains a match for the case-insensitive regex FIND")
 
-    parser.add_argument("-g", "--get", type=str, help="show note titles whose branches contain a match for the case-insensitive regex GET")
+    parser.add_argument("-g", "--get", type=str, help="show note titles whose branches in the current view contain a match for the case-insensitive regex GET")
 
-    parser.add_argument("-i", "--id", type=str, help="inspect the node/leaf corresponding to ID")
+    parser.add_argument("-i", "--id", type=str, help="inspect the node/leaf corresponding to ID in the current view")
 
-    parser.add_argument("-e", "--edit", type=str, help="edit the node/leaf corresponding to EDIT")
+    parser.add_argument("-e", "--edit", type=str, help="edit the node/leaf corresponding to EDIT in the current view")
 
-    parser.add_argument("-a", "--add", type=str, help="add to the node/leaf corresponding to ADD")
+    parser.add_argument("-a", "--add", type=str, help="add to the node/leaf corresponding to ADD in the current view")
 
     parser.add_argument("-v",  "--version", help="check for an update to a later nts version",
                         action="store_true")
 
+
+    if len(sys.argv)==1:
+        parser.print_help()
+        sys.exit(1)
 
     args = parser.parse_args()
     mode = 'path' if args.path else 'tags'
@@ -1021,7 +1025,10 @@ def main():
 
     else:
 
+        showing_details = args.find or args.get or args.add or args.edit or args.id
+
         if args.find:
+            showing_dtails = True
             Data.showNodes()
             Data.find(args.find)
             for line in Data.findlines:
@@ -1030,6 +1037,7 @@ def main():
             return
 
         if args.get:
+            showing_dtails = True
             Data.setGet(args.get)
             Data.showNodes()
 
@@ -1048,20 +1056,22 @@ def main():
             Data.toggleShowBranches()
 
         if args.path:
-            print('path view')
             Data.setMode('path')
             Data.showNodes()
-            for line in Data.nodelines:
-                print(line)
-            print('')
+            if not showing_details:
+                print('path view')
+                for line in Data.nodelines:
+                    print(line)
+                print('')
 
         if args.tags:
-            print('tags view')
             Data.setMode('tags')
             Data.showNodes()
-            for line in Data.nodelines:
-                print(line)
-            print('')
+            if not showing_details:
+                print('tags view')
+                for line in Data.nodelines:
+                    print(line)
+                print('')
 
         if args.add:
             logger.debug(f"args.add: {args.add}")

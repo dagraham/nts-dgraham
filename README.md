@@ -5,7 +5,7 @@
 
 ### Overview
 
-*nts* is pure python and will run on any platform that supports python >= 3.7.3. It runs in a terminal window that should be configured to use a fixed width (monospaced) font. _Menlo Regular_ for OSX and _DejaVu Sans Mono_ for Linux are good choices.
+_nts_ is pure python and will run on any platform that supports python >= 3.7.3. It runs in a terminal window that should be configured to use a fixed width (monospaced) font. _Menlo Regular_ for OSX and _DejaVu Sans Mono_ for Linux are good choices. A width of at least 68 characters for the terminal window is recommended.
 
 Notes are recorded in plain text files with the extension ".txt" that are located anywhere below the *nts* data directory. These note files have a simple format:
 
@@ -141,7 +141,7 @@ There are no commands in _nts_ to remove either a file or a directory. Please us
 
 Before you start *nts* for the first time, think about where you would like to keep your personal data files and any log files that _nts_ will create. This will be your nts _home directory_. The _nts_ configuration file, "cfg.yaml" will be placed in this directory as well as the data and log files in the subdirectories _data_ and _logs_, respectively.
 
-The default is to use whatever directory you're in when you start _nts_ as the _home directory_ either 1) if it is empty (unused so far) or 2) if it contains  subdirectories called "data" and "logs" or 3) if it contains a file called "cfg.yaml" and a subdirectory called "logs". To use this option just change to this directory before starting _nts_.
+The default is to use the current working directory when you start _nts_ as the _home directory_ either 1) if it is empty (unused so far) or 2) if it contains  subdirectories called "data" and "logs" or 3) if it contains a file called "cfg.yaml" and a subdirectory called "logs". To use this option just change to this directory before starting _nts_.
 
 Alternatively, if the current working directory doesn't satisfy the requirments but there is an environmental variable, `NTSHOME`, that contains the path to an existing directory, then *nts* will use this as its _home directory_. To use this option, first create the directory and then set the enivonmental variable by, e.g., appending the following to your "~/.bash_profile":
 
