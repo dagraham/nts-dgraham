@@ -1025,7 +1025,10 @@ def main():
 
     else:
 
-        showing_details = args.find or args.get or args.add or args.edit or args.id
+        showing_details = args.find or args.add or args.edit or args.id
+
+        if args.id:
+            Data.showID(args.id)
 
         if args.find:
             showing_dtails = True
@@ -1085,8 +1088,6 @@ def main():
             logger.debug(f"args.edit: {args.edit}")
             Data.editID(args.edit)
 
-        elif args.id:
-            Data.showID(args.id)
 
 
 if __name__ == "__main__":
