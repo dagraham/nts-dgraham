@@ -48,40 +48,23 @@ note_regex = re.compile(r'^[\+#]\s+([^\(]+)\s*(\(([^\)]*)\))?\s*$')
 
 separator = os.path.sep
 
-help_table = f"""\
-            nts: Note Taking Simplified version {nts_version}
-
-    Action          | Command Mode     | Session Mode    | Notes
-    ----------------|------------------|-----------------|------
-    help            |  -h              |  h              |  ~
-    begin session   |  -s              |  ~              |  ~
-    end session     |   ~              |  q              |  ~
-    path view       |  -p              |  p              |  ~
-    tags view       |  -t              |  t              |  ~
-    hide leaves     |  -l              |  l              |  l
-    hide branches   |  -b              |  b              |  b
-    set max levels  |  -m MAX          |  m MAX          |  m
-    search          |                  |  / SEARCH       |  /
-    find REGEX      |  -f REGEX        |  f REGEX        |  f
-    get REGEX       |  -g REGEX        |  g REGEX        |  g
-    inspect IDENT   |  -i IDENT        |  i IDENT        |  i
-    edit IDENT      |  -e IDENT        |  e IDENT        |  e
-    add to IDENT    |  -a IDENT [NAME] |  a IDENT [NAME] |  a
-    version check   |  -v              |  v              |  v
-
-"""
 
 help_notes = [
-'l. Suppress showing leaves in the outline. In session mode toggle the display of leaves off and on.',
-'b. Suppress showing branches in the outline, i.e., display only the leaves. In session mode toggle the display of the branches off and on.',
-'m. Limit the diplay of nodes in the branches to the integer MAX levels. Use MAX = 0 to display all levels.',
-'/. Incrementally search for matches for the case-insensitive string (not regular expression) SEARCH in the current display. When the search is active, press ",," (two commas successively) to clear the search or ".." to extend the search for matches to the complete notes for the active view. This is equivalent to invoking "f" with the same SEARCH argument.',
-'f. Display complete notes that contain a match in the title, tags or body for the case-insensitive regular expression REGEX.',
-'g. Display note titles that contain a match in the branch nodes leading to the note for the case-insensitive regular expression REGEX.',
-'i. If IDENT is the 2-number identifier for a note, then display the contents of that note. Else if IDENT is the identifier for a ".txt" file, then display the contents of that file. Otherwise limit the display to that part of the outline which starts from the corresponding node. Use IDENT = 0 to start from the root node.',
-'e. If IDENT corresponds to either a note or a ".txt" file, then open that file for editing and, in the case of a note, scroll to the beginning line of the note.',
-'a. If IDENT corresponds to either a note or a ".txt" file, then open that file for appending a new note. Otherwise, if IDENT corresponds to a directory and NAME is provided, add a child called NAME to that node. If NAME ends with ".txt", a new note file will be created and opened for editing. Otherwise, a new subdirectory called NAME will be added to the node directory. Use "0" as the IDENT to add to the root (data) node. In command mode, "IDENT NAME" should be wrapped in quotes.',
-'v. Compare the installed version of nts with the latest version on GitHub (requires internet connection) and report the result.',
+'h              show this help message.',
+'q              quit.',
+'v              compare the installed version of nts with the latest version on GitHub (requires an internet connection).',
+'p              display path view.',
+'t              display tags view.',
+'l              toggle showing leaves in the outline views.',
+'b              toggle showing branches in the outline views.',
+'m INTEGER      limit the diplay of nodes in the outline views to INTEGER levels. Use INTEGER = 0 to display all levels.',
+'/ STRING       incrementally search for matches for the case-insensitive STRING (not regular expression) in the current display. When the search is active, press ",," (two commas successively) to clear the search or ".." to extend the search for matches to the complete notes for the active view. This is equivalent to invoking "f" with the same SEARCH argument.',
+'f STRING       display complete notes that contain a match in the title, tags or body for the case-insensitive regular expression STRING.',
+'g STRING       display note titles that contain a match in the branch nodes leading to the note for the case-insensitive regular expression STRING.',
+'j JOIN         display note titles for notes with tags satisfying JOIN. E.g. if JOIN = "red", then notes containing the tag "RED" would be displayed. If JOIN = "| red, blue" then notes with _either_ the tag "red" _or_ the tag "blue" would be displayed. Finally, if JOIN = "& red, blue", then notes with _both_ the tags "red" _and_ "blue" would be displayed. In general JOIN = [|&] comma-separated list of case-insensitive regular expressions.',
+'i IDENT        if IDENT is the 2-number line identifier for a note, then display the contents of that note. Else if IDENT is the identifier for a ".txt" file, then display the contents of that file. Otherwise limit the display to that part of the outline which starts from the corresponding node. Use IDENT = 0 to start from the root node.',
+'e IDENT        if IDENT corresponds to either a note or a ".txt" file, then open that file for editing and, in the case of a note, scroll to the beginning line of the note.',
+'a IDENT [NAME] if IDENT corresponds to either a note or a ".txt" file, then open that file for appending a new note. Otherwise, if IDENT corresponds to a directory and NAME is provided, add a child called NAME to that node. If NAME ends with ".txt", a new note file will be created and opened for editing. Otherwise, a new subdirectory called NAME will be added to the node directory. Use "0" as the IDENT to add to the root (data) node.',
 ]
 
 
@@ -231,8 +214,8 @@ class NodeData(object):
         self.shownotes = True
         self.shownodes = True
         self.sessionMode = False
-        self.get = None
-        self.getstr = ''
+        self.get = None  # regular expression
+        self.join = None # regular expressions joined by 'and' or 'or'
 
         self.setStart()
         self.setMaxLevel()
@@ -243,17 +226,13 @@ class NodeData(object):
 
 
     def setlimits(self):
-        # startmsg = "" if self.start == '.' else f'showing branches starting from "{self.start}" - press "i" and enter 0 to show all branches'
-        # getmsg = f'showing notes in branches matching "{self.getstr}" - press "g" and enter nothing to clear' if self.getstr else ""
-        # maxmsg = "" if self.maxlevel in [None, 0] else f'displaying at most {self.maxlevel} levels - press "m" and enter 0 to show all levels'
-        # leafmsg = "" if self.shownotes else 'hiding leaves - press "l" to display them'
-        # branchmsg = "" if self.shownodes else 'hiding branches - press "b" to display them'
-        # msglist = []
         msg = []
         if self.start != '.':
             msg.append('i')
-        if self.getstr:
+        if self.get:
             msg.append('g')
+        if self.join:
+            msg.append('j')
         if self.maxlevel not in [None, 0]:
             msg.append('m')
         if not self.shownotes:
@@ -261,18 +240,35 @@ class NodeData(object):
         if not self.shownodes:
             msg.append('b')
 
-        # for msg in [startmsg, getmsg, maxmsg, leafmsg, branchmsg]:
-        #     if msg:
-        #         msglist.append(msg)
         self.limits = msg
 
 
     def setGet(self, get=None):
+        if get is None:
+            return (False, "required argument missing")
         get = get.strip()
-        logger.debug(f"getstr: {get}")
-        self.getstr = get if get else ''
-        self.get = re.compile(r'%s' % get, re.IGNORECASE) if self.getstr else None
-        self.showNodes()
+        self.get = re.compile(r'%s' % get, re.IGNORECASE) if get else None
+        # self.showNodes()
+
+
+    def setJoin(self, join=None):
+        if join is None:
+            return (False, "required argument missing")
+        join = join.strip()
+        if join.startswith('&'):
+            mode = 'and'
+            join = join[1:]
+        elif join.startswith('|'):
+            mode = 'or'
+            join = join[1:]
+        else:
+            mode = None
+        if mode:
+            joinlst = [x.strip() for x in join.split(', ')]
+        elif join:
+            joinlst = [join]
+        self.join = (mode, [re.compile(r'%s' % x, re.IGNORECASE) for x in joinlst]) if join else None
+        # sef.showNodes()
 
 
     def setMaxLevel(self, maxlevel=None):
@@ -281,9 +277,7 @@ class NodeData(object):
             try:
                 self.maxlevel = int(self.maxlevel)
             except Exception as e:
-                logger.debug(f"exception: {e}; maxlevel: {maxlevel}")
                 self.maxlevel = None
-        logger.debug(f"set maxlevel: {self.maxlevel}")
 
 
     def toggleShowLeaves(self):
@@ -309,7 +303,6 @@ class NodeData(object):
 
 
     def setStart(self, start='.'):
-        logger.debug(f"start: {start}")
         self.start = start
 
 
@@ -367,8 +360,7 @@ class NodeData(object):
 
     def showNodes(self):
         self.columns, self.rows = shutil.get_terminal_size()
-        column_adjust = 3 if self.sessionMode else 1
-        getnodes = self.get
+        column_adjust = 2 if self.sessionMode else 1
         self.setlimits()
         id = 0
         id2info = {}
@@ -378,6 +370,10 @@ class NodeData(object):
         start = self.nodes.get(self.start, self.nodes['.'])
         showlevel = self.maxlevel + 1 if self.maxlevel else None
         thissort = mypathsort if self.mode == 'path' else mytagsort
+
+        if self.join:
+            mode, regxs = self.join
+
         for pre, fill, node in RenderTree(start, childiter=thissort, maxlevel=showlevel):
             # node with lines are only used for notes
             if node.name != '.' and not hasattr(node, 'lines'):
@@ -385,10 +381,13 @@ class NodeData(object):
             idstr = f" {id}"
             path = [x.name for x in node.path]
             pathstr = separator.join(path)
-            if getnodes:
+            if self.get or self.join:
                 pre = fill = ""
-                if not getnodes.search(pathstr):
-                    continue
+
+            if self.get and not self.get.search(pathstr):
+                continue
+
+
             if node.name.endswith('.txt'):
                 pathstr = os.path.join(self.rootdir, pathstr[2:])
 
@@ -397,6 +396,30 @@ class NodeData(object):
                 if hasattr(node, 'lines') and node.lines:
                     for line in node.lines:
                         # titlestr, tagstring,  (filepath, linenum)
+                        ### join ###
+                        if self.join:
+                            if not line[1]:
+                                continue
+                            pre = fill = ""
+                            # ok = True
+                            for r in regxs:
+                                if r.search(line[1]):
+                                    logger.debug(f"match in {line[1]}")
+                                    ok = True
+                                    if mode in ['or', None]:
+                                        break
+                                    else: # and
+                                        continue
+                                else: # no match
+                                    ok = False
+                                    if mode in ['and', None]:
+                                        break
+                                    else: # or
+                                        continue
+                            if not ok:
+                                continue
+                        ### join ###
+
                         notenum += 1
                         title = line[0]
                         if self.shownodes:
@@ -415,7 +438,7 @@ class NodeData(object):
                 else:
                     id2info[(id,)] = (pathstr, None)
 
-                    if id > 0 and self.shownodes and not getnodes:
+                    if id > 0 and self.shownodes and not self.get and not self.join:
                         output_lines.append(f"{pre}{node.name}{idstr}")
             else:
                 if hasattr(node, 'lines'):
@@ -463,9 +486,9 @@ class NodeData(object):
         self.notelines = output_lines
 
 
-    def tags(self, tag=None):
-        if tag:
-            regex = re.compile(r'%s' % tag, re.IGNORECASE)
+    # def tags(self, tag=None):
+    #     if tag:
+    #         regex = re.compile(r'%s' % tag, re.IGNORECASE)
 
 
     def find(self, find=None):
@@ -475,7 +498,6 @@ class NodeData(object):
         if not find:
             return output_lines
         regex = re.compile(r'%s' % find, re.IGNORECASE)
-        logger.debug(f"find: {regex}")
         for key, lines in self.notedetails.items():
             match = False
             for line in lines:
@@ -565,31 +587,34 @@ class NodeData(object):
 
 
     def addID(self, idstr, text=None):
-        idtup = tuple([int(x) for x in idstr.split('-')])
-        info = self.id2info.get(idtup, ('.', ))
-        info = list(info)
         retval = ""
+        if not self.mode == 'path':
+            # only works for nodes in path mode
+            return (False, "cancelled: must be in path mode")
+
+        idtup = tuple([int(x) for x in idstr.split('-')])
+        if idtup not in self.id2info:
+            return (False, f"Bad IDENT: {idstr}")
+        info = self.id2info[idtup]
+        info = list(info)
 
         if info[0] in self.nodes:
             # we have a starting node
-            if not self.mode == 'path':
-                # only works for nodes in path mode
-                return "cancelled: must be in path mode"
             path = os.path.join(self.rootdir, info[0][2:])
             if not os.path.isdir(path):
-                return f"error: bad path {path}"
+                return (False, f"error: bad path {path}")
             if not text:
                 text = prompt(
                         f"directory or filename (ending in '.txt') to add as a child of\n {path}\n> ")
                 text = text.strip()
                 if not text:
-                    return "cancelled"
+                    return (False, "cancelled")
             child = os.path.join(path, f"{text}")
             root, ext = os.path.splitext(child)
             if ext:
                 # adding a new note file
                 if ext != ".txt":
-                    return f"bad file extension {ext}; '.txt' is required"
+                    return (False, f"bad file extension {ext}; '.txt' is required")
                 hsh = {'filepath':  myescape(child)}
                 if self.sessionMode:
                     editcmd = session_add.format(**hsh)
@@ -600,12 +625,11 @@ class NodeData(object):
             else:
                 # adding a new node
                 if os.path.isdir(child):
-                    return f"'child' already exists"
+                    return (False, f"'{child}' already exists")
                 os.mkdir(child)
-                return f"created '{child}'"
+                return (True, f"created '{child}'")
 
-
-            return  "adding root {root} with extension {ext}"
+            return (True, f"adding root {root} with extension {ext}")
 
         elif os.path.isfile(info[0]):
             # we have a filename
@@ -618,9 +642,8 @@ class NodeData(object):
             editcmd = [x.strip() for x in editcmd.split(" ") if x.strip()]
             subprocess.call(editcmd)
         else:
-            print(f"error: bad index {info}")
-            pprint(self.nodes.keys())
-        return
+            return (False, f"error: bad index {info}")
+        # return
 
 
 def session():
@@ -722,16 +745,18 @@ def session():
     def accept(buf):
         global active_key
         arg = query_window.text
-        logger.debug(f"key: {active_key}; arg: {arg} dispatch: {dispatch[active_key][1]}")
-        dispatch[active_key][1](arg)
-        if active_key == 'f':
-            text = "\n".join(Data.findlines)
+        ret = dispatch[active_key][1](arg)
+        if ret and not ret[0]:
+            set_text(f"\n {ret[1]} ")
         else:
-            if Data.showingNodes:
-                text = "\n".join(Data.nodelines)
+            if active_key == 'f':
+                text = "\n".join(Data.findlines)
             else:
-                text = "\n".join(Data.notelines)
-        set_text(text)
+                if Data.showingNodes:
+                    text = "\n".join(Data.nodelines)
+                else:
+                    text = "\n".join(Data.notelines)
+            set_text(text)
         show_entry_area = False
         application.layout.focus(text_area)
 
@@ -768,14 +793,24 @@ def session():
         Data.find(regex)
         set_text("\n".join(Data.findlines))
         # direction = search_state.direction
-        logger.debug(f"search_state: {search_state}; direction: {search_state.direction}; text: {search_state.text}")
-        logger.debug(f"search: {search.__dict__.keys()}; state: {search.SearchState}; text: {search.SearchState.text}")
         search.start_search()
 
 
     def set_max(level):
         Data.setMaxLevel(level)
         Data.getNodes()
+        Data.showNodes()
+
+
+    def set_get(get):
+        Data.setGet(get)
+        Data.showingNodes = True
+        Data.showNodes()
+
+
+    def set_join(join):
+        Data.setJoin(join)
+        Data.showingNodes = True
         Data.showNodes()
 
 
@@ -799,16 +834,22 @@ def session():
         idstr = tmp.split('-')[0]
         if child:
             child = '_'.join(child)
-        Data.addID(idstr, child)
-        Data.getNodes()
-        Data.setMode(orig_mode)
-        Data.showID(idstr)
+        ok, res = Data.addID(idstr, child)
+        if ok:
+            Data.getNodes()
+            Data.setMode(orig_mode)
+            Data.showID(idstr)
+        else:
+            return (ok, res)
 
 
     def show_ident(ident):
-        Data.showID(ident)
-        Data.getNodes()
-        Data.showNodes()
+        ok, res = Data.showID(ident)
+        if ok:
+            Data.getNodes()
+            Data.showNodes()
+        else:
+            return (ok, res)
 
     # Key bindings.
     bindings = KeyBindings()
@@ -823,7 +864,11 @@ def session():
                 ],
             'g': [
                 'show notes in branches matching REGEX - enter nothing to clear',
-                Data.setGet
+                set_get
+                ],
+            'j': [
+                'show notes with tags matching JOIN - enter nothing to clear',
+                set_join
                 ],
             'i': [
                 'inspect the node/leaf corresponding to IDENT - enter 0 to clear',
@@ -841,10 +886,15 @@ def session():
 
 
     def show_help():
-        note_lines = []
+        current_version = f"Note Taking Simplified {nts_version}"
+        version_indent = " "*((columns - len(current_version))//2)
+        note_lines = [f"{version_indent}{current_version}", ""]
         for line in help_notes:
-            note_lines.extend(textwrap.wrap(line, width=columns-3, subsequent_indent="    ", initial_indent=" "))
-        txt = help_table + "\n".join(note_lines) + "\n"
+            if line:
+                note_lines.extend(textwrap.wrap(line, width=columns-3, subsequent_indent="                ", initial_indent=" "))
+            else:
+                note_lines.append('')
+        txt = "\n".join(note_lines) + "\n"
         set_text(txt)
 
 
@@ -910,6 +960,7 @@ def session():
     @bindings.add('m', filter=is_not_typing)
     @bindings.add('f', filter=is_not_typing)
     @bindings.add('g', filter=is_not_typing)
+    @bindings.add('j', filter=is_not_typing)
     @bindings.add('i', filter=is_not_typing)
     @bindings.add('e', filter=is_not_typing)
     @bindings.add('a', filter=is_not_typing)
@@ -936,14 +987,12 @@ def session():
     def _(event):
         search_state = get_app().current_search_state
         text = search_state.text
-        logger.debug(f"search: {search.__dict__.keys()}; text: {text}")
         search_state.text = ''
 
     @bindings.add('.', '.', filter=is_not_typing)
     def _(event):
         search_state = get_app().current_search_state
         text = search_state.text
-        logger.debug(f"search: {search.__dict__.keys()}; text: {text}")
         if not text:
             return
         Data.find(text)
@@ -1004,6 +1053,8 @@ def main():
 
     parser.add_argument("-g", "--get", type=str, help="show note titles whose branches in the current view contain a match for the case-insensitive regex GET")
 
+    parser.add_argument("-j", "--join", type=str, help='display note titles for notes with tags satisfying JOIN. E.g. if JOIN = "red", then notes containing the tag "RED" would be displayed. If JOIN = "| red, blue" then notes with _either_ the tag "red" _or_ the tag "blue" would be displayed. Finally, if JOIN = "& red, blue", then notes with _both_ the tags "red" _and_ "blue" would be displayed. In general JOIN = [|&] comma-separated list of case-insensitive regular expressions.')
+
     parser.add_argument("-i", "--id", type=str, help="inspect the node/leaf corresponding to ID in the current view")
 
     parser.add_argument("-e", "--edit", type=str, help="edit the node/leaf corresponding to EDIT in the current view")
@@ -1037,7 +1088,6 @@ def main():
                 print(res)
 
         if args.find:
-            showing_dtails = True
             Data.showNodes()
             Data.find(args.find)
             if not (args.add or args.edit or args.id):
@@ -1046,8 +1096,11 @@ def main():
                 print("_"*columns)
 
         if args.get:
-            showing_dtails = True
             Data.setGet(args.get)
+            Data.showNodes()
+
+        if args.join:
+            Data.setJoin(args.join)
             Data.showNodes()
 
         if args.version:
@@ -1083,7 +1136,6 @@ def main():
                 print('')
 
         if args.add:
-            logger.debug(f"args.add: {args.add}")
             tmp, *child = args.add.split(" ")
             idstr = tmp.split('-')[0]
             if child:
@@ -1091,7 +1143,6 @@ def main():
             Data.addID(idstr, child)
 
         if args.edit:
-            logger.debug(f"args.edit: {args.edit}")
             ok, res = Data.editID(args.edit)
             if not ok:
                 print(res)

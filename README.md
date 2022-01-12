@@ -106,8 +106,9 @@ hide leaves     |  -l              |  l              |  l
 hide branches   |  -b              |  b              |  b
 set max levels  |  -m MAX          |  m MAX          |  m
 search          |                  |  / SEARCH       |  /
-find REGEX      |  -f REGEX        |  f REGEX        |  f
-get REGEX       |  -g REGEX        |  g REGEX        |  g
+find REGEX      |  -f 'REGEX'      |  f REGEX        |  f
+get REGEX       |  -g 'REGEX'      |  g REGEX        |  g
+join JOIN       |  -j 'JOIN'       |  j JOIN         |  j
 inspect IDENT   |  -i IDENT        |  i IDENT        |  i
 edit IDENT      |  -e IDENT        |  e IDENT        |  e
 add to IDENT    |  -a IDENT [NAME] |  a IDENT [NAME] |  a
@@ -124,6 +125,8 @@ version check   |  -v              |  v              |  v
 - f: Display complete notes that contain a match in the title, tags or body for the case-insensitive regular expression REGEX.
 
 - g: Display note titles that contain a match in the nodes leading to the note for the case-insensitive regular expression REGEX.
+
+- j: Display note titles for notes with tags satisfying JOIN. E.g. if JOIN = "red", then notes containing the tag "RED" would be displayed. If JOIN = "| red, blue" then notes with _either_ the tag "red" _or_ the tag "blue" would be displayed. Finally, if JOIN = "& red, blue", then notes with _both_ the tags "red" _and_ "blue" would be displayed. In general JOIN = [|&] comma-separated list of case-insensitive regular expressions.
 
 - i: If IDENT is the 2-number identifier for a note, then display the contents of that note. Else if IDENT is the identifier for a ".txt" file, then display the contents of that file. Otherwise limit the display to that part of the outline which starts from the corresponding node. Use IDENT = 0 to start from the root node.
 
