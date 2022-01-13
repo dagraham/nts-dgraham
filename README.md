@@ -5,27 +5,25 @@
 
 ### Overview
 
-_nts_ is pure python and will run on any platform that supports python >= 3.7.3. It runs in a terminal window that should be configured to use a fixed width (monospaced) font. _Menlo Regular_ for OSX and _DejaVu Sans Mono_ for Linux are good choices. A width of at least 60 characters for the terminal window is recommended.
+_nts_ is pure python and runs in a terminal window on any platform that supports python >= 3.7.3.
 
-Notes are recorded in plain text files with the extension ".txt" that are located anywhere below the *nts* data directory. These note files have a simple format:
+Notes are recorded in plain text files with the extension ".txt" located anywhere below the _nts data_ directory. Note files are simple:
 
-* The first line of the note file must contain a *note title line*.
+* Each note begins with a "+" in the first column followed by a space and then the title of the note.
 
-* All *note title lines* must begin with a "+" in the first column followed by a space and then the title of the note.
+* Tags, if given, are comma separated and enclosed in parentheses after the note title.
 
-* Tags, if given, must be comma separated and enclosed in parentheses after the note title.
+* The _note body_ begins on the next line and continues until another note or the end of the file is reached.
 
-* The *note body* begins on the next line and continues until another *note title line* or the end of the file is reached.
+* Lines that begin with one or more white space characters and then "+" are treated as part of the _note body_ and not as the beginning of a new note.
 
-* Lines that begin with one or more white space characters and then "+" are treated as part of the *note body* and not as the beginning of a new note.
+* White space in the _note body_ is preserved but whitespace between notes is ignored.
 
-* White space in the *note body* is preserved but whitespace between notes is ignored.
+* Hidden files, i.e. files with names beginning with a period, are ignored.
 
-* Using spaces in directory and note file names should be avoided.
+* Spaces should be avoided in directory and file names.
 
-
-
-Suppose, e.g., that the *nts* data directory contains a single file
+Suppose, e.g., that the _nts_ data directory contains a single file
 
     ~/nts/data/parent/child/grandchild.txt
 
@@ -42,9 +40,9 @@ with this content:
         And the body of note c here
     ---------------- grandchild.txt ends -----------------
 
-*nts* provides two main **views** of this data.
+*nts* provides two main views of this data.
 
-* Path View:
+* _Path View_:
 
         └── parent 1
             └── child 2
@@ -53,7 +51,7 @@ with this content:
                         + note b (blue, green) 3-2
                         + note c (red, blue) 3-3
 
-* Tag View:
+* _Tag View_:
 
         ├── blue 1
         │       + note b (blue, green) 1-1
@@ -65,9 +63,9 @@ with this content:
                 + note a (red, green) 3-1
                 + note c (red, blue) 3-2
 
-Both views are outlines with branches that end with note title lines. In path view, the nodes along the branches correspond to directory or file names and there can be many of these in each branch. In tag view, on the other hand, the nodes correspond to tag names and there can only be one of these in each branch.
+Both views are outlines with branches that end with leaves that correspond to note title lines. In path view, the nodes along the branches correspond to directory or file names and there can be many of these in each branch. In tag view, on the other hand, the nodes correspond to tag names and there can only be one of these in each branch.
 
-The numeric identifiers appended to the lines in both views are provided by *nts*. These are single numbers for the *nodes* in the outline branches that have children and hyphenated numbers for the *leaves*, e.g., the "3" appended to the "grandchild.txt" node in the path view and the "2-1" appended to "+ note a (red, green)" in the tag view. The first of the two numbers in the leaf identifier is the indentifier of the parent node. These identifiers are used in various ways that are explained below.
+The numeric identifiers appended to the lines in both views are provided by _nts_. These are single numbers for the *nodes* in the outline branches that have children and hyphenated numbers for the *leaves*, e.g., in path view the "3" appended to the "grandchild.txt" node and the "3-1" appended to the "+ note a (red, green)" leaf. The first of the two numbers in the leaf identifier is the indentifier of the parent node. These identifiers are the IDENT arguments in the _Command Summary_ given below.
 
 
 ### Usage
@@ -142,6 +140,8 @@ There are no commands in _nts_ to remove either a file or a directory. Please us
 
 ### Configuration
 
+_nts_ runs in a terminal window that should be configured to use a fixed width (monospaced) font. _Menlo Regular_ for OSX and _DejaVu Sans Mono_ for Linux are good choices. A width of at least 60 characters for the terminal window is recommended.
+
 Before you start *nts* for the first time, think about where you would like to keep your personal data files and any log files that _nts_ will create. This will be your nts _home directory_. The _nts_ configuration file, "cfg.yaml" will be placed in this directory as well as the data and log files in the subdirectories _data_ and _logs_, respectively.
 
 The default is to use the current working directory when you start _nts_ as the _home directory_ either 1) if it is empty (unused so far) or 2) if it contains  subdirectories called "data" and "logs" or 3) if it contains a file called "cfg.yaml" and a subdirectory called "logs". To use this option just change to this directory before starting _nts_.
@@ -155,209 +155,152 @@ Finally, if neither of the previous alternatives are satisfied, then *nts* will 
 The _nts_ "data" and "logs" directories will be created if necessary as well as the _nts_ configuration file, "cfg.yaml" using default settings. If "data" needs to be created, the user will additionally be offered the opportunity to populate it with illustrative data. Here are the default contents of this file:
 
 
-    ##################### IMPORTANT #############################
-    #
-    # Changes to this file only take effect when nts is restarted.
-    #
-    #############################################################
-    #
-    ##################        EDIT      #########################
-    # The following are examples using the editor vim
-    # To use the native version of vim under Mac OSX, replace
-    # 'vim' with '/Applications/MacVim.app/Contents/MacOS/Vim'
-    # in each of the following commands. Omit the '-g' argument
-    # to open vim in the same _nts_ terminal window.
-    #
-    # edit {filepath} at {linenum} - wait for completion
-    session_edit: vim -g -f +{linenum} {filepath}
-    #
-    # edit {filepath} at end of file - wait for completion
-    session_add: vim -g -f + {filepath}
-    #
-    # edit {filepath} at {linenum} - do not wait for completion
-    command_edit: vim -g +{linenum} {filepath}
-    #
-    # edit {filepath} at end of file - do not wait for completion
-    command_add: vim -g + {filepath}
-    #
-    ##################        STYLE        ######################
-    # style hex colors for plain, prompt and highlight
-    style:
-        plain:        '#FFFAFA'
-        prompt:       '#FFF68F'
-        message:      '#90C57F'
-        highlight:    'bg:#FFF68F #000000'
-    #
-    ##################      TAG SORT       ######################
-    # for listed keys, sort by the corresponding value. E.g. In
-    # tag view items with the tag "now" will be sorted as if
-    # they had the tag "!". Replace the keys and values with
-    # whatever you find convenient
-    tag_sort:
-        now:        '!'
-        next:       '#'
-        assigned:   '$'
-        someday:    '}'
-        completed:  '~'
+	##################### IMPORTANT #############################
+	#
+	# Changes to this file only take effect when nts is restarted.
+	#
+	#############################################################
+	#
+	##################        EDIT      #########################
+	# The following are examples using the editor vim
+	# To use the native version of vim under Mac OSX, replace
+	# 'vim' with '/Applications/MacVim.app/Contents/MacOS/Vim'
+	# in each of the following commands. Omit the '-g' argument
+	# to open vim in the same _nts_ terminal window.
+	#
+	# edit {filepath} at {linenum} - wait for completion
+	session_edit: vim -g -f +{linenum} {filepath}
+	#
+	# edit {filepath} at end of file - wait for completion
+	session_add: vim -g -f + {filepath}
+	#
+	# edit {filepath} at {linenum} - do not wait for completion
+	command_edit: vim -g +{linenum} {filepath}
+	#
+	# edit {filepath} at end of file - do not wait for completion
+	command_add: vim -g + {filepath}
+	#
+	##################        STYLE        ######################
+	# style hex colors for plain, prompt and highlight
+	style:
+		plain:        '#FFFAFA'
+		prompt:       '#FFF68F'
+		message:      '#90C57F'
+		highlight:    'bg:#FFF68F #000000'
+	#
+	##################      TAG SORT       ######################
+	# for listed keys, sort by the corresponding value. E.g. In
+	# tag view items with the tag "now" will be sorted as if
+	# they had the tag "!". Replace the keys and values with
+	# whatever you find convenient
+	tag_sort:
+		now:        '!'
+		next:       '#'
+		assigned:   '$'
+		someday:    '{'
+		completed:  '}'
+
 
 From time to time, new versions of _nts_ may add new options to "cfg.yaml". When this happens, you might consider renaming your existing "cfg.yaml" as, say, "cfg-orig.yaml". After you update _nts_ to the new version and restart it, a new version of "cfg.yaml" will be created. You can then cut and paste between "cfg-orig.yaml" and "cfg.yaml" to incorporate your settings into the new configuration.
 
 
-### Organizing with Paths and Tags
+### View Sorting
 
-Here are a few organizational ideas that have helped me. First, a reference section for all the stuff I want to remember, but usually can't:
+The default values for _tag_sort_ in "cfg.yaml" mean that notes will be sorted in in _tag_view_ so that items with the tag "now" will be sorted as if the tag were "!", items with the tag "next" as if the tag were "#" and so forth. Tags not listed in _tag_sort_ will sorted using the actual tag. The  _dictionary sorting order_ for common keyboard characters in python is:
 
-        └── reference
-            ├── entertainment
-            │   ├── books.txt
-            │   ├── movies.txt
-            │   └── quotations.txt
-            └── programming
-                ├── markdown.txt
-                ├── python.txt
-                └── vim.txt
+`! # $ % & ( ) * + - / 1 2 3 ; < = > ? @ A B C [ ] ^ _ a b c { } ~`
 
-then a journal section for monthly notes
-
-        └── journal
-            ├── 2021
-            │   ├── 10.txt
-            │   ├── 11.txt
-            │   └── 12.txt
-            └── 2022
-                ├── 01.txt
-                ├── 02.txt
-                └── 03.txt
-
-and another for my projects
-
-        └── projects
-            ├── etm
-            │   ├── advocacy.txt
-            │   ├── bugs.txt
-            │   └── ideas.txt
-            └── nts
-                ├── advocacy.txt
-                ├── bugs.txt
-                └── ideas.txt
+_nts_ implicitly assigns the tag "~" to notes without tags and, because of this sorting order, untagged items are listed last in _tag_view_.
 
 
-For tags, the _GTD_ (Getting Things Done) classifiers are useful:
-
-now
-: action required as soon as possible
-
-next
-: action needed when time permits
-
-assigned _NAME_
-: assigned to _NAME_ for action but follow up still required
-
-someday
-: review from time to time for possible action
-
-completed
-: finished and kept for reference
-
-In the default configuration file, shown above, these tags are listed for special treatment.
-
-        tag_sort:
-            now:        '!'
-            next:       '#'
-            assigned:   '$'
-            someday:    '}'
-            completed:  '~'
-
-This means that tag view will be sorted so that items with the tag "now" will be sorted as if the tag were "!", items with the tag "next" as if the tag were "#" and so forth. Tags not listed in _tag_sort_ are sorted using the actual tag. Since the  _dictionary order_ for common keyboard characters in python is
-
-    '!', '#', '$', '%', '&', '(', ')', '*', '+', '-', '/',
-    '1', '2', '3', ';', '<', '=', '>', '?', '@', 'A', 'B', 'C',
-    '[', ']', '^', '_', 'a', 'b', 'c', '{', '}', '~'
-
-"now" will appear first, "next" second, "assigned" third and then "someday" and "completed" last. "assigned" tags will be further sorted by the accompanying _NAME_. Tags not listed in _tag_sort_ will appear in the normal dictionary order.
-
-To illustrate this tag sorting with the default configuration, add the file
+To illustrate this tag sorting with the default configuration, suppose the file
 
     ~/nts/data/parent/child/tagsort.txt
 
-to the grandchild example given above and include the following content:
+is added to the grandchild example given above with the following content:
 
 
     ---------------- tagsort.txt begins ---------------
-    + action required as soon as possible (now)
-        In tag view, items with this tag will be sorted
-        first
+	+ action required as soon as possible (now)
+		In tag view, items with this tag will be sorted
+		first
 
-    + action needed when time permits (next)
-        In tag view, items with this tag will be sorted
-        second
+	+ action needed when time permits (next)
+		In tag view, items with this tag will be sorted
+		after 'now' items
 
-    + assigned to joe for action (assigned joe)
-        In tag view, items with this tag will be sorted
-        in a third group and, within that group, by the
-        name to whom it was assigned
+	+ assigned to joe for action (assigned joe)
+		In tag view, items with this tag will be sorted
+		in a third group and, within that group, by the
+		name to whom it was assigned
 
-    + assigned to bob for action (assigned bob)
-        In tag view, items with this tag will be sorted
-        in a third group and, within that group, by the
-        name to whom it was assigned
+	+ assigned to bob for action (assigned bob)
+		In tag view, items with this tag will be sorted
+		in a third group and, within that group, by the
+		name to whom it was assigned
 
-    + review from time to time for action (someday)
-        In tag view, items with this tag will be sorted
-        next to last
+	+ review from time to time for action (someday)
+		In tag view, items with this tag will be sorted
+		after all tagged items other than 'completed'
 
-    + finished but kept for reference (completed)
-        In tag view, items with this tag will be sorted
-        last
+	+ finished but kept for reference (completed)
+		In tag view, items with this tag will be sorted
+		after all tagged items
+
+	+ a note with no tags
+		In tag view, such items will be sorted last under
+		the implicit tag '~'
     ---------------- tagsort.txt ends -----------------
 
-and note the order in which tags are sorted in _Tag View_:
+_Tags View_ now appears as
 
-    ├── now 1
-    │       + action required as soon as possible (now) 1-1
-    ├── next 2
-    │       + action needed when time permits (next) 2-1
-    ├── assigned bob 3
-    │       + assigned to bob for action (assigned bob) 3-1
-    ├── assigned joe 4
-    │       + assigned to joe for action (assigned joe) 4-1
-    ├── blue 5
-    │       + note b (blue, green) 5-1
-    │       + note c (red, blue) 5-2
-    ├── green 6
-    │       + note a (red, green) 6-1
-    │       + note b (blue, green) 6-2
-    ├── red 7
-    │       + note a (red, green) 7-1
-    │       + note c (red, blue) 7-2
-    ├── someday 8
-    │       + review from time to time for action (someday) 8-1
-    └── completed 9
-            + finished but kept for reference (completed) 9-1
+	tags view
+	├── now 1
+	│       + action required as soon as possible (now) 1-1
+	├── next 2
+	│       + action needed when time permits (next) 2-1
+	├── assigned bob 3
+	│       + assigned to bob for action (assigned bob) 3-1
+	├── assigned joe 4
+	│       + assigned to joe for action (assigned joe) 4-1
+	├── blue 5
+	│       + note b (blue, green) 5-1
+	│       + note c (red, blue) 5-2
+	├── green 6
+	│       + note a (red, green) 6-1
+	│       + note b (blue, green) 6-2
+	├── red 7
+	│       + note a (red, green) 7-1
+	│       + note c (red, blue) 7-2
+	├── someday 8
+	│       + review from time to time for action (someday) 8-1
+	├── completed 9
+	│       + finished but kept for reference (completed) 9-1
+	└── ~ 10
+			+ a note with no tags 10-1
 
-
-One of the nice things about tags is that they are so easy to change. When you've taken care of a "now" item, e.g., just change the tag to "completed".
-
-Other ideas for tags from _GTD_ involve contexts such as _home_, _office_, _shop_, _phone_, _internet_, _driving_ and so forth.
-
-Sorting in path view is dictionary order for sibling nodes and file order for notes. Here is path view for the expanded example:
+As promised, the sorting reflects the _tag_sort_ setting in "cfg.yaml" with _now_, _next_ and _assigned_ at the top, _blue_, _green_ and _red_ in the middle in dictionary sort order and _someday_, _completed_ and _~_ last. Note also that within the _assigned_ tags the sorting is in dictionary order with _assigned bob_ followed by _assigned joe_ even though _assigned joe_ occured first in the file.
 
 
-    └── parent 1
-        └── child 2
-            ├── grandchild.txt 3
-            │       + note a (red, green) 3-1
-            │       + note b (blue, green) 3-2
-            │       + note c (red, blue) 3-3
-            └── tagsort.txt 4
-                    + action required as soon as possible (now) 4-1
-                    + action needed when time permits (next) 4-2
-                    + assigned to joe for action (assigned joe) 4-3
-                    + assigned to bob for action (assigned bob) 4-4
-                    + review from time to time for action (someday) 4-5
-                    + finished but kept for reference (completed) 4-6
+With the new file, _Path View_ appears as
 
-Note that the siblings "grandchild.txt" and "tagsort.txt" are in dictionary order but the notes in each of these files are listed in the order in which they occur in the file.
+	path view
+	└── parent 1
+		└── child 2
+			├── grandchild.txt 3
+			│       + note a (red, green) 3-1
+			│       + note b (blue, green) 3-2
+			│       + note c (red, blue) 3-3
+			└── tagsort.txt 4
+					+ action required as soon as possible (now) 4-1
+					+ action needed when time permits (next) 4-2
+					+ assigned to joe for action (assigned joe) 4-3
+					+ assigned to bob for action (assigned bob) 4-4
+					+ review from time to time for action (someday) 4-5
+					+ finished but kept for reference (completed) 4-6
+					+ a note with no tags 4-7
+
+Sorting in this view is dictionary order for sibling nodes but notes are listed in the order in which they occur in the file. E.g., the siblings "grandchild.txt" and "tagsort.txt" are in dictionary order but the notes in each of these files are listed in the order in which they occur in the file.
 
 
 ### Installation

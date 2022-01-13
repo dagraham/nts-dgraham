@@ -54,8 +54,8 @@ tag_sort:
     now:        '!'
     next:       '#'
     assigned:   '$'
-    someday:    '}'
-    completed:  '~'
+    someday:    '{'
+    completed:  '}'
 """
 
 def make_grandchild(rootdir):
@@ -76,7 +76,7 @@ def make_grandchild(rootdir):
 
 + action needed when time permits (next)
     In tag view, items with this tag will be sorted
-    second
+    after 'now' items
 
 + assigned to joe for action (assigned joe)
     In tag view, items with this tag will be sorted
@@ -90,11 +90,15 @@ def make_grandchild(rootdir):
 
 + review from time to time for action (someday)
     In tag view, items with this tag will be sorted
-    next to last
+    after all tagged items other than 'completed'
 
 + finished but kept for reference (completed)
     In tag view, items with this tag will be sorted
-    last
+    after all tagged items
+
++ a note with no tags
+    In tag view, such items will be sorted last under
+    the implicit tag '~'
 """
     full_path = rootdir
     for path in ['parent', 'child']:
