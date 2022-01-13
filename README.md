@@ -155,50 +155,50 @@ Finally, if neither of the previous alternatives are satisfied, then *nts* will 
 The _nts_ "data" and "logs" directories will be created if necessary as well as the _nts_ configuration file, "cfg.yaml" using default settings. If "data" needs to be created, the user will additionally be offered the opportunity to populate it with illustrative data. Here are the default contents of this file:
 
 
-	##################### IMPORTANT #############################
-	#
-	# Changes to this file only take effect when nts is restarted.
-	#
-	#############################################################
-	#
-	##################        EDIT      #########################
-	# The following are examples using the editor vim
-	# To use the native version of vim under Mac OSX, replace
-	# 'vim' with '/Applications/MacVim.app/Contents/MacOS/Vim'
-	# in each of the following commands. Omit the '-g' argument
-	# to open vim in the same _nts_ terminal window.
-	#
-	# edit {filepath} at {linenum} - wait for completion
-	session_edit: vim -g -f +{linenum} {filepath}
-	#
-	# edit {filepath} at end of file - wait for completion
-	session_add: vim -g -f + {filepath}
-	#
-	# edit {filepath} at {linenum} - do not wait for completion
-	command_edit: vim -g +{linenum} {filepath}
-	#
-	# edit {filepath} at end of file - do not wait for completion
-	command_add: vim -g + {filepath}
-	#
-	##################        STYLE        ######################
-	# style hex colors for plain, prompt and highlight
-	style:
-		plain:        '#FFFAFA'
-		prompt:       '#FFF68F'
-		message:      '#90C57F'
-		highlight:    'bg:#FFF68F #000000'
-	#
-	##################      TAG SORT       ######################
-	# for listed keys, sort by the corresponding value. E.g. In
-	# tag view items with the tag "now" will be sorted as if
-	# they had the tag "!". Replace the keys and values with
-	# whatever you find convenient
-	tag_sort:
-		now:        '!'
-		next:       '#'
-		assigned:   '$'
-		someday:    '{'
-		completed:  '}'
+    ##################### IMPORTANT #############################
+    #
+    # Changes to this file only take effect when nts is restarted.
+    #
+    #############################################################
+    #
+    ##################        EDIT      #########################
+    # The following are examples using the editor vim
+    # To use the native version of vim under Mac OSX, replace
+    # 'vim' with '/Applications/MacVim.app/Contents/MacOS/Vim'
+    # in each of the following commands. Omit the '-g' argument
+    # to open vim in the same _nts_ terminal window.
+    #
+    # edit {filepath} at {linenum} - wait for completion
+    session_edit: vim -g -f +{linenum} {filepath}
+    #
+    # edit {filepath} at end of file - wait for completion
+    session_add: vim -g -f + {filepath}
+    #
+    # edit {filepath} at {linenum} - do not wait for completion
+    command_edit: vim -g +{linenum} {filepath}
+    #
+    # edit {filepath} at end of file - do not wait for completion
+    command_add: vim -g + {filepath}
+    #
+    ##################        STYLE        ######################
+    # style hex colors for plain, prompt and highlight
+    style:
+        plain:        '#FFFAFA'
+        prompt:       '#FFF68F'
+        message:      '#90C57F'
+        highlight:    'bg:#FFF68F #000000'
+    #
+    ##################      TAG SORT       ######################
+    # for listed keys, sort by the corresponding value. E.g. In
+    # tag view items with the tag "now" will be sorted as if
+    # they had the tag "!". Replace the keys and values with
+    # whatever you find convenient
+    tag_sort:
+        now:        '!'
+        next:       '#'
+        assigned:   '$'
+        someday:    '{'
+        completed:  '}'
 
 
 From time to time, new versions of _nts_ may add new options to "cfg.yaml". When this happens, you might consider renaming your existing "cfg.yaml" as, say, "cfg-orig.yaml". After you update _nts_ to the new version and restart it, a new version of "cfg.yaml" will be created. You can then cut and paste between "cfg-orig.yaml" and "cfg.yaml" to incorporate your settings into the new configuration.
@@ -221,84 +221,84 @@ is added to the grandchild example given above with the following content:
 
 
     ---------------- tagsort.txt begins ---------------
-	+ action required as soon as possible (now)
-		In tag view, items with this tag will be sorted
-		first
+    + action required as soon as possible (now)
+        In tag view, items with this tag will be sorted
+        first
 
-	+ action needed when time permits (next)
-		In tag view, items with this tag will be sorted
-		after 'now' items
+    + action needed when time permits (next)
+        In tag view, items with this tag will be sorted
+        after 'now' items
 
-	+ assigned to joe for action (assigned joe)
-		In tag view, items with this tag will be sorted
-		in a third group and, within that group, by the
-		name to whom it was assigned
+    + assigned to joe for action (assigned joe)
+        In tag view, items with this tag will be sorted
+        in a third group and, within that group, by the
+        name to whom it was assigned
 
-	+ assigned to bob for action (assigned bob)
-		In tag view, items with this tag will be sorted
-		in a third group and, within that group, by the
-		name to whom it was assigned
+    + assigned to bob for action (assigned bob)
+        In tag view, items with this tag will be sorted
+        in a third group and, within that group, by the
+        name to whom it was assigned
 
-	+ review from time to time for action (someday)
-		In tag view, items with this tag will be sorted
-		after all tagged items other than 'completed'
+    + review from time to time for action (someday)
+        In tag view, items with this tag will be sorted
+        after all tagged items other than 'completed'
 
-	+ finished but kept for reference (completed)
-		In tag view, items with this tag will be sorted
-		after all tagged items
+    + finished but kept for reference (completed)
+        In tag view, items with this tag will be sorted
+        after all tagged items
 
-	+ a note with no tags
-		In tag view, such items will be sorted last under
-		the implicit tag '~'
+    + a note with no tags
+        In tag view, such items will be sorted last under
+        the implicit tag '~'
     ---------------- tagsort.txt ends -----------------
 
 _Tags View_ now appears as
 
-	tags view
-	├── now 1
-	│       + action required as soon as possible (now) 1-1
-	├── next 2
-	│       + action needed when time permits (next) 2-1
-	├── assigned bob 3
-	│       + assigned to bob for action (assigned bob) 3-1
-	├── assigned joe 4
-	│       + assigned to joe for action (assigned joe) 4-1
-	├── blue 5
-	│       + note b (blue, green) 5-1
-	│       + note c (red, blue) 5-2
-	├── green 6
-	│       + note a (red, green) 6-1
-	│       + note b (blue, green) 6-2
-	├── red 7
-	│       + note a (red, green) 7-1
-	│       + note c (red, blue) 7-2
-	├── someday 8
-	│       + review from time to time for action (someday) 8-1
-	├── completed 9
-	│       + finished but kept for reference (completed) 9-1
-	└── ~ 10
-			+ a note with no tags 10-1
+    tags view
+    ├── now 1
+    │       + action required as soon as possible (now) 1-1
+    ├── next 2
+    │       + action needed when time permits (next) 2-1
+    ├── assigned bob 3
+    │       + assigned to bob for action (assigned bob) 3-1
+    ├── assigned joe 4
+    │       + assigned to joe for action (assigned joe) 4-1
+    ├── blue 5
+    │       + note b (blue, green) 5-1
+    │       + note c (red, blue) 5-2
+    ├── green 6
+    │       + note a (red, green) 6-1
+    │       + note b (blue, green) 6-2
+    ├── red 7
+    │       + note a (red, green) 7-1
+    │       + note c (red, blue) 7-2
+    ├── someday 8
+    │       + review from time to time for action (someday) 8-1
+    ├── completed 9
+    │       + finished but kept for reference (completed) 9-1
+    └── ~ 10
+            + a note with no tags 10-1
 
 As promised, the sorting reflects the _tag_sort_ setting in "cfg.yaml" with _now_, _next_ and _assigned_ at the top, _blue_, _green_ and _red_ in the middle in dictionary sort order and _someday_, _completed_ and _~_ last. Note also that within the _assigned_ tags the sorting is in dictionary order with _assigned bob_ followed by _assigned joe_ even though _assigned joe_ occured first in the file.
 
 
 With the new file, _Path View_ appears as
 
-	path view
-	└── parent 1
-		└── child 2
-			├── grandchild.txt 3
-			│       + note a (red, green) 3-1
-			│       + note b (blue, green) 3-2
-			│       + note c (red, blue) 3-3
-			└── tagsort.txt 4
-					+ action required as soon as possible (now) 4-1
-					+ action needed when time permits (next) 4-2
-					+ assigned to joe for action (assigned joe) 4-3
-					+ assigned to bob for action (assigned bob) 4-4
-					+ review from time to time for action (someday) 4-5
-					+ finished but kept for reference (completed) 4-6
-					+ a note with no tags 4-7
+    path view
+    └── parent 1
+        └── child 2
+            ├── grandchild.txt 3
+            │       + note a (red, green) 3-1
+            │       + note b (blue, green) 3-2
+            │       + note c (red, blue) 3-3
+            └── tagsort.txt 4
+                    + action required as soon as possible (now) 4-1
+                    + action needed when time permits (next) 4-2
+                    + assigned to joe for action (assigned joe) 4-3
+                    + assigned to bob for action (assigned bob) 4-4
+                    + review from time to time for action (someday) 4-5
+                    + finished but kept for reference (completed) 4-6
+                    + a note with no tags 4-7
 
 Sorting in this view is dictionary order for sibling nodes but notes are listed in the order in which they occur in the file. E.g., the siblings "grandchild.txt" and "tagsort.txt" are in dictionary order but the notes in each of these files are listed in the order in which they occur in the file.
 
