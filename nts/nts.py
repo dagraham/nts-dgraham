@@ -57,7 +57,7 @@ help_notes = [
 't              display tags view.',
 'l              toggle showing leaves in the outline views.',
 'b              toggle showing branches in the outline views.',
-'m INTEGER      limit the diplay of nodes in the outline views to INTEGER levels. Use INTEGER = 0 to display all levels.',
+'m INTEGER      limit the diplay of nodes in the outline views to INTEGER levels below the starting node. Use INTEGER = 0 to display all levels.',
 '/ STRING       incrementally search for matches for the case-insensitive STRING (not regular expression) in the current display. When the search is active, press ",," (two commas successively) to clear the search or ".." to extend the search for matches to the complete notes for the active view. This is equivalent to invoking "f" with the same SEARCH argument.',
 'f STRING       display complete notes that contain a match in the title, tags or body for the case-insensitive regular expression STRING.',
 'g STRING       display note titles that contain a match in the branch nodes leading to the note for the case-insensitive regular expression STRING.',
@@ -526,19 +526,19 @@ class NodeData(object):
         self.findlines = output_lines
 
 
-    def showID(self, idstr="0"):
+    def showID(self, idstr=None):
         self.showNodes()
-        if idstr == "0":
+        if idstr in [0, "0", '', None]:
             info = ('.', )
         else:
             try:
                 idtup = tuple([int(x) for x in idstr.split('-')])
             except:
-                return([False, f"Bad IDENT {idstr}"])
+                return([False, f"Bad IDENT '{idstr}'"])
             if idtup in self.id2info:
                 info = self.id2info[idtup]
             else:
-                return([False, f"Bad IDENT {idstr}"])
+                return([False, f"Bad IDENT '{idstr}'"])
 
         # info: (key, line)
         if info[0] in self.nodes:

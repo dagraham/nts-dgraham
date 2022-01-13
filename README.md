@@ -5,7 +5,7 @@
 
 ### Overview
 
-_nts_ is pure python and will run on any platform that supports python >= 3.7.3. It runs in a terminal window that should be configured to use a fixed width (monospaced) font. _Menlo Regular_ for OSX and _DejaVu Sans Mono_ for Linux are good choices. A width of at least 68 characters for the terminal window is recommended.
+_nts_ is pure python and will run on any platform that supports python >= 3.7.3. It runs in a terminal window that should be configured to use a fixed width (monospaced) font. _Menlo Regular_ for OSX and _DejaVu Sans Mono_ for Linux are good choices. A width of at least 60 characters for the terminal window is recommended.
 
 Notes are recorded in plain text files with the extension ".txt" that are located anywhere below the *nts* data directory. These note files have a simple format:
 
@@ -118,7 +118,7 @@ version check   |  -v              |  v              |  v
 
 - b: Suppress showing branches in the outline, i.e., display only the leaves. In session mode this toggles the display of the branches off and on.
 
-- m: Limit the diplay of nodes in the branches to the integer MAX levels. Use MAX = 0 to display all levels.
+- m: Limit the diplay of nodes in the branches to the integer MAX levels below the starting node. Use MAX = 0 to display all levels.
 
 - /: Incrementally search for matches for the case-insensitive string (not regular expression) SEARCH in the current display. When the search is active, press ",," (two commas successively) to clear the search or ".." to extend the search for matches to the complete notes for the active view. This is equivalent to invoking "f" with the same SEARCH argument.
 
