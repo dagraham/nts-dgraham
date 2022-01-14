@@ -997,16 +997,6 @@ def session():
         Data.find(text)
         set_text("\n".join(Data.findlines))
 
-
-    # style = Style.from_dict({
-    #     'status': f'{NAMED_COLORS["White"]} bg:{NAMED_COLORS["DimGrey"]}',
-    #     'message': '#fff86f',
-    #     'status.position': '#aaaa00',
-    #     'status.key': '#ffaa00',
-    #     'not-searching': '#888888',
-    # })
-
-
     # start with path view
     show_path()
 

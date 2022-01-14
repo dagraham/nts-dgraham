@@ -6,42 +6,37 @@ import logging.config
 logging.getLogger('asyncio').setLevel(logging.WARNING)
 logger = logging.getLogger()
 from prompt_toolkit import prompt
-from ruamel.yaml import YAML
-yaml = YAML(typ='safe', pure=True)
+import ruamel.yaml
+
+# from ruamel.yaml import YAML
+yaml = ruamel.yaml.YAML()
 from prompt_toolkit.styles import Style
 from prompt_toolkit.styles.named_colors import NAMED_COLORS
+from copy import deepcopy
 
 # for nts.yaml
 default_cfg = """\
 # Changes to this file only take effect when nts is restarted.
-
 # EDIT
 # The following are examples using the editor vim. Tip: to use the
 # native version of vim under Mac OSX, replace 'vim' in each of
 # the following commands with:
 #        '/Applications/MacVim.app/Contents/MacOS/Vim'
-
-# command to edit {filepath} at {linenum} and wait for completion
+# session_edit cmd to edit {filepath} at {linenum} and await completion
 session_edit: vim -g -f +{linenum} {filepath}
-
-# command to edit {filepath} at end of file and wait for completion
+# session_add cmd to edit {filepath} at end of file and await completion
 session_add: vim -g -f + {filepath}
-
-# command to edit {filepath} at {linenum} without waiting
+# command_edit cmd to edit {filepath} at {linenum} without waiting
 command_edit: vim -g +{linenum} {filepath}
-
-# command to edit {filepath} at end of file without waiting
+# command_add cmd to edit {filepath} at end of file without waiting
 command_add: vim -g + {filepath}
-
 # STYLE
 # session mode hex colors
 style:
     status:             '#FFFFFF bg:#696969'
-    message:            '#FFF86F'
-    status.position:    '#AAAA00'
     status.key:         '#FFAA00'
+    message:            '#FFF86F'
     not-searching:      '#888888'
-
 # TAG SORT
 # For listed keys, sort by the corresponding value. E.g. In tag view
 # items with the tag "now" will be sorted as if they had the tag "!".
@@ -49,7 +44,7 @@ style:
 tag_sort:
     now:        '!'
     next:       '#'
-    assigned:   '$'
+    assigned:   '%'
     someday:    '{'
     completed:  '}'
 """
@@ -198,7 +193,46 @@ def main():
             print("cancelled")
             return
     cfg_path = os.path.join(ntshome, 'cfg.yaml')
-    if not os.path.isfile(cfg_path):
+
+    defaults = ruamel.yaml.load(default_cfg, ruamel.yaml.RoundTripLoader)
+    # ruamel.yaml.dump(defaults, sys.stdout, Dumper=ruamel.yaml.RoundTripDumper)
+    merged = deepcopy(defaults)
+
+    if os.path.isfile(cfg_path):
+        with open(cfg_path, 'r') as fn:
+            try:
+                user = yaml.load(fn)
+            except Exception as e:
+                error = f"This exception was raised when loading settings:\n---\n{e}---\nPlease correct the error in {cfg_path} or remove it and restart nts.\n"
+                logger.critical(error)
+                sys.exit()
+        changes = []
+        for key, value in defaults.items():
+            # if there is a user setting, use it - else use the default
+            if key in user:
+                if key == 'style':
+                    for k, v in defaults['style'].items():
+                        if k in user['style']:
+                            merged['style'][k] = user['style'][k]
+                        else:
+                            # a missing user setting component - use the default and update the file
+                            changes.append(f"replaced missing setting for style[{k}] with {v}")
+                else:
+                    merged[key] = user[key]
+            else:
+                # a missing user setting - use the default and update the file
+                changes.append(f"replaced missing setting for {key} with {value}")
+
+        for key, value in user.items():
+            if key not in merged:
+                changes.append(f"removed invalid setting for {key}")
+        if changes:
+            with open(cfg_path, 'w', encoding='utf-8') as fn:
+                # ruamel.yaml.dump(merged, fn, Dumper=ruamel.yaml.RoundTripDumper)
+                yaml.dump(merged, fn)
+            logger.info(f"updated {cfg_path}: {', '.join(changes)}")
+
+    else:
         with open(cfg_path, 'w') as fo:
             fo.write(default_cfg)
 
@@ -235,22 +269,8 @@ def main():
         nts.session_add= yaml_data['session_add']
         nts.command_edit= yaml_data['command_edit']
         nts.command_add= yaml_data['command_add']
-
-        default_style = {
-            'status':             '#FFFFFF bg:#696969',
-            'message':            '#FFF86F',
-            'status.position':    '#AAAA00',
-            'status.key':         '#FFAA00',
-            'not-searching':      '#888888',
-                }
-
         user_style = yaml_data['style']
-        style_dict = {}
-        for key, value in default_style.items():
-            style_dict[key] = user_style.get(key, value)
-            if key not in user_style:
-                logger.info(f"using default color '{value}' for class: '{key}'")
-        style_obj = Style.from_dict(style_dict)
+        style_obj = Style.from_dict(user_style)
         nts.style_obj = style_obj
 
         tag_sort = yaml_data.get('tag_sort', {})

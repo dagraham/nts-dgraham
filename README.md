@@ -155,62 +155,53 @@ Finally, if neither of the previous alternatives are satisfied, then *nts* will 
 The _nts_ "data" and "logs" directories will be created if necessary as well as the _nts_ configuration file, "cfg.yaml" using default settings. If "data" needs to be created, the user will additionally be offered the opportunity to populate it with illustrative data. Here are the default contents of this file:
 
 
-    ##################### IMPORTANT #############################
-    #
     # Changes to this file only take effect when nts is restarted.
-    #
-    #############################################################
-    #
-    ##################        EDIT      #########################
-    # The following are examples using the editor vim
-    # To use the native version of vim under Mac OSX, replace
-    # 'vim' with '/Applications/MacVim.app/Contents/MacOS/Vim'
-    # in each of the following commands. Omit the '-g' argument
-    # to open vim in the same _nts_ terminal window.
-    #
-    # edit {filepath} at {linenum} - wait for completion
+    # EDIT
+    # The following are examples using the editor vim. Tip: to use the
+    # native version of vim under Mac OSX, replace 'vim' in each of
+    # the following commands with:
+    #        '/Applications/MacVim.app/Contents/MacOS/Vim'
+    # command to edit {filepath} at {linenum} and wait for completion
     session_edit: vim -g -f +{linenum} {filepath}
-    #
-    # edit {filepath} at end of file - wait for completion
+    # command to edit {filepath} at end of file and wait for completion
     session_add: vim -g -f + {filepath}
-    #
-    # edit {filepath} at {linenum} - do not wait for completion
+    # command to edit {filepath} at {linenum} without waiting
     command_edit: vim -g +{linenum} {filepath}
-    #
-    # edit {filepath} at end of file - do not wait for completion
+    # command to edit {filepath} at end of file without waiting
     command_add: vim -g + {filepath}
-    #
-    ##################        STYLE        ######################
-    # style hex colors for plain, prompt and highlight
+    # STYLE
+    # session mode hex colors
     style:
-        plain:        '#FFFAFA'
-        prompt:       '#FFF68F'
-        message:      '#90C57F'
-        highlight:    'bg:#FFF68F #000000'
-    #
-    ##################      TAG SORT       ######################
-    # for listed keys, sort by the corresponding value. E.g. In
-    # tag view items with the tag "now" will be sorted as if
-    # they had the tag "!". Replace the keys and values with
-    # whatever you find convenient
+        status:             '#FFFFFF bg:#696969'
+        message:            '#FFF86F'
+        status.position:    '#AAAA00'
+        status.key:         '#FFAA00'
+        not-searching:      '#888888'
+    # TAG SORT
+    # For listed keys, sort by the corresponding value. E.g. In tag view
+    # items with the tag "now" will be sorted as if they had the tag "!".
+    # Replace the keys and values with whatever you find convenient
     tag_sort:
         now:        '!'
         next:       '#'
-        assigned:   '$'
+        assigned:   '%'
         someday:    '{'
         completed:  '}'
 
 
-From time to time, new versions of _nts_ may add new options to "cfg.yaml". When this happens, you might consider renaming your existing "cfg.yaml" as, say, "cfg-orig.yaml". After you update _nts_ to the new version and restart it, a new version of "cfg.yaml" will be created. You can then cut and paste between "cfg-orig.yaml" and "cfg.yaml" to incorporate your settings into the new configuration.
+
+If you make changes to "cfg.yaml" and would like to restore the defaults just delete the relevant settings from the file and restart _nts_ - the missing settings will be restored with their default values.
+
+From time to time, new versions of _nts_ may add new settings to "cfg.yaml". When this happens, the new settings will automatically be added to your "cfg.yaml" the next time you start _nts_.
 
 
 ### View Sorting
 
 The default values for _tag_sort_ in "cfg.yaml" mean that notes will be sorted in in _tag_view_ so that items with the tag "now" will be sorted as if the tag were "!", items with the tag "next" as if the tag were "#" and so forth. Tags not listed in _tag_sort_ will sorted using the actual tag. The  _dictionary sorting order_ for common keyboard characters in python is:
 
-`! # $ % & ( ) * + - / 1 2 3 ; < = > ? @ A B C [ ] ^ _ a b c { } ~`
+`! # % & ( ) * + - / 1 2 3 ; < = > ? @ A B C [ ] ^ _ a b c { } ~`
 
-_nts_ implicitly assigns the tag "~" to notes without tags and, because of this sorting order, untagged items are listed last in _tag_view_.
+_nts_ implicitly assigns the tag "~" to notes without tags and, because of this sorting order, untagged items are listed last in _Tags View_.
 
 
 To illustrate this tag sorting with the default configuration, suppose the file
@@ -282,7 +273,7 @@ _Tags View_ now appears as
 As promised, the sorting reflects the _tag_sort_ setting in "cfg.yaml" with _now_, _next_ and _assigned_ at the top, _blue_, _green_ and _red_ in the middle in dictionary sort order and _someday_, _completed_ and _~_ last. Note also that within the _assigned_ tags the sorting is in dictionary order with _assigned bob_ followed by _assigned joe_ even though _assigned joe_ occured first in the file.
 
 
-With the new file, _Path View_ appears as
+With the added file, _Path View_ appears as
 
     path view
     └── parent 1
