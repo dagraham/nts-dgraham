@@ -32,7 +32,6 @@ import subprocess
 import requests
 
 from prompt_toolkit import print_formatted_text
-# from prompt_toolkit.styles.named_colors import NAMED_COLORS
 import textwrap
 
 import shutil
@@ -999,13 +998,13 @@ def session():
         set_text("\n".join(Data.findlines))
 
 
-    style = Style.from_dict({
-        'status': f'{NAMED_COLORS["White"]} bg:{NAMED_COLORS["DimGrey"]}',
-        'message': '#fff86f',
-        'status.position': '#aaaa00',
-        'status.key': '#ffaa00',
-        'not-searching': '#888888',
-    })
+    # style = Style.from_dict({
+    #     'status': f'{NAMED_COLORS["White"]} bg:{NAMED_COLORS["DimGrey"]}',
+    #     'message': '#fff86f',
+    #     'status.position': '#aaaa00',
+    #     'status.key': '#ffaa00',
+    #     'not-searching': '#888888',
+    # })
 
 
     # start with path view
@@ -1020,7 +1019,7 @@ def session():
         key_bindings=bindings,
         enable_page_navigation_bindings=True,
         mouse_support=True,
-        style=style,
+        style=style_obj,
         full_screen=True)
 
 

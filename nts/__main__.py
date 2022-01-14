@@ -9,47 +9,43 @@ from prompt_toolkit import prompt
 from ruamel.yaml import YAML
 yaml = YAML(typ='safe', pure=True)
 from prompt_toolkit.styles import Style
+from prompt_toolkit.styles.named_colors import NAMED_COLORS
 
 # for nts.yaml
 default_cfg = """\
-##################### IMPORTANT #############################
-#
 # Changes to this file only take effect when nts is restarted.
-#
-#############################################################
-#
-##################        EDIT      #########################
-# The following are examples using the editor vim
-# To use the native version of vim under Mac OSX, replace
-# 'vim' with '/Applications/MacVim.app/Contents/MacOS/Vim'
-# in each of the following commands. Omit the '-g' argument
-# to open vim in the same _nts_ terminal window.
-#
-# edit {filepath} at {linenum} - wait for completion
+
+# EDIT
+# The following are examples using the editor vim. Tip: to use the
+# native version of vim under Mac OSX, replace 'vim' in each of
+# the following commands with:
+#        '/Applications/MacVim.app/Contents/MacOS/Vim'
+
+# command to edit {filepath} at {linenum} and wait for completion
 session_edit: vim -g -f +{linenum} {filepath}
-#
-# edit {filepath} at end of file - wait for completion
+
+# command to edit {filepath} at end of file and wait for completion
 session_add: vim -g -f + {filepath}
-#
-# edit {filepath} at {linenum} - do not wait for completion
+
+# command to edit {filepath} at {linenum} without waiting
 command_edit: vim -g +{linenum} {filepath}
-#
-# edit {filepath} at end of file - do not wait for completion
+
+# command to edit {filepath} at end of file without waiting
 command_add: vim -g + {filepath}
-#
-##################        STYLE        ######################
-# style hex colors for plain, prompt and highlight
+
+# STYLE
+# session mode hex colors
 style:
-    plain:        '#FFFAFA'
-    prompt:       '#FFF68F'
-    message:      '#90C57F'
-    highlight:    'bg:#FFF68F #000000'
-#
-##################      TAG SORT       ######################
-# for listed keys, sort by the corresponding value. E.g. In
-# tag view items with the tag "now" will be sorted as if
-# they had the tag "!". Replace the keys and values with
-# whatever you find convenient
+    status:             '#FFFFFF bg:#696969'
+    message:            '#FFF86F'
+    status.position:    '#AAAA00'
+    status.key:         '#FFAA00'
+    not-searching:      '#888888'
+
+# TAG SORT
+# For listed keys, sort by the corresponding value. E.g. In tag view
+# items with the tag "now" will be sorted as if they had the tag "!".
+# Replace the keys and values with whatever you find convenient
 tag_sort:
     now:        '!'
     next:       '#'
@@ -241,10 +237,11 @@ def main():
         nts.command_add= yaml_data['command_add']
 
         default_style = {
-                'plain':        '#FFFAFA',
-                'prompt':       '#FFF68F',
-                'message':      '#90C57F',
-                'highlight':    'bg:#FFF68F #000000',
+            'status':             '#FFFFFF bg:#696969',
+            'message':            '#FFF86F',
+            'status.position':    '#AAAA00',
+            'status.key':         '#FFAA00',
+            'not-searching':      '#888888',
                 }
 
         user_style = yaml_data['style']
