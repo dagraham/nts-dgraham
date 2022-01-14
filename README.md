@@ -5,7 +5,7 @@
 
 ### Overview
 
-_nts_ is pure python and runs in a terminal window on any platform that supports python >= 3.7.3.
+_nts_ is pure python and runs in a terminal window on any platform that supports python >= 3.7.3. Its purpose is to ease both the recording of information and its subsequent retrieval.
 
 Notes are recorded in plain text files with the extension ".txt" located anywhere below the _nts data_ directory. Note files are simple:
 
