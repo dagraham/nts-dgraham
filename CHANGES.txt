@@ -1,93 +1,94 @@
-Recent changes as of 2022-01-13T12:16:18.655427-05:00:
-- 0 seconds ago (HEAD -> working, tag: 1.1.6) Daniel Graham
-    861769c 2022-01-13 12:16:18 -0500
+Recent changes as of 2022-01-14T15:46:32.474744-05:00:
+- 0 seconds ago (HEAD -> working, tag: 1.1.7) Daniel Graham
+    6b3c3ed 2022-01-14 15:46:32 -0500
+    Tagged version 1.1.7. Automated check and update for user
+    cfg.yaml.
+
+- 4 minutes ago (config) Daniel Graham
+    93b8839 2022-01-14 15:42:10 -0500
+    Implemented user configuration check and update from defaultswith
+    comments preserved. Removed unused 'status.position' style.
+    Streamlined the default cfg.yaml. Cleaned up comments.
+
+- 4 hours ago Daniel Graham
+    f08a4ca 2022-01-14 11:26:05 -0500
+    Replaced hex colors in cfg.yaml setup with new session colors.
+
+- 7 hours ago Daniel Graham
+    71fb96e 2022-01-14 08:53:56 -0500
+    README tweaks
+
+- 23 hours ago Daniel Graham
+    ab12011 2022-01-13 16:32:34 -0500
+    tabs to spaces in README
+
+- 28 hours ago (origin/master, master) Daniel Graham
+    42e54fa 2022-01-13 12:16:18 -0500
     Tagged version 1.1.6.
 
-- 17 seconds ago Daniel Graham
+- 28 hours ago Daniel Graham
     5e32600 2022-01-13 12:16:01 -0500
     Corrections in 'cfg.yaml' and 'tagsort.txt'. Major rewrite of
     README.
 
-- 5 hours ago Daniel Graham
+- 32 hours ago Daniel Graham
     5dd4e8f 2022-01-13 07:27:39 -0500
     Allow empty returns to clear limits using m and i.
 
-- 21 hours ago (origin/master) Daniel Graham
+- 2 days ago Daniel Graham
     1ea2402 2022-01-12 15:41:58 -0500
     Tagged version 1.1.5. Added join command to select notes based on
     tags.
 
-- 21 hours ago Daniel Graham
+- 2 days ago Daniel Graham
     67b0d7e 2022-01-12 15:41:18 -0500
     Implemented join command to display notes whose tags match the
     specified and/or regex argument. Simplified session help. Fixed
     bug in setting showingNodes.
 
-- 2 days ago Daniel Graham
+- 3 days ago Daniel Graham
     2713c95 2022-01-11 13:59:09 -0500
     Added error reporting for bad IDENTs used with 'i', 'e' and 'a'.
 
-- 2 days ago Daniel Graham
+- 3 days ago Daniel Graham
     931cd6d 2022-01-11 12:04:16 -0500
     Tagged version 1.1.4.
 
-- 2 days ago Daniel Graham
+- 3 days ago Daniel Graham
     2af16a7 2022-01-11 12:03:03 -0500
     Fixed bug in processing order for argsparse.
 
-- 2 days ago Daniel Graham
+- 3 days ago Daniel Graham
     9b4c23c 2022-01-11 10:34:53 -0500
     Tagged version 1.1.3. Command mode fixes.
 
-- 2 days ago Daniel Graham
+- 3 days ago Daniel Graham
     4cbb208 2022-01-11 10:34:23 -0500
     Suppress printing path or tag view in command mode when showing
     details, e.g., with -g get. Print help info in command mode if no
     arguments are entered. Set 'nts' as the program name in argparse.
 
-- 3 days ago Daniel Graham
+- 4 days ago Daniel Graham
     829351c 2022-01-10 17:59:31 -0500
     Tagged version 1.1.2.
 
-- 3 days ago Daniel Graham
+- 4 days ago Daniel Graham
     99763b6 2022-01-10 17:59:10 -0500
     Split header into left (nts current view), center (limits if any)
     and right (help).
 
-- 3 days ago Daniel Graham
+- 4 days ago Daniel Graham
     7213ced 2022-01-10 11:52:43 -0500
     Handle empty note files correctly. Emphasized that incremental
     search does not handle regular expressions. Cleaned up comments.
     Corrected whitespace for 'def'.
 
-- 4 days ago Daniel Graham
+- 5 days ago Daniel Graham
     12ae481 2022-01-09 17:16:33 -0500
     Tagged version 1.1.1.
 
-- 4 days ago Daniel Graham
+- 5 days ago Daniel Graham
     0832bcb 2022-01-09 17:16:08 -0500
     Figured out a way to clear incremental search highlighting and
     bound it to ',,'. Added a command bound to '..' to extend the
     incremental search to 'find' with the same expression.
-
-- 5 days ago Daniel Graham
-    9e16589 2022-01-08 21:49:52 -0500
-    Tagged version 1.1.0. Replaced prompt based session with
-    full-screen application based session."
-
-- 5 days ago Daniel Graham
-    d269e58 2022-01-08 21:45:29 -0500
-    Tweaks for README and help.
-
-- 5 days ago Daniel Graham
-    b4266eb 2022-01-08 18:30:26 -0500
-    For add, accept both IDENT and NAME at the prompt.
-
-- 5 days ago Daniel Graham
-    81c8ddc 2022-01-08 16:15:02 -0500
-    Edit and Add seem to be working.
-
-- 5 days ago Daniel Graham
-    5744170 2022-01-08 15:32:07 -0500
-    Much work on help and README to reflect the new full-screen
-    session. First pass at edit and add but not working.
