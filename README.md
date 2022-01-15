@@ -118,7 +118,7 @@ version check   |  -v              |  v              |  v
 
 - m: Limit the diplay of nodes in the branches to the integer MAX levels below the starting node. Use MAX = 0 to display all levels.
 
-- /: Incrementally search for matches for the case-insensitive string (not regular expression) SEARCH in the current display. When the search is active, press ",," (two commas successively) to clear the search or ".." to extend the search for matches to the complete notes for the active view. This is equivalent to invoking "f" with the same SEARCH argument.
+- /|?: Start a case-insensitive, incremental search forward (/) or backward (?) for STRING. When the search is active, press "n" to continue the search in the same or "N" reverse direction,  ",," (two commas successively) to clear the search or ".." to apply the search to the complete notes of the active view.
 
 - f: Display complete notes that contain a match in the title, tags or body for the case-insensitive regular expression REGEX.
 
