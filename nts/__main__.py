@@ -263,8 +263,6 @@ def main():
     if os.path.isfile(cfg_path):
         with open(cfg_path, 'r') as fo:
             yaml_data = yaml.load(fo)
-        logger.debug(f"yaml_data: {yaml_data}")
-
         nts.session_edit= yaml_data['session_edit']
         nts.session_add= yaml_data['session_add']
         nts.command_edit= yaml_data['command_edit']
@@ -272,7 +270,6 @@ def main():
         user_style = yaml_data['style']
         style_obj = Style.from_dict(user_style)
         nts.style_obj = style_obj
-
         tag_sort = yaml_data.get('tag_sort', {})
         nts.tag_sort = tag_sort
 
