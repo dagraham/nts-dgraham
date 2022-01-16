@@ -405,6 +405,8 @@ class NodeData(object):
             if self.get and not self.get.search(pathstr):
                 continue
 
+            if self.join:
+                mode, regxs = self.join
 
             if node.name.endswith('.txt'):
                 pathstr = os.path.join(self.rootdir, pathstr[2:])
