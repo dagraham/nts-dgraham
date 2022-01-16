@@ -22,13 +22,13 @@ default_cfg = """\
 # native version of vim under Mac OSX, replace 'vim' in each of
 # the following commands with:
 #        '/Applications/MacVim.app/Contents/MacOS/Vim'
-# session_edit cmd to edit {filepath} at {linenum} and await completion
+# session_edit: cmd to edit {filepath} at {linenum} and await completion
 session_edit: vim -g -f +{linenum} {filepath}
-# session_add cmd to edit {filepath} at end of file and await completion
+# session_add: cmd to edit {filepath} at end of file and await completion
 session_add: vim -g -f + {filepath}
-# command_edit cmd to edit {filepath} at {linenum} without waiting
+# command_edit: cmd to edit {filepath} at {linenum} without waiting
 command_edit: vim -g +{linenum} {filepath}
-# command_add cmd to edit {filepath} at end of file without waiting
+# command_add: cmd to edit {filepath} at end of file without waiting
 command_add: vim -g + {filepath}
 # STYLE
 # session mode hex colors
@@ -198,6 +198,16 @@ def main():
     # ruamel.yaml.dump(defaults, sys.stdout, Dumper=ruamel.yaml.RoundTripDumper)
     merged = deepcopy(defaults)
 
+    logdir = os.path.normpath(os.path.join(ntshome, 'logs'))
+    if not os.path.isdir(logdir):
+        os.makedirs(logdir)
+    loglevel = 2 # info
+    log_levels = [str(x) for x in range(1, 6)]
+    if len(sys.argv) > 1 and sys.argv[1] in log_levels:
+        loglevel = int(sys.argv.pop(1))
+
+    setup_logging(loglevel, logdir)
+    logger.debug(f"nts home directory: '{ntshome}'")
     if os.path.isfile(cfg_path):
         with open(cfg_path, 'r') as fn:
             try:
@@ -217,6 +227,10 @@ def main():
                         else:
                             # a missing user setting component - use the default and update the file
                             changes.append(f"replaced missing setting for style[{k}] with {v}")
+
+                    for k, v in user['style'].items():
+                        if k not in merged['style']:
+                            changes.append(f'removed invalid "{k}" setting for style')
                 else:
                     merged[key] = user[key]
             else:
@@ -225,28 +239,17 @@ def main():
 
         for key, value in user.items():
             if key not in merged:
-                changes.append(f"removed invalid setting for {key}")
+                changes.append(f'removed invalid "{key}" setting')
         if changes:
             with open(cfg_path, 'w', encoding='utf-8') as fn:
-                # ruamel.yaml.dump(merged, fn, Dumper=ruamel.yaml.RoundTripDumper)
                 yaml.dump(merged, fn)
             logger.info(f"updated {cfg_path}: {', '.join(changes)}")
 
     else:
-        with open(cfg_path, 'w') as fo:
-            fo.write(default_cfg)
+        with open(cfg_path, 'w', encoding='utf-8') as fn:
+            yaml.dump(merged, fn)
 
 
-    logdir = os.path.normpath(os.path.join(ntshome, 'logs'))
-    if not os.path.isdir(logdir):
-        os.makedirs(logdir)
-    loglevel = 2 # info
-    log_levels = [str(x) for x in range(1, 6)]
-    if len(sys.argv) > 1 and sys.argv[1] in log_levels:
-        loglevel = int(sys.argv.pop(1))
-
-    setup_logging(loglevel, logdir)
-    logger.debug(f"nts home directory: '{ntshome}'")
 
     rootdir = os.path.join(ntshome, 'data')
     if not os.path.isdir(rootdir):

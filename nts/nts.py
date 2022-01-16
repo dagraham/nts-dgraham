@@ -214,7 +214,9 @@ class NodeData(object):
         self.shownodes = True
         self.sessionMode = False
         self.get = None  # regular expression
+        self.getstr = ""
         self.join = None # regular expressions joined by 'and' or 'or'
+        self.joinstr = ""
 
         self.setStart()
         self.setMaxLevel()
@@ -246,6 +248,7 @@ class NodeData(object):
         if get is None:
             return (False, "required argument missing")
         get = get.strip()
+        self.getstr = f'notes for {self.mode} view branches matching "{get}"'
         self.get = re.compile(r'%s' % get, re.IGNORECASE) if get else None
         # self.showNodes()
 
@@ -457,6 +460,7 @@ class NodeData(object):
         """display the contens of filepath starting with linenum"""
 
         selfcolumns, self.rows = shutil.get_terminal_size()
+        column_adjust = 2 if self.sessionMode else 1
         output_lines = []
         with open(filepath, 'r') as fo:
             lines = fo.readlines()
@@ -464,7 +468,7 @@ class NodeData(object):
             for line in lines:
                 line = line.rstrip()
                 if line:
-                    output_lines.extend(textwrap.wrap(line, width=self.columns-4, subsequent_indent="  ", initial_indent="  "))
+                    output_lines.extend(textwrap.wrap(line, width=self.columns-column_adjust, subsequent_indent="  ", initial_indent="  "))
                 else:
                     output_lines.append("")
         else:
@@ -478,7 +482,7 @@ class NodeData(object):
                         output_lines = output_lines[:-1]
                     break
                 if line:
-                    output_lines.extend(textwrap.wrap(line, width=self.columns-4, subsequent_indent="  ", initial_indent="  "))
+                    output_lines.extend(textwrap.wrap(line, width=self.columns-column_adjust, subsequent_indent="  ", initial_indent="  "))
                 else:
                     output_lines.append("")
 
@@ -494,14 +498,21 @@ class NodeData(object):
         matching_keys = []
         output_lines = []
         self.find_lines = []
+        column_adjust = 4 if self.sessionMode else 2
+        find = find.strip()
         if not find:
             return output_lines
+        markers = True
+        if find.startswith('!'):
+            markers = False
+            find = find[1:].lstrip()
         regex = re.compile(r'%s' % find, re.IGNORECASE)
         for key, lines in self.notedetails.items():
             match = False
             for line in lines:
                 match = regex.search(line)
                 if match:
+                    logger.debug(f"match: {match}")
                     break
             if match:
                 matching_keys.append(key)
@@ -515,14 +526,27 @@ class NodeData(object):
                     for line in lines[1:]:
                         line.rstrip()
                         if line:
-                            output_lines.extend(textwrap.wrap(line, width=self.columns-4,
+                            output_lines.extend(textwrap.wrap(line, width=self.columns-column_adjust,
                                 subsequent_indent="  ", initial_indent="  "))
                         else:
                             output_lines.append('')
                     output_lines.append('')
             if output_lines and not output_lines[-1]:
                 output_lines = output_lines[:-1]
-        self.findlines = output_lines
+
+        if markers:
+            width = self.columns-column_adjust
+            marker = "-"
+            header = f'lines matching "{find}" marked with {marker}'
+            self.findlines = [header, "-"*len(header)]
+            for line in output_lines:
+                text = line.rstrip()
+                match = regex.search(text)
+                if match:
+                    text = f"{text : <{width}}{marker : >2}"
+                self.findlines.append(text)
+        else:
+            self.findlines = output_lines
 
 
     def showID(self, idstr=None):
@@ -782,17 +806,25 @@ def session():
 
 
     def show_find(regex):
-        search.start_search()
-        layout = get_app().layout
-        search_control = layout.current_control
-        search_control.buffer.text = regex
-        search_state = get_app().current_search_state
-        search_state.text = regex
-        search.accept_search()
         Data.find(regex)
-        set_text("\n".join(Data.findlines))
+        logger.debug(f"findlines: {Data.findlines}")
+        text = "\n".join(Data.findlines)
+        set_text(text)
+        # logger.debug(f"search: {search.__dict__.keys()}")
+        # logger.debug(f"search_field.search_buffer: {search_field.search_buffer.__dict__.keys()}")
+
+        # logger.debug(f"search.get_app: {search.get_app().__dict__.keys()}")
+        # search_field.search_buffer._set_text(regex)
+        # search_field.search_buffer.accept_handler
+        # layout = search.get_app().layout
+        # search_control = layout.current_control
+        # search_control.buffer._set_text(regex)
+        # search.do_incremental_search("FORWARD")
+        # logger.debug(f"search.is_searching: {search.is_searching()}")
+        # search_state = get_app().current_search_state
+        # search_state.text = regex
+        # search.start_search()
         # direction = search_state.direction
-        search.start_search()
 
 
     def set_max(level):
@@ -985,7 +1017,6 @@ def session():
     @bindings.add(',', ',', filter=is_not_typing)
     def _(event):
         search_state = get_app().current_search_state
-        text = search_state.text
         search_state.text = ''
 
     @bindings.add('.', '.', filter=is_not_typing)
@@ -1038,17 +1069,17 @@ def main():
 
     parser.add_argument("-m", "--max", type=int, help="display at most MAX levels of outlines. Use MAX = 0 to show all levels.")
 
-    parser.add_argument("-f", "--find", type=str, help="show notes in the current view whose content contains a match for the case-insensitive regex FIND")
+    parser.add_argument("-f", "--find", type=str, help='show notes in the current view whose content contains a match for the case-insensitive regex FIND. Mark matching lines with an "-" in the rightmost column unless FIND begins with with an "!".')
 
-    parser.add_argument("-g", "--get", type=str, help="show note titles whose branches in the current view contain a match for the case-insensitive regex GET")
+    parser.add_argument("-g", "--get", type=str, help="show note titles whose branches in the active view contain a match for the case-insensitive regex GET")
 
-    parser.add_argument("-j", "--join", type=str, help='display note titles for notes with tags satisfying JOIN. E.g. if JOIN = "red", then notes containing the tag "RED" would be displayed. If JOIN = "| red, blue" then notes with _either_ the tag "red" _or_ the tag "blue" would be displayed. Finally, if JOIN = "& red, blue", then notes with _both_ the tags "red" _and_ "blue" would be displayed. In general JOIN = [|&] comma-separated list of case-insensitive regular expressions.')
+    parser.add_argument("-j", "--join", type=str, help='display note titles for notes with tags satisfying JOIN. E.g. if JOIN = "red", then notes containing the tag "RED" would be displayed. If JOIN = "| red, blue" then notes with either the tag "red" or the tag "blue" would be displayed. Finally, if JOIN = "& red, blue", then notes with both the tags "red" and "blue" would be displayed. In general JOIN = [|&] comma-separated list of case-insensitive regular expressions.')
 
-    parser.add_argument("-i", "--id", type=str, help="inspect the node/leaf corresponding to ID in the current view")
+    parser.add_argument("-i", "--id", type=str, help="inspect the node/leaf corresponding to ID in the active view")
 
-    parser.add_argument("-e", "--edit", type=str, help="edit the node/leaf corresponding to EDIT in the current view")
+    parser.add_argument("-e", "--edit", type=str, help="edit the node/leaf corresponding to EDIT in the active view")
 
-    parser.add_argument("-a", "--add", type=str, help="add to the node/leaf corresponding to ADD in the current view")
+    parser.add_argument("-a", "--add", type=str, help="add to the node/leaf corresponding to ADD in the active view")
 
     parser.add_argument("-v",  "--version", help="check for an update to a later nts version",
                         action="store_true")
@@ -1083,9 +1114,12 @@ def main():
                 for line in Data.findlines:
                     print(line)
                 print("_"*columns)
+                return
 
         if args.get:
             Data.setGet(args.get)
+            print(Data.getstr)
+            print("-"*len(Data.getstr))
             Data.showNodes()
 
         if args.join:
