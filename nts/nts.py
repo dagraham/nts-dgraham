@@ -217,6 +217,7 @@ class NodeData(object):
         self.getstr = ""
         self.join = None # regular expressions joined by 'and' or 'or'
         self.joinstr = ""
+        self.startstr = ""
 
         self.setStart()
         self.setMaxLevel()
@@ -248,7 +249,8 @@ class NodeData(object):
         if get is None:
             return (False, "required argument missing")
         get = get.strip()
-        self.getstr = f'notes for {self.mode} view branches matching "{get}"'
+        getstr = f'notes for {self.mode} view branches matching "{get}"'
+        self.getstr = f"{getstr}\n{'-'*len(getstr)}"
         self.get = re.compile(r'%s' % get, re.IGNORECASE) if get else None
         # self.showNodes()
 
@@ -257,6 +259,8 @@ class NodeData(object):
         if join is None:
             return (False, "required argument missing")
         join = join.strip()
+        joinstr = f'notes with tags matching "{join}"'
+        self.joinstr = f"{joinstr}\n{'-'*len(joinstr)}"
         if join.startswith('&'):
             mode = 'and'
             join = join[1:]
@@ -369,12 +373,18 @@ class NodeData(object):
         linenum = 0
         linenum2node = {}
         output_lines = []
+
+        if self.startstr:
+            output_lines.insert(0, self.startstr)
+        if self.join:
+            mode, regxs = self.join
+            output_lines.append(self.joinstr)
+        if self.get:
+            output_lines.append(self.getstr)
+
         start = self.nodes.get(self.start, self.nodes['.'])
         showlevel = self.maxlevel + 1 if self.maxlevel else None
         thissort = mypathsort if self.mode == 'path' else mytagsort
-
-        if self.join:
-            mode, regxs = self.join
 
         for pre, fill, node in RenderTree(start, childiter=thissort, maxlevel=showlevel):
             # node with lines are only used for notes
@@ -462,6 +472,8 @@ class NodeData(object):
         selfcolumns, self.rows = shutil.get_terminal_size()
         column_adjust = 2 if self.sessionMode else 1
         output_lines = []
+        if self.startstr:
+            output_lines.insert(0, self.startstr)
         with open(filepath, 'r') as fo:
             lines = fo.readlines()
         if linenum is None:
@@ -553,6 +565,7 @@ class NodeData(object):
         self.showNodes()
         if idstr in [0, "0", '', None]:
             info = ('.', )
+            self.startstr = ""
         else:
             try:
                 idtup = tuple([int(x) for x in idstr.split('-')])
@@ -568,6 +581,9 @@ class NodeData(object):
             # we have a starting node
             self.showingNodes = True
             self.setStart(info[0])
+            if info[0] != '.':
+                startstr = f'starting from {idstr} {info[0]}'
+                self.startstr = f"{startstr}\n{'-'*len(startstr)}"
             self.showNodes()
             if not self.sessionMode:
                 for line in self.nodelines:
@@ -576,6 +592,9 @@ class NodeData(object):
         elif os.path.isfile(info[0]):
             # we have a filename and linenumber
             self.showingNodes = False
+            startstr = info[0].split('data/')[1]
+            startstr = f'showing {idstr} ./{startstr}'
+            self.startstr = f"{startstr}\n{'-'*len(startstr)}"
             filepath, linenum = info
             self.showNotes(filepath, linenum)
             if not self.sessionMode:
@@ -1049,7 +1068,10 @@ def session():
 
 def main():
     columns, rows = shutil.get_terminal_size()
-    parser = argparse.ArgumentParser(description=f"Note Taking Simplified version {nts_version}", formatter_class=argparse.ArgumentDefaultsHelpFormatter, prog='nts')
+    parser = argparse.ArgumentParser(
+            description=f"Note Taking Simplified {nts_version}",
+            # formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+            prog='nts')
 
     parser.add_argument("-s",  "--session", help="begin an interactive session", action="store_true")
 
@@ -1069,7 +1091,7 @@ def main():
 
     parser.add_argument("-m", "--max", type=int, help="display at most MAX levels of outlines. Use MAX = 0 to show all levels.")
 
-    parser.add_argument("-f", "--find", type=str, help='show notes in the current view whose content contains a match for the case-insensitive regex FIND. Mark matching lines with an "-" in the rightmost column unless FIND begins with with an "!".')
+    parser.add_argument("-f", "--find", type=str, help='show notes in the current view whose content contains a match for the case-insensitive regex FIND. Mark matching lines with an "-" in the rightmost column unless FIND is preceeded by an "!".')
 
     parser.add_argument("-g", "--get", type=str, help="show note titles whose branches in the active view contain a match for the case-insensitive regex GET")
 
@@ -1090,8 +1112,9 @@ def main():
         sys.exit(1)
 
     args = parser.parse_args()
-    mode = 'path' if args.path else 'tags'
+    mode = 'tags' if args.tags else 'path'
     Data.setMode(mode)
+    Data.showNodes()
 
     if args.session:
         Data.sessionMode = True
@@ -1118,8 +1141,8 @@ def main():
 
         if args.get:
             Data.setGet(args.get)
-            print(Data.getstr)
-            print("-"*len(Data.getstr))
+            # print(Data.getstr)
+            # print("-"*len(Data.getstr))
             Data.showNodes()
 
         if args.join:
@@ -1144,7 +1167,7 @@ def main():
             Data.setMode('path')
             Data.showNodes()
             if not showing_details:
-                print('path view')
+                # print('path view')
                 for line in Data.nodelines:
                     print(line)
                 print('')
@@ -1153,7 +1176,7 @@ def main():
             Data.setMode('tags')
             Data.showNodes()
             if not showing_details:
-                print('tags view')
+                # print('tags view')
                 for line in Data.nodelines:
                     print(line)
                 print('')

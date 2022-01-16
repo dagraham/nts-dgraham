@@ -104,9 +104,9 @@ hide leaves     |  -l              |  l              |  l
 hide branches   |  -b              |  b              |  b
 set max levels  |  -m MAX          |  m MAX          |  m
 search          |                  |  / SEARCH       |  /
-find REGEX      |  -f 'REGEX'      |  f REGEX        |  f
-get REGEX       |  -g 'REGEX'      |  g REGEX        |  g
-join JOIN       |  -j 'JOIN'       |  j JOIN         |  j
+find REGEX      |  -f [!]REGEX     |  f [!]REGEX     |  f
+get REGEX       |  -g REGEX        |  g REGEX        |  g
+join JOIN       |  -j JOIN         |  j JOIN         |  j
 inspect IDENT   |  -i IDENT        |  i IDENT        |  i
 edit IDENT      |  -e IDENT        |  e IDENT        |  e
 add to IDENT    |  -a IDENT [NAME] |  a IDENT [NAME] |  a
@@ -118,9 +118,9 @@ version check   |  -v              |  v              |  v
 
 - m: Limit the diplay of nodes in the branches to the integer MAX levels below the starting node. Use MAX = 0 to display all levels.
 
-- /|?: Start a case-insensitive, incremental search forward (/) or backward (?) for STRING. When the search is active, press "n" to continue the search in the same or "N" reverse direction,  ",," (two commas successively) to clear the search or ".." to apply the search to the complete notes of the active view.
+- /|?: Start a case-insensitive, incremental search forward (/) or backward (?) for SEARCH. When the search is active, press "n" to continue the search in the same or "N" reverse direction,  ",," (two commas successively) to clear the search or ".." to apply the search to the complete notes of the active view.
 
-- f: Display complete notes that contain a match in the title, tags or body for the case-insensitive regular expression REGEX.
+- f: Show notes in the current view whose content contains a match for the case-insensitive regex REGEX. Mark matching lines with an "-" in the rightmost column unless REGEX is preceeded by an "!".
 
 - g: Display note titles that contain a match in the nodes leading to the note for the case-insensitive regular expression REGEX.
 
