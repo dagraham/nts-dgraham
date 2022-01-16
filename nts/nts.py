@@ -218,6 +218,7 @@ class NodeData(object):
         self.join = None # regular expressions joined by 'and' or 'or'
         self.joinstr = ""
         self.startstr = ""
+        self.leafstr = ""
 
         self.setStart()
         self.setMaxLevel()
@@ -363,6 +364,18 @@ class NodeData(object):
             self.tagnodes[f".{separator}{key}{separator}notes"] = Node('notes',
                     self.tagnodes[f".{separator}{key}"], lines=[x for x in values])
 
+    def getHeader(self):
+        output_lines = []
+        if self.startstr and self.showingNodes:
+            output_lines.append(self.startstr)
+        if self.leafstr and not self.showingNodes:
+            output_lines.append(self.leafstr)
+        if self.join:
+            mode, regxs = self.join
+            output_lines.append(self.joinstr)
+        if self.get:
+            output_lines.append(self.getstr)
+        return output_lines
 
     def showNodes(self):
         self.columns, self.rows = shutil.get_terminal_size()
@@ -374,13 +387,6 @@ class NodeData(object):
         linenum2node = {}
         output_lines = []
 
-        if self.startstr:
-            output_lines.insert(0, self.startstr)
-        if self.join:
-            mode, regxs = self.join
-            output_lines.append(self.joinstr)
-        if self.get:
-            output_lines.append(self.getstr)
 
         start = self.nodes.get(self.start, self.nodes['.'])
         showlevel = self.maxlevel + 1 if self.maxlevel else None
@@ -463,17 +469,18 @@ class NodeData(object):
                         output_lines.append(f"{pre}{node.name}{idstr}")
 
         self.id2info = id2info
-        self.nodelines = output_lines
+        header_lines = self.getHeader()
+        self.nodelines = header_lines + output_lines
 
 
-    def showNotes(self, filepath, linenum=None):
+    def showNotes(self, filepath, linenum=None, leafstr=""):
         """display the contens of filepath starting with linenum"""
 
         selfcolumns, self.rows = shutil.get_terminal_size()
         column_adjust = 2 if self.sessionMode else 1
         output_lines = []
-        if self.startstr:
-            output_lines.insert(0, self.startstr)
+        if leafstr:
+            output_lines.append(leafstr)
         with open(filepath, 'r') as fo:
             lines = fo.readlines()
         if linenum is None:
@@ -579,9 +586,13 @@ class NodeData(object):
         # info: (key, line)
         if info[0] in self.nodes:
             # we have a starting node
+            self.leafstr = ""
             self.showingNodes = True
             self.setStart(info[0])
-            if info[0] != '.':
+            if info[0] == '.':
+                self.startstr = ""
+                self.leafstr = ""
+            else:
                 startstr = f'starting from {idstr} {info[0]}'
                 self.startstr = f"{startstr}\n{'-'*len(startstr)}"
             self.showNodes()
@@ -592,11 +603,11 @@ class NodeData(object):
         elif os.path.isfile(info[0]):
             # we have a filename and linenumber
             self.showingNodes = False
-            startstr = info[0].split('data/')[1]
-            startstr = f'showing {idstr} ./{startstr}'
-            self.startstr = f"{startstr}\n{'-'*len(startstr)}"
+            leafstr = info[0].split('data/')[1]
+            leafstr = f'showing {idstr} ./{leafstr}'
+            leafstr = f"{leafstr}\n{'-'*len(leafstr)}"
             filepath, linenum = info
-            self.showNotes(filepath, linenum)
+            self.showNotes(filepath, linenum, leafstr)
             if not self.sessionMode:
                 for line in self.notelines:
                     print(line)
