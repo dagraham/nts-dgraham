@@ -1,94 +1,91 @@
-Recent changes as of 2022-01-14T15:46:32.474744-05:00:
-- 0 seconds ago (HEAD -> working, tag: 1.1.7) Daniel Graham
-    6b3c3ed 2022-01-14 15:46:32 -0500
+Recent changes as of 2022-01-16T12:32:46.603875-05:00:
+- 0 seconds ago (HEAD -> working, tag: 1.1.8) Daniel Graham
+    018e9ae 2022-01-16 12:32:46 -0500
+    Tagged version 1.1.8.
+
+- 24 seconds ago Daniel Graham
+    044166e 2022-01-16 12:32:22 -0500
+    Added informative headers for active 'i', 'j' and 'g'. Flag lines
+    with 'f' unless the search regex is preceeded by an '!'.
+
+- 3 hours ago Daniel Graham
+    224cc32 2022-01-16 09:12:16 -0500
+    Added option to flag matching lines in 'find'. Fixed logging bug
+    in __main__.
+
+- 26 hours ago Daniel Graham
+    5ff8d73 2022-01-15 10:48:57 -0500
+    Help and README tweaks.
+
+- 26 hours ago Daniel Graham
+    6727313 2022-01-15 10:07:10 -0500
+    Cleaned up debug statements.
+
+- 2 days ago (origin/master, master) Daniel Graham
+    fa5dbca 2022-01-14 15:46:32 -0500
     Tagged version 1.1.7. Automated check and update for user
     cfg.yaml.
 
-- 4 minutes ago (config) Daniel Graham
+- 2 days ago (config) Daniel Graham
     93b8839 2022-01-14 15:42:10 -0500
     Implemented user configuration check and update from defaultswith
     comments preserved. Removed unused 'status.position' style.
     Streamlined the default cfg.yaml. Cleaned up comments.
 
-- 4 hours ago Daniel Graham
+- 2 days ago Daniel Graham
     f08a4ca 2022-01-14 11:26:05 -0500
     Replaced hex colors in cfg.yaml setup with new session colors.
 
-- 7 hours ago Daniel Graham
+- 2 days ago Daniel Graham
     71fb96e 2022-01-14 08:53:56 -0500
     README tweaks
 
-- 23 hours ago Daniel Graham
+- 3 days ago Daniel Graham
     ab12011 2022-01-13 16:32:34 -0500
     tabs to spaces in README
 
-- 28 hours ago (origin/master, master) Daniel Graham
+- 3 days ago Daniel Graham
     42e54fa 2022-01-13 12:16:18 -0500
     Tagged version 1.1.6.
 
-- 28 hours ago Daniel Graham
+- 3 days ago Daniel Graham
     5e32600 2022-01-13 12:16:01 -0500
     Corrections in 'cfg.yaml' and 'tagsort.txt'. Major rewrite of
     README.
 
-- 32 hours ago Daniel Graham
+- 3 days ago Daniel Graham
     5dd4e8f 2022-01-13 07:27:39 -0500
     Allow empty returns to clear limits using m and i.
 
-- 2 days ago Daniel Graham
+- 4 days ago Daniel Graham
     1ea2402 2022-01-12 15:41:58 -0500
     Tagged version 1.1.5. Added join command to select notes based on
     tags.
 
-- 2 days ago Daniel Graham
+- 4 days ago Daniel Graham
     67b0d7e 2022-01-12 15:41:18 -0500
     Implemented join command to display notes whose tags match the
     specified and/or regex argument. Simplified session help. Fixed
     bug in setting showingNodes.
 
-- 3 days ago Daniel Graham
+- 5 days ago Daniel Graham
     2713c95 2022-01-11 13:59:09 -0500
     Added error reporting for bad IDENTs used with 'i', 'e' and 'a'.
 
-- 3 days ago Daniel Graham
+- 5 days ago Daniel Graham
     931cd6d 2022-01-11 12:04:16 -0500
     Tagged version 1.1.4.
 
-- 3 days ago Daniel Graham
+- 5 days ago Daniel Graham
     2af16a7 2022-01-11 12:03:03 -0500
     Fixed bug in processing order for argsparse.
 
-- 3 days ago Daniel Graham
+- 5 days ago Daniel Graham
     9b4c23c 2022-01-11 10:34:53 -0500
     Tagged version 1.1.3. Command mode fixes.
 
-- 3 days ago Daniel Graham
+- 5 days ago Daniel Graham
     4cbb208 2022-01-11 10:34:23 -0500
     Suppress printing path or tag view in command mode when showing
     details, e.g., with -g get. Print help info in command mode if no
     arguments are entered. Set 'nts' as the program name in argparse.
-
-- 4 days ago Daniel Graham
-    829351c 2022-01-10 17:59:31 -0500
-    Tagged version 1.1.2.
-
-- 4 days ago Daniel Graham
-    99763b6 2022-01-10 17:59:10 -0500
-    Split header into left (nts current view), center (limits if any)
-    and right (help).
-
-- 4 days ago Daniel Graham
-    7213ced 2022-01-10 11:52:43 -0500
-    Handle empty note files correctly. Emphasized that incremental
-    search does not handle regular expressions. Cleaned up comments.
-    Corrected whitespace for 'def'.
-
-- 5 days ago Daniel Graham
-    12ae481 2022-01-09 17:16:33 -0500
-    Tagged version 1.1.1.
-
-- 5 days ago Daniel Graham
-    0832bcb 2022-01-09 17:16:08 -0500
-    Figured out a way to clear incremental search highlighting and
-    bound it to ',,'. Added a command bound to '..' to extend the
-    incremental search to 'find' with the same expression.
