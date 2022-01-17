@@ -1,89 +1,92 @@
-Recent changes as of 2022-01-16T17:05:04.015735-05:00:
-- 1 second ago (HEAD -> working, tag: 1.1.9) Daniel Graham
-    7e0abaa 2022-01-16 17:05:03 -0500
+Recent changes as of 2022-01-17T12:07:17.225726-05:00:
+- 0 seconds ago (HEAD -> working, tag: 1.2.0) Daniel Graham
+    b04646a 2022-01-17 12:07:17 -0500
+    Tagged version 1.2.0.
+
+- 64 seconds ago (master) Daniel Graham
+    a9e3b01 2022-01-17 12:06:13 -0500
+    Added reload data and copy to system clipboard commands. Removed
+    myescape, myprint and show_message. Changed keybinds for quit to
+    ^q and F8. When adding next notes file, create the file but do not
+    open for editing.
+
+- 19 hours ago (origin/master) Daniel Graham
+    04cdede 2022-01-16 17:05:03 -0500
     Tagged version 1.1.9.
 
-- 6 minutes ago (master) Daniel Graham
+- 19 hours ago Daniel Graham
     e02c8ed 2022-01-16 16:59:33 -0500
     Join header fix
 
-- 14 minutes ago Daniel Graham
+- 19 hours ago Daniel Graham
     2ae8ef1 2022-01-16 16:50:50 -0500
     Fixed bug in displaying headers.
 
-- 5 hours ago (origin/master) Daniel Graham
+- 24 hours ago Daniel Graham
     8704667 2022-01-16 12:32:46 -0500
     Tagged version 1.1.8.
 
-- 5 hours ago Daniel Graham
+- 24 hours ago Daniel Graham
     044166e 2022-01-16 12:32:22 -0500
     Added informative headers for active 'i', 'j' and 'g'. Flag lines
     with 'f' unless the search regex is preceeded by an '!'.
 
-- 8 hours ago Daniel Graham
+- 27 hours ago Daniel Graham
     224cc32 2022-01-16 09:12:16 -0500
     Added option to flag matching lines in 'find'. Fixed logging bug
     in __main__.
 
-- 30 hours ago Daniel Graham
+- 2 days ago Daniel Graham
     5ff8d73 2022-01-15 10:48:57 -0500
     Help and README tweaks.
 
-- 31 hours ago Daniel Graham
+- 2 days ago Daniel Graham
     6727313 2022-01-15 10:07:10 -0500
     Cleaned up debug statements.
 
-- 2 days ago Daniel Graham
+- 3 days ago Daniel Graham
     fa5dbca 2022-01-14 15:46:32 -0500
     Tagged version 1.1.7. Automated check and update for user
     cfg.yaml.
 
-- 2 days ago (config) Daniel Graham
+- 3 days ago (config) Daniel Graham
     93b8839 2022-01-14 15:42:10 -0500
     Implemented user configuration check and update from defaultswith
     comments preserved. Removed unused 'status.position' style.
     Streamlined the default cfg.yaml. Cleaned up comments.
 
-- 2 days ago Daniel Graham
+- 3 days ago Daniel Graham
     f08a4ca 2022-01-14 11:26:05 -0500
     Replaced hex colors in cfg.yaml setup with new session colors.
 
-- 2 days ago Daniel Graham
+- 3 days ago Daniel Graham
     71fb96e 2022-01-14 08:53:56 -0500
     README tweaks
 
-- 3 days ago Daniel Graham
+- 4 days ago Daniel Graham
     ab12011 2022-01-13 16:32:34 -0500
     tabs to spaces in README
 
-- 3 days ago Daniel Graham
+- 4 days ago Daniel Graham
     42e54fa 2022-01-13 12:16:18 -0500
     Tagged version 1.1.6.
 
-- 3 days ago Daniel Graham
+- 4 days ago Daniel Graham
     5e32600 2022-01-13 12:16:01 -0500
     Corrections in 'cfg.yaml' and 'tagsort.txt'. Major rewrite of
     README.
 
-- 3 days ago Daniel Graham
+- 4 days ago Daniel Graham
     5dd4e8f 2022-01-13 07:27:39 -0500
     Allow empty returns to clear limits using m and i.
 
-- 4 days ago Daniel Graham
+- 5 days ago Daniel Graham
     1ea2402 2022-01-12 15:41:58 -0500
     Tagged version 1.1.5. Added join command to select notes based on
     tags.
 
-- 4 days ago Daniel Graham
+- 5 days ago Daniel Graham
     67b0d7e 2022-01-12 15:41:18 -0500
     Implemented join command to display notes whose tags match the
     specified and/or regex argument. Simplified session help. Fixed
     bug in setting showingNodes.
-
-- 5 days ago Daniel Graham
-    2713c95 2022-01-11 13:59:09 -0500
-    Added error reporting for bad IDENTs used with 'i', 'e' and 'a'.
-
-- 5 days ago Daniel Graham
-    931cd6d 2022-01-11 12:04:16 -0500
-    Tagged version 1.1.4.
