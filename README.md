@@ -5,9 +5,9 @@
 
 ### Overview
 
-_nts_ is pure python and runs in a terminal window on any platform that supports python >= 3.7.3. Its purpose is to ease both the recording of information and its subsequent retrieval.
+_nts_ is pure python and runs in a terminal window on any platform that supports python >= 3.7.3. Its purpose is to facilitate both recording and retrieving information. Further information is available at [github](https://github.com/dagraham/nts-dgraham), the _nts_ discussion group at [groups.io](https://groups.io/g/nts) and [PyPI](https://pypi.org/project/nts-dgraham/).
 
-Notes are recorded in plain text files with the extension ".txt" located anywhere below the _nts data_ directory. Note files are simple:
+Notes are recorded in plain text files with the extension ".txt" located anywhere below the _nts data_ directory. Note files have a simple format:
 
 * Each note begins with a "+" in the first column followed by a space and then the title of the note.
 
@@ -21,7 +21,7 @@ Notes are recorded in plain text files with the extension ".txt" located anywher
 
 * Hidden files, i.e. files with names beginning with a period, are ignored.
 
-* Spaces should be avoided in directory and file names.
+* Directory and file names should not contain spaces.
 
 Suppose, e.g., that the _nts_ data directory contains a single file
 
@@ -65,7 +65,7 @@ with this content:
 
 Both views are outlines with branches that end with leaves that correspond to note title lines. In path view, the nodes along the branches correspond to directory or file names and there can be many of these in each branch. In tag view, on the other hand, the nodes correspond to tag names and there can only be one of these in each branch.
 
-The numeric identifiers appended to the lines in both views are provided by _nts_. These are single numbers for the *nodes* in the outline branches that have children and hyphenated numbers for the *leaves*, e.g., in path view the "3" appended to the "grandchild.txt" node and the "3-1" appended to the "+ note a (red, green)" leaf. The first of the two numbers in the leaf identifier is the indentifier of the parent node. These identifiers are the IDENT arguments in the _Command Summary_ given below.
+The numeric identifiers appended to the lines in both views are provided by _nts_. These are single numbers for the *nodes* in the outline branches that have children and hyphenated numbers for the *leaves*, e.g., in path view the "3" appended to the "grandchild.txt" node and the "3-1" appended to the "+ note a (red, green)" leaf. In the leaf identifier, the first of the two numbers is the indentifier of the parent node. These identifiers are the IDENT arguments in the _Command Summary_ given below.
 
 
 ### Usage
@@ -353,10 +353,5 @@ using ARGS enumerated in the **Command Summary** section above.
 
 ### License
 
-Copyright (c) 2010-2022 Daniel Graham <daniel.graham@duke.edu>. All rights reserved. Further information about nts is available at [github](https://github.com/dagraham/nts-dgraham), the _nts_ discussion group at [groups.io](https://groups.io/g/nts) and, of course, from [PyPI](https://pypi.org/project/nts-dgraham/).
-
-This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful, but *without any warranty*; without even the implied warranty of *merchantability* or *fitness for a particular purpose*. See [GNU General Public License](http://www.gnu.org/licenses/gpl.html) for more details.
-
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version. See [GNU General Public License](http://www.gnu.org/licenses/gpl.html) for more details. This program is distributed in the hope that it will be useful, but *without any warranty*; without even the implied warranty of *merchantability* or *fitness for a particular purpose*.
 
