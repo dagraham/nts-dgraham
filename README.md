@@ -97,11 +97,12 @@ Action          | Command Mode     | Session Mode    | Notes
 ----------------|------------------|-----------------|------
 help            |  -h              |  h              |  ~
 begin session   |  -s              |  ~              |  ~
-end session     |   ~              |  q              |  ~
+end session     |   ~              |  ^q or F8       |  ~
 path view       |  -p              |  p              |  ~
 tags view       |  -t              |  t              |  ~
 hide leaves     |  -l              |  l              |  l
 hide branches   |  -b              |  b              |  b
+copy view       |   ~              |  c              |  c
 set max levels  |  -m MAX          |  m MAX          |  m
 search          |                  |  / SEARCH       |  /
 find REGEX      |  -f [!]REGEX     |  f [!]REGEX     |  f
@@ -110,11 +111,14 @@ join JOIN       |  -j JOIN         |  j JOIN         |  j
 inspect IDENT   |  -i IDENT        |  i IDENT        |  i
 edit IDENT      |  -e IDENT        |  e IDENT        |  e
 add to IDENT    |  -a IDENT [NAME] |  a IDENT [NAME] |  a
+refresh         |   ~              |  r              |  r
 version check   |  -v              |  v              |  v
 
 - l: Suppress showing leaves in the outline. In session mode this toggles the display of leaves off and on.
 
 - b: Suppress showing branches in the outline, i.e., display only the leaves. In session mode this toggles the display of the branches off and on.
+
+- c: Copy active view to system clipboard.
 
 - m: Limit the diplay of nodes in the branches to the integer MAX levels below the starting node. Use MAX = 0 to display all levels.
 
@@ -130,7 +134,9 @@ version check   |  -v              |  v              |  v
 
 - e: If IDENT corresponds to either a note or a ".txt" file, then open that file for editing and, in the case of a note, scroll to the beginning line of the note.
 
-- a: If IDENT corresponds to either a note or a ".txt" file, then open that file for appending a new note. Otherwise, if IDENT corresponds to a directory and NAME is provided, add a child called NAME to that node. If NAME ends with ".txt", a new note file will be created and opened for editing. Otherwise, a new subdirectory called NAME will be added to the node directory. Use "0" as the IDENT to add to the root (data) node. In command mode, "IDENT NAME" should be wrapped in quotes.
+- a: If IDENT corresponds to either a note or a ".txt" file, then open that file for appending a new note. Otherwise, if IDENT corresponds to a directory and NAME is provided, add a child called NAME to that node. If NAME ends with ".txt", a new note file will be created. Otherwise, a new subdirectory called NAME will be added to the node directory. Use "0" as the IDENT to add to the root (data) node. In command mode, "IDENT NAME" should be wrapped in quotes.
+
+- r: reload data from the files in the data directory to incorporate external changes.
 
 - v: Compare the installed version of nts with the latest version on GitHub (requires internet connection) and report the result.
 
@@ -173,8 +179,6 @@ The _nts_ "data" and "logs" directories will be created if necessary as well as 
     # session mode hex colors
     style:
         status:             '#FFFFFF bg:#696969'
-        message:            '#FFF86F'
-        status.position:    '#AAAA00'
         status.key:         '#FFAA00'
         not-searching:      '#888888'
     # TAG SORT

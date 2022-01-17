@@ -38,6 +38,8 @@ import shutil
 import logging
 import logging.config
 
+import pyperclip
+
 import argparse
 
 import nts.__version__ as version
@@ -50,12 +52,14 @@ separator = os.path.sep
 
 help_notes = [
 'h              show this help message.',
-'q              quit.',
+'^q or F8       quit.',
 'v              compare the installed version of nts with the latest version on GitHub (requires an internet connection).',
+'r              reload data from the files in the data directory to incorporate external changes.',
 'p              display path view.',
 't              display tags view.',
 'l              toggle showing leaves in the outline views.',
 'b              toggle showing branches in the outline views.',
+'c              copy active view to system clipboard.',
 'm INTEGER      limit the diplay of nodes in the outline views to INTEGER levels below the starting node. Use INTEGER = 0 to display all levels.',
 '/|? STRING     start a case-insensitive, incremental search forward (/) or backward (?) for STRING. When the search is active, press "n" to continue the search in the same or "N" reverse direction, ",," (two commas successively) to clear the search or ".." to apply the search to the complete notes of the active view.',
 'f STRING       display complete notes that contain a match in the title, tags or body for the case-insensitive regular expression STRING.',
@@ -63,7 +67,7 @@ help_notes = [
 'j JOIN         display note titles for notes with tags satisfying JOIN. E.g. if JOIN = "red", then notes containing the tag "RED" would be displayed. If JOIN = "| red, blue" then notes with _either_ the tag "red" _or_ the tag "blue" would be displayed. Finally, if JOIN = "& red, blue", then notes with _both_ the tags "red" _and_ "blue" would be displayed. In general JOIN = [|&] comma-separated list of case-insensitive regular expressions.',
 'i IDENT        if IDENT is the 2-number line identifier for a note, then display the contents of that note. Else if IDENT is the identifier for a ".txt" file, then display the contents of that file. Otherwise limit the display to that part of the outline which starts from the corresponding node. Use IDENT = 0 to start from the root node.',
 'e IDENT        if IDENT corresponds to either a note or a ".txt" file, then open that file for editing and, in the case of a note, scroll to the beginning line of the note.',
-'a IDENT [NAME] if IDENT corresponds to either a note or a ".txt" file, then open that file for appending a new note. Otherwise, if IDENT corresponds to a directory and NAME is provided, add a child called NAME to that node. If NAME ends with ".txt", a new note file will be created and opened for editing. Otherwise, a new subdirectory called NAME will be added to the node directory. Use "0" as the IDENT to add to the root (data) node.',
+'a IDENT [NAME] if IDENT corresponds to either a note or a ".txt" file, then open that file for appending a new note. Otherwise, if IDENT corresponds to a directory and NAME is provided, add a child called NAME to that node. If NAME ends with ".txt", a new note file will be created. Otherwise, a new subdirectory called NAME will be added to the node directory. Use "0" as the IDENT to add to the root (data) node.',
 ]
 
 
@@ -110,30 +114,6 @@ def mypathsort(items):
 
 def mytagsort(items):
     return sorted(items, key=lambda item: tag_sort.get(item.name.split(' ')[0], item.name.split(' ')[0]) + ' '.join(item.name.split(' ')[1:]))
-
-
-_to_esc = re.compile(r'\s')
-
-def _esc_char(match):
-    return r"\ "
-
-def myescape(name):
-    # escape spaces in file/path names
-    return _to_esc.sub(_esc_char, name)
-
-
-def myprint(tokenlines, color=None):
-    print_formatted_text(FormattedText(tokenlines), style=style_obj)
-
-
-def show_message(msg):
-    shortcuts.clear()
-    # print(f"\n{msg}\n")
-    empty_line = ('class:plain', '\n')
-    msg_line = ('class:message', f"{msg}\n")
-    line = ('class:prompt',
-            'To restore the previous display, press "return" with nothing entered\nat the prompt.')
-    print_formatted_text(FormattedText([empty_line, msg_line, empty_line, line]), style=style_obj)
 
 
 def getnotes(filepath):
@@ -218,7 +198,6 @@ class NodeData(object):
         self.join = None # regular expressions joined by 'and' or 'or'
         self.joinstr = ""
         self.startstr = ""
-        self.leafstr = ""
 
         self.setStart()
         self.setMaxLevel()
@@ -368,8 +347,6 @@ class NodeData(object):
         output_lines = []
         if self.startstr and self.showingNodes:
             output_lines.append(self.startstr)
-        if self.leafstr and not self.showingNodes:
-            output_lines.append(self.leafstr)
         if self.join:
             mode, regxs = self.join
             output_lines.append(self.joinstr)
@@ -588,12 +565,10 @@ class NodeData(object):
         # info: (key, line)
         if info[0] in self.nodes:
             # we have a starting node
-            self.leafstr = ""
             self.showingNodes = True
             self.setStart(info[0])
             if info[0] == '.':
                 self.startstr = ""
-                self.leafstr = ""
             else:
                 startstr = f'starting from {idstr} {info[0]}'
                 self.startstr = f"{startstr}\n{'-'*len(startstr)}"
@@ -631,7 +606,7 @@ class NodeData(object):
             info[1] += 1
         filepath, linenum = info
         # hsh = {'filepath': filepath, 'linenum': linenum}
-        hsh = {'filepath': myescape(filepath), 'linenum': linenum}
+        hsh = {'filepath': filepath, 'linenum': linenum}
         if self.sessionMode:
             editcmd = session_edit.format(**hsh)
         else:
@@ -670,13 +645,9 @@ class NodeData(object):
                 # adding a new note file
                 if ext != ".txt":
                     return (False, f"bad file extension {ext}; '.txt' is required")
-                hsh = {'filepath':  myescape(child)}
-                if self.sessionMode:
-                    editcmd = session_add.format(**hsh)
-                else:
-                    editcmd = command_add.format(**hsh)
-                editcmd = [x.strip() for x in editcmd.split(" ") if x.strip()]
-                subprocess.call(editcmd)
+                # hsh = {'filepath':  mmyescapeyescape(child)}
+                open(child, 'a').close()
+                return (True, f"created '{child}'")
             else:
                 # adding a new node
                 if os.path.isdir(child):
@@ -687,18 +658,19 @@ class NodeData(object):
             return (True, f"adding root {root} with extension {ext}")
 
         elif os.path.isfile(info[0]):
-            # we have a filename
+            # adding a note to an existing notefile
             filepath, linenum = info
-            hsh = {'filepath': myescape(filepath)}
+            # hsh = {'filepath': myescape(filepath)}
+            hsh = {'filepath': filepath}
             if self.sessionMode:
                 editcmd = session_add.format(**hsh)
             else:
                 editcmd = command_add.format(**hsh)
             editcmd = [x.strip() for x in editcmd.split(" ") if x.strip()]
             subprocess.call(editcmd)
+            return (True, f"Called {editcmd}")
         else:
             return (False, f"error: bad index {info}")
-        # return
 
 
 def session():
@@ -842,21 +814,23 @@ def session():
         logger.debug(f"findlines: {Data.findlines}")
         text = "\n".join(Data.findlines)
         set_text(text)
-        # logger.debug(f"search: {search.__dict__.keys()}")
-        # logger.debug(f"search_field.search_buffer: {search_field.search_buffer.__dict__.keys()}")
 
-        # logger.debug(f"search.get_app: {search.get_app().__dict__.keys()}")
-        # search_field.search_buffer._set_text(regex)
-        # search_field.search_buffer.accept_handler
-        # layout = search.get_app().layout
-        # search_control = layout.current_control
-        # search_control.buffer._set_text(regex)
-        # search.do_incremental_search("FORWARD")
-        # logger.debug(f"search.is_searching: {search.is_searching()}")
-        # search_state = get_app().current_search_state
-        # search_state.text = regex
-        # search.start_search()
-        # direction = search_state.direction
+
+    def refresh():
+        orig_mode = Data.mode
+        Data.getNodes()
+        Data.setMode(orig_mode)
+        Data.showNodes()
+        if Data.showingNodes:
+            text = "\n".join(Data.nodelines)
+        else:
+            text = "\n".join(Data.notelines)
+        set_text(text)
+
+
+    def copy_view():
+        pyperclip.copy(text_area.text)
+        set_text("\n view copied to system clipboard")
 
 
     def set_max(level):
@@ -882,9 +856,7 @@ def session():
             return
         orig_mode = Data.mode
         Data.editID(idstr)
-        # Data.getNodes()
         Data.setMode(orig_mode)
-        Data.showID(idstr)
         Data.getNodes()
         Data.showNodes()
 
@@ -901,7 +873,7 @@ def session():
         if ok:
             Data.getNodes()
             Data.setMode(orig_mode)
-            Data.showID(idstr)
+            Data.showNodes()
         else:
             return (ok, res)
 
@@ -961,13 +933,14 @@ def session():
         set_text(txt)
 
 
-    def show_limits():
-        txt = "\n".join(Data.limits)
-        set_text(txt)
+    # def show_limits():
+    #     txt = "\n".join(Data.limits)
+    #     set_text(txt)
 
 
     def show_path():
         Data.setMode('path')
+        Data.showingNodes = True
         Data.showNodes()
         lines =  Data.nodelines
         set_text("\n".join(lines))
@@ -976,6 +949,7 @@ def session():
 
     def show_tags():
         Data.setMode('tags')
+        Data.showingNodes = True
         Data.showNodes()
         lines =  Data.nodelines
         set_text("\n".join(lines))
@@ -998,16 +972,18 @@ def session():
 
     execute = {
             'h': show_help,
+            'c': copy_view,
             'p': show_path,
             't': show_tags,
             'l': toggle_leaves,
             'b': toggle_branches,
+            'r': refresh,
             'v': show_update_info,
-            'r': show_limits
             }
 
     # for commands without an argument
     @bindings.add('h', filter=is_not_typing)
+    @bindings.add('c', filter=is_not_typing)
     @bindings.add('p', filter=is_not_typing)
     @bindings.add('t', filter=is_not_typing)
     @bindings.add('l', filter=is_not_typing)
@@ -1040,7 +1016,8 @@ def session():
             set_text(f"'{key}' is an unrecognized command")
 
 
-    @bindings.add('q', filter=is_not_typing)
+    # @bindings.add('q', filter=is_not_typing)
+    @bindings.add('c-q')
     @bindings.add('f8')
     def _(event):
         " Quit. "
@@ -1205,7 +1182,6 @@ def main():
             ok, res = Data.editID(args.edit)
             if not ok:
                 print(res)
-
 
 
 if __name__ == "__main__":

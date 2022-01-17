@@ -35,7 +35,6 @@ command_add: vim -g + {filepath}
 style:
     status:             '#FFFFFF bg:#696969'
     status.key:         '#FFAA00'
-    message:            '#FFF86F'
     not-searching:      '#888888'
 # TAG SORT
 # For listed keys, sort by the corresponding value. E.g. In tag view
