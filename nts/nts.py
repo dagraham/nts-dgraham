@@ -688,6 +688,7 @@ def session():
         ]
         return lst
 
+
     def get_statusbar_center_text():
         lst = []
         if Data.limits:
@@ -701,6 +702,7 @@ def session():
             lst.append(('class:status.key', f'{Data.limits[-1]}'))
         return lst
 
+
     def get_statusbar_right_text():
         lst = [
             # ('class:status', 'Press '),
@@ -708,6 +710,8 @@ def session():
             ('class:status', ')elp '),
         ]
         return lst
+
+
     status_area = VSplit([
                 Window(FormattedTextControl(get_statusbar_text), style='class:status', width=15),
                 Window(FormattedTextControl(get_statusbar_center_text),
@@ -715,7 +719,6 @@ def session():
                 Window(FormattedTextControl(get_statusbar_right_text),
                     style='class:status', width=15, align=WindowAlign.RIGHT),
             ], height=1)
-
 
 
     search_field = SearchToolbar(text_if_not_searching=[
