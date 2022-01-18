@@ -1,25 +1,50 @@
-Recent changes as of 2022-01-18T12:12:18.071722-05:00:
-- 0 seconds ago (HEAD -> working, tag: 1.2.1) Daniel Graham
-    2b3d8f6 2022-01-18 12:12:18 -0500
+Recent changes as of 2022-01-18T17:31:00.539666-05:00:
+- 0 seconds ago (HEAD -> working, tag: 1.2.2) Daniel Graham
+    5c44fcc 2022-01-18 17:31:00 -0500
+    Tagged version 1.2.2. Added linked video illustrating session
+    workflow to README.md
+
+- 25 minutes ago (origin/master, master) Daniel Graham
+    0403f01 2022-01-18 17:06:06 -0500
+    Reduced size of workflow.png
+
+- 27 minutes ago Daniel Graham
+    2dd8ac0 2022-01-18 17:04:26 -0500
+    Reduced size of workflow.png
+
+- 38 minutes ago Daniel Graham
+    be54d47 2022-01-18 16:52:44 -0500
+    Added workflow.png (github) as link to workflow video (youtube).
+
+- 71 minutes ago Daniel Graham
+    78c9292 2022-01-18 16:20:28 -0500
+    removed workflow video
+
+- 77 minutes ago Daniel Graham
+    4ea159a 2022-01-18 16:13:52 -0500
+    Added find_workflow.mov
+
+- 5 hours ago Daniel Graham
+    c602c0d 2022-01-18 12:12:18 -0500
     Tagged version 1.2.1.
 
-- 2 minutes ago Daniel Graham
+- 5 hours ago Daniel Graham
     60fa0c2 2022-01-18 12:10:48 -0500
     Fixed bug in refreshing the display after editing.
 
-- 17 hours ago (origin/master, master) Daniel Graham
+- 23 hours ago Daniel Graham
     d39fa3e 2022-01-17 18:59:53 -0500
     Whitespace tweaks.
 
-- 17 hours ago Daniel Graham
+- 23 hours ago Daniel Graham
     9feeb4b 2022-01-17 18:50:39 -0500
     README tweaks
 
-- 24 hours ago Daniel Graham
+- 29 hours ago Daniel Graham
     b891e66 2022-01-17 12:07:17 -0500
     Tagged version 1.2.0.
 
-- 24 hours ago Daniel Graham
+- 29 hours ago Daniel Graham
     a9e3b01 2022-01-17 12:06:13 -0500
     Added reload data and copy to system clipboard commands. Removed
     myescape, myprint and show_message. Changed keybinds for quit to
@@ -59,30 +84,3 @@ Recent changes as of 2022-01-18T12:12:18.071722-05:00:
 - 3 days ago Daniel Graham
     6727313 2022-01-15 10:07:10 -0500
     Cleaned up debug statements.
-
-- 4 days ago Daniel Graham
-    fa5dbca 2022-01-14 15:46:32 -0500
-    Tagged version 1.1.7. Automated check and update for user
-    cfg.yaml.
-
-- 4 days ago (config) Daniel Graham
-    93b8839 2022-01-14 15:42:10 -0500
-    Implemented user configuration check and update from defaultswith
-    comments preserved. Removed unused 'status.position' style.
-    Streamlined the default cfg.yaml. Cleaned up comments.
-
-- 4 days ago Daniel Graham
-    f08a4ca 2022-01-14 11:26:05 -0500
-    Replaced hex colors in cfg.yaml setup with new session colors.
-
-- 4 days ago Daniel Graham
-    71fb96e 2022-01-14 08:53:56 -0500
-    README tweaks
-
-- 5 days ago Daniel Graham
-    ab12011 2022-01-13 16:32:34 -0500
-    tabs to spaces in README
-
-- 5 days ago Daniel Graham
-    42e54fa 2022-01-13 12:16:18 -0500
-    Tagged version 1.1.6.
