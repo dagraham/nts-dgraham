@@ -118,7 +118,7 @@ version check   |  -v              |  v              |  v
 
 - b: Suppress showing branches in the outline, i.e., display only the leaves. In session mode this toggles the display of the branches off and on.
 
-- c: Copy active view to system clipboard.
+- c: Copy the active view to the system clipboard.
 
 - m: Limit the diplay of nodes in the branches to the integer MAX levels below the starting node. Use MAX = 0 to display all levels.
 

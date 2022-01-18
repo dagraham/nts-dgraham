@@ -59,7 +59,7 @@ help_notes = [
 't              display tags view.',
 'l              toggle showing leaves in the outline views.',
 'b              toggle showing branches in the outline views.',
-'c              copy active view to system clipboard.',
+'c              copy the active view to the system clipboard.',
 'm INTEGER      limit the diplay of nodes in the outline views to INTEGER levels below the starting node. Use INTEGER = 0 to display all levels.',
 '/|? STRING     start a case-insensitive, incremental search forward (/) or backward (?) for STRING. When the search is active, press "n" to continue the search in the same or "N" reverse direction, ",," (two commas successively) to clear the search or ".." to apply the search to the complete notes of the active view.',
 'f STRING       display complete notes that contain a match in the title, tags or body for the case-insensitive regular expression STRING.',
@@ -776,6 +776,7 @@ def session():
         global active_key
         arg = query_window.text
         ret = dispatch[active_key][1](arg)
+        logger.debug(f"active_key: {active_key}; showingNodes: {Data.showingNodes}")
         if ret and not ret[0]:
             set_text(f"\n {ret[1]} ")
         else:
@@ -859,8 +860,8 @@ def session():
             return
         orig_mode = Data.mode
         Data.editID(idstr)
-        Data.setMode(orig_mode)
         Data.getNodes()
+        Data.setMode(orig_mode)
         Data.showNodes()
 
 
