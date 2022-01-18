@@ -140,6 +140,8 @@ version check   |  -v              |  v              |  v
 
 - v: Compare the installed version of nts with the latest version on GitHub (requires internet connection) and report the result.
 
+Here is a link to a short video illustrating the workflow in session mode:
+[![workflow](https://raw.githubusercontent.com/dagraham/nts-dgraham/master/workflow.png "Illustrative Workflow")](https://www.youtube.com/watch?v=A93CFbDKi9g)
 
 There are no commands in _nts_ to remove either a file or a directory. Please use your favorite file manager for these risky actions and don't forget to restart _nts_ to update its display.
 
