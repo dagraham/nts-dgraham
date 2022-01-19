@@ -6,13 +6,12 @@ import logging.config
 logging.getLogger('asyncio').setLevel(logging.WARNING)
 logger = logging.getLogger()
 from prompt_toolkit import prompt
-import ruamel.yaml
-
-# from ruamel.yaml import YAML
-yaml = ruamel.yaml.YAML()
 from prompt_toolkit.styles import Style
 from prompt_toolkit.styles.named_colors import NAMED_COLORS
 from copy import deepcopy
+
+import ruamel.yaml
+yaml = ruamel.yaml.YAML()
 
 # for nts.yaml
 default_cfg = """\

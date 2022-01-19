@@ -169,13 +169,13 @@ The _nts_ "data" and "logs" directories will be created if necessary as well as 
     # native version of vim under Mac OSX, replace 'vim' in each of
     # the following commands with:
     #        '/Applications/MacVim.app/Contents/MacOS/Vim'
-    # command to edit {filepath} at {linenum} and wait for completion
+    # session_edit: cmd to edit {filepath} at {linenum} and await completion
     session_edit: vim -g -f +{linenum} {filepath}
-    # command to edit {filepath} at end of file and wait for completion
+    # session_add: cmd to edit {filepath} at end of file and await completion
     session_add: vim -g -f + {filepath}
-    # command to edit {filepath} at {linenum} without waiting
+    # command_edit: cmd to edit {filepath} at {linenum} without waiting
     command_edit: vim -g +{linenum} {filepath}
-    # command to edit {filepath} at end of file without waiting
+    # command_add: cmd to edit {filepath} at end of file without waiting
     command_add: vim -g + {filepath}
     # STYLE
     # session mode hex colors
@@ -193,8 +193,6 @@ The _nts_ "data" and "logs" directories will be created if necessary as well as 
         assigned:   '%'
         someday:    '{'
         completed:  '}'
-
-
 
 If you make changes to "cfg.yaml" and would like to restore the defaults just delete the relevant settings from the file and restart _nts_ - the missing settings will be restored with their default values.
 

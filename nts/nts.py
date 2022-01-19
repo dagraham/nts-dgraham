@@ -466,7 +466,11 @@ class NodeData(object):
             for line in lines:
                 line = line.rstrip()
                 if line:
-                    output_lines.extend(textwrap.wrap(line, width=self.columns-column_adjust, subsequent_indent="  ", initial_indent="  "))
+                    output_lines.extend(textwrap.wrap(line,
+                        width=self.columns-column_adjust,
+                        subsequent_indent="  ",
+                        # initial_indent="  "
+                        ))
                 else:
                     output_lines.append("")
         else:
@@ -480,7 +484,11 @@ class NodeData(object):
                         output_lines = output_lines[:-1]
                     break
                 if line:
-                    output_lines.extend(textwrap.wrap(line, width=self.columns-column_adjust, subsequent_indent="  ", initial_indent="  "))
+                    output_lines.extend(textwrap.wrap(line,
+                        width=self.columns-column_adjust,
+                        subsequent_indent="  ",
+                        # initial_indent="  "
+                        ))
                 else:
                     output_lines.append("")
 
@@ -524,8 +532,11 @@ class NodeData(object):
                     for line in lines[1:]:
                         line.rstrip()
                         if line:
-                            output_lines.extend(textwrap.wrap(line, width=self.columns-column_adjust,
-                                subsequent_indent="  ", initial_indent="  "))
+                            output_lines.extend(textwrap.wrap(line,
+                                width=self.columns-column_adjust,
+                                subsequent_indent="  ",
+                                # initial_indent="  "
+                                ))
                         else:
                             output_lines.append('')
                     output_lines.append('')
@@ -930,7 +941,11 @@ def session():
         note_lines = [f"{version_indent}{current_version}", ""]
         for line in help_notes:
             if line:
-                note_lines.extend(textwrap.wrap(line, width=columns-3, subsequent_indent="                ", initial_indent=" "))
+                note_lines.extend(textwrap.wrap(line,
+                    width=columns-3,
+                    subsequent_indent="                ",
+                    # initial_indent=" "
+                    ))
             else:
                 note_lines.append('')
         txt = "\n".join(note_lines) + "\n"
