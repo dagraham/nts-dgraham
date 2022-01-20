@@ -124,7 +124,7 @@ version check   |  -v              |  v              |  v
 
 - /|?: Start a case-insensitive, incremental search forward (/) or backward (?) for SEARCH. When the search is active, press "n" to continue the search in the same or "N" reverse direction,  ",," (two commas successively) to clear the search or ".." to apply the search to the complete notes of the active view.
 
-- f: Show notes in the current view whose content contains a match for the case-insensitive regex REGEX. Mark matching lines with an "-" in the rightmost column unless REGEX is preceeded by an "!".
+- f: Show notes in the current view whose content contains a match for the case-insensitive regex REGEX. Press ",," to clear the search highlighting.
 
 - g: Display note titles that contain a match in the nodes leading to the note for the case-insensitive regular expression REGEX.
 

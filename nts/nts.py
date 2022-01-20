@@ -13,6 +13,7 @@ from prompt_toolkit.application import Application
 from prompt_toolkit.layout.layout import Layout
 from prompt_toolkit.layout.controls import FormattedTextControl
 from prompt_toolkit.layout.dimension import LayoutDimension as D
+from prompt_toolkit.lexers import Lexer
 
 from prompt_toolkit import PromptSession
 from prompt_toolkit import shortcuts
@@ -62,13 +63,52 @@ help_notes = [
 'c              copy the active view to the system clipboard.',
 'm INTEGER      limit the diplay of nodes in the outline views to INTEGER levels below the starting node. Use INTEGER = 0 to display all levels.',
 '/|? STRING     start a case-insensitive, incremental search forward (/) or backward (?) for STRING. When the search is active, press "n" to continue the search in the same or "N" reverse direction, ",," (two commas successively) to clear the search or ".." to apply the search to the complete notes of the active view.',
-'f STRING       display complete notes that contain a match in the title, tags or body for the case-insensitive regular expression STRING.',
+'f STRING       display complete notes that contain a match in the title, tags or body for the case-insensitive regular expression STRING. Press ".." to clear the search highlighting.',
 'g STRING       display note titles that contain a match in the branch nodes leading to the note for the case-insensitive regular expression STRING.',
 'j JOIN         display note titles for notes with tags satisfying JOIN. E.g. if JOIN = "red", then notes containing the tag "RED" would be displayed. If JOIN = "| red, blue" then notes with _either_ the tag "red" _or_ the tag "blue" would be displayed. Finally, if JOIN = "& red, blue", then notes with _both_ the tags "red" _and_ "blue" would be displayed. In general JOIN = [|&] comma-separated list of case-insensitive regular expressions.',
 'i IDENT        if IDENT is the 2-number line identifier for a note, then display the contents of that note. Else if IDENT is the identifier for a ".txt" file, then display the contents of that file. Otherwise limit the display to that part of the outline which starts from the corresponding node. Use IDENT = 0 to start from the root node.',
 'e IDENT        if IDENT corresponds to either a note or a ".txt" file, then open that file for editing and, in the case of a note, scroll to the beginning line of the note.',
 'a IDENT [NAME] if IDENT corresponds to either a note or a ".txt" file, then open that file for appending a new note. Otherwise, if IDENT corresponds to a directory and NAME is provided, add a child called NAME to that node. If NAME ends with ".txt", a new note file will be created. Otherwise, a new subdirectory called NAME will be added to the node directory. Use "0" as the IDENT to add to the root (data) node.',
 ]
+
+def get_matches(pattern, line):
+    if not pattern:
+        return [("class:plain", line)]
+    parts = []
+    last_end = 0
+    # logger.debug(f"checking '{line}'")
+    for match in re.finditer(pattern, line, re.IGNORECASE):
+        s = match.start()
+        e = match.end()
+        # logger.debug(f"match for '{pattern}' at {s}:{e} in {line} ")
+        if s > last_end:
+            parts.append(("class:plain", line[last_end:s]))
+        parts.append(("class:highlighted", line[s:e]))
+        last_end = e
+    if line[last_end:]:
+        parts.append(("class:plain", line[last_end:]))
+    return parts
+
+
+class NTSLexer(Lexer):
+    def __init__(self, regex=None):
+        self.regex = None
+
+    def set_regex(self, regex):
+        if regex in ['', None]:
+            self.regex = None
+        else:
+            self.regex = regex
+        logger.debug(f"lexer regex: '{self.regex}'")
+
+    def lex_document(self, document):
+
+        def get_line(lineno):
+            line = document.lines[lineno]
+            parts = get_matches(self.regex, line)
+            return parts
+
+        return get_line
 
 
 def check_update():
@@ -198,6 +238,7 @@ class NodeData(object):
         self.join = None # regular expressions joined by 'and' or 'or'
         self.joinstr = ""
         self.startstr = ""
+        self.findregex=""
 
         self.setStart()
         self.setMaxLevel()
@@ -206,6 +247,10 @@ class NodeData(object):
         self.mode = 'path'
         self.showingNodes = True
 
+
+    def set_findregex(self, regex):
+        self.findregex = regex if regex else None
+        logger.debug(f"findregex: '{self.findregex}'")
 
     def setlimits(self):
         msg = []
@@ -495,23 +540,18 @@ class NodeData(object):
         self.notelines = output_lines
 
 
-    # def tags(self, tag=None):
-    #     if tag:
-    #         regex = re.compile(r'%s' % tag, re.IGNORECASE)
-
-
     def find(self, find=None):
+        logger.debug(f"find: '{find}'")
         matching_keys = []
         output_lines = []
         self.find_lines = []
         column_adjust = 4 if self.sessionMode else 2
         find = find.strip()
+        self.set_findregex(find)
         if not find:
-            return output_lines
-        markers = True
-        if find.startswith('!'):
-            markers = False
-            find = find[1:].lstrip()
+            logger.debug("cancelling find")
+            self.findlines = []
+            return
         regex = re.compile(r'%s' % find, re.IGNORECASE)
         for key, lines in self.notedetails.items():
             match = False
@@ -542,20 +582,7 @@ class NodeData(object):
                     output_lines.append('')
             if output_lines and not output_lines[-1]:
                 output_lines = output_lines[:-1]
-
-        if markers:
-            width = self.columns-column_adjust
-            marker = "-"
-            header = f'lines matching "{find}" marked with {marker}'
-            self.findlines = [header, "-"*len(header)]
-            for line in output_lines:
-                text = line.rstrip()
-                match = regex.search(text)
-                if match:
-                    text = f"{text : <{width}}{marker : >2}"
-                self.findlines.append(text)
-        else:
-            self.findlines = output_lines
+        self.findlines = output_lines
 
 
     def showID(self, idstr=None):
@@ -752,11 +779,14 @@ def session():
                 get_app().layout.has_focus(entry_area)
                 )
 
+    findlexer = NTSLexer()
+
     text_area = TextArea(
         text="",
         read_only=True,
         scrollbar=True,
-        search_field=search_field
+        search_field=search_field,
+        lexer=findlexer,
         )
 
 
@@ -825,10 +855,23 @@ def session():
 
 
     def show_find(regex):
-        Data.find(regex)
-        logger.debug(f"findlines: {Data.findlines}")
-        text = "\n".join(Data.findlines)
-        set_text(text)
+        if regex:
+            Data.find(regex)
+            logger.debug(f"findlines: {Data.findlines}")
+            if Data.findlines:
+                findlexer.set_regex(regex)
+                text = "\n".join(Data.findlines)
+                ok = True
+            else:
+                text = f'no matches found for "{regex}"'
+                findlexer.set_regex(None)
+                ok = False
+        else:
+            Data.set_findregex(None)
+            findlexer.set_regex(None)
+            text = "find cancelled"
+            ok = False
+        return ok, text
 
 
     def refresh():
@@ -936,6 +979,7 @@ def session():
 
 
     def show_help():
+        findlexer.set_regex(None)
         current_version = f"Note Taking Simplified {nts_version}"
         version_indent = " "*((columns - len(current_version))//2)
         note_lines = [f"{version_indent}{current_version}", ""]
@@ -943,7 +987,7 @@ def session():
             if line:
                 note_lines.extend(textwrap.wrap(line,
                     width=columns-3,
-                    subsequent_indent="                ",
+                    subsequent_indent="               ",
                     # initial_indent=" "
                     ))
             else:
@@ -952,13 +996,9 @@ def session():
         set_text(txt)
 
 
-    # def show_limits():
-    #     txt = "\n".join(Data.limits)
-    #     set_text(txt)
-
-
     def show_path():
         Data.setMode('path')
+        findlexer.set_regex(None)
         Data.showingNodes = True
         Data.showNodes()
         lines =  Data.nodelines
@@ -968,6 +1008,7 @@ def session():
 
     def show_tags():
         Data.setMode('tags')
+        findlexer.set_regex(None)
         Data.showingNodes = True
         Data.showNodes()
         lines =  Data.nodelines
@@ -1035,7 +1076,6 @@ def session():
             set_text(f"'{key}' is an unrecognized command")
 
 
-    # @bindings.add('q', filter=is_not_typing)
     @bindings.add('c-q')
     @bindings.add('f8')
     def _(event):
@@ -1046,6 +1086,7 @@ def session():
     def _(event):
         search_state = get_app().current_search_state
         search_state.text = ''
+        findlexer.set_regex(None)
 
     @bindings.add('.', '.', filter=is_not_typing)
     def _(event):

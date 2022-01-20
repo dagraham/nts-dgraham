@@ -35,6 +35,8 @@ style:
     status:             '#FFFFFF bg:#696969'
     status.key:         '#FFAA00'
     not-searching:      '#888888'
+    highlighted:        '#000000 bg:#FFFF75'
+    plain:              '#FAFAFA'
 # TAG SORT
 # For listed keys, sort by the corresponding value. E.g. In tag view
 # items with the tag "now" will be sorted as if they had the tag "!".
