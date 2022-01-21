@@ -1,86 +1,84 @@
-Recent changes as of 2022-01-18T17:31:00.539666-05:00:
-- 0 seconds ago (HEAD -> working, tag: 1.2.2) Daniel Graham
-    5c44fcc 2022-01-18 17:31:00 -0500
+Recent changes as of 2022-01-21T10:00:50.310784-05:00:
+- 0 seconds ago (HEAD -> working, tag: 1.2.3) Daniel Graham
+    03d22ff 2022-01-21 10:00:50 -0500
+    Tagged version 1.2.3. Implemented highlighting for find matches
+
+- 2 minutes ago Daniel Graham
+    0615a9d 2022-01-21 09:59:14 -0500
+    Added find highlighting to command mode.
+
+- 20 hours ago Daniel Graham
+    31397a6 2022-01-20 14:30:07 -0500
+    Added highlighting for find and removed line markers.
+
+- 2 days ago Daniel Graham
+    5677232 2022-01-19 09:39:34 -0500
+    Removed initial indent from wrap
+
+- 3 days ago (origin/master, master) Daniel Graham
+    cbd74ea 2022-01-18 17:31:00 -0500
     Tagged version 1.2.2. Added linked video illustrating session
     workflow to README.md
 
-- 25 minutes ago (origin/master, master) Daniel Graham
+- 3 days ago Daniel Graham
     0403f01 2022-01-18 17:06:06 -0500
     Reduced size of workflow.png
 
-- 27 minutes ago Daniel Graham
+- 3 days ago Daniel Graham
     2dd8ac0 2022-01-18 17:04:26 -0500
     Reduced size of workflow.png
 
-- 38 minutes ago Daniel Graham
+- 3 days ago Daniel Graham
     be54d47 2022-01-18 16:52:44 -0500
     Added workflow.png (github) as link to workflow video (youtube).
 
-- 71 minutes ago Daniel Graham
+- 3 days ago Daniel Graham
     78c9292 2022-01-18 16:20:28 -0500
     removed workflow video
 
-- 77 minutes ago Daniel Graham
+- 3 days ago Daniel Graham
     4ea159a 2022-01-18 16:13:52 -0500
     Added find_workflow.mov
 
-- 5 hours ago Daniel Graham
+- 3 days ago Daniel Graham
     c602c0d 2022-01-18 12:12:18 -0500
     Tagged version 1.2.1.
 
-- 5 hours ago Daniel Graham
+- 3 days ago Daniel Graham
     60fa0c2 2022-01-18 12:10:48 -0500
     Fixed bug in refreshing the display after editing.
 
-- 23 hours ago Daniel Graham
+- 4 days ago Daniel Graham
     d39fa3e 2022-01-17 18:59:53 -0500
     Whitespace tweaks.
 
-- 23 hours ago Daniel Graham
+- 4 days ago Daniel Graham
     9feeb4b 2022-01-17 18:50:39 -0500
     README tweaks
 
-- 29 hours ago Daniel Graham
+- 4 days ago Daniel Graham
     b891e66 2022-01-17 12:07:17 -0500
     Tagged version 1.2.0.
 
-- 29 hours ago Daniel Graham
+- 4 days ago Daniel Graham
     a9e3b01 2022-01-17 12:06:13 -0500
     Added reload data and copy to system clipboard commands. Removed
     myescape, myprint and show_message. Changed keybinds for quit to
     ^q and F8. When adding next notes file, create the file but do not
     open for editing.
 
-- 2 days ago Daniel Graham
+- 5 days ago Daniel Graham
     04cdede 2022-01-16 17:05:03 -0500
     Tagged version 1.1.9.
 
-- 2 days ago Daniel Graham
+- 5 days ago Daniel Graham
     e02c8ed 2022-01-16 16:59:33 -0500
     Join header fix
 
-- 2 days ago Daniel Graham
+- 5 days ago Daniel Graham
     2ae8ef1 2022-01-16 16:50:50 -0500
     Fixed bug in displaying headers.
 
-- 2 days ago Daniel Graham
+- 5 days ago Daniel Graham
     8704667 2022-01-16 12:32:46 -0500
     Tagged version 1.1.8.
-
-- 2 days ago Daniel Graham
-    044166e 2022-01-16 12:32:22 -0500
-    Added informative headers for active 'i', 'j' and 'g'. Flag lines
-    with 'f' unless the search regex is preceeded by an '!'.
-
-- 2 days ago Daniel Graham
-    224cc32 2022-01-16 09:12:16 -0500
-    Added option to flag matching lines in 'find'. Fixed logging bug
-    in __main__.
-
-- 3 days ago Daniel Graham
-    5ff8d73 2022-01-15 10:48:57 -0500
-    Help and README tweaks.
-
-- 3 days ago Daniel Graham
-    6727313 2022-01-15 10:07:10 -0500
-    Cleaned up debug statements.
