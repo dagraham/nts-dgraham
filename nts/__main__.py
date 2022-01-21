@@ -69,12 +69,12 @@ def make_grandchild(rootdir):
     In tag view, items with this tag will be sorted
     after 'now' items
 
-+ assigned to joe for action (assigned joe)
++ assigned for action (assigned joe)
     In tag view, items with this tag will be sorted
     in a third group and, within that group, by the
     name to whom it was assigned
 
-+ assigned to bob for action (assigned bob)
++ assigned for action (assigned bob)
     In tag view, items with this tag will be sorted
     in a third group and, within that group, by the
     name to whom it was assigned

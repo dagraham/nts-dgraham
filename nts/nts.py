@@ -111,6 +111,11 @@ class NTSLexer(Lexer):
         return get_line
 
 
+def myprint(pattern, line):
+    tokenlines = get_matches(pattern, line)
+    print_formatted_text(FormattedText(tokenlines), style=style_obj)
+
+
 def check_update():
     url = "https://raw.githubusercontent.com/dagraham/nts-dgraham/master/nts/__version__.py"
     try:
@@ -1185,7 +1190,7 @@ def main():
             Data.find(args.find)
             if not (args.add or args.edit or args.id):
                 for line in Data.findlines:
-                    print(line)
+                    myprint(args.find, line)
                 print("_"*columns)
                 return
 

@@ -224,12 +224,12 @@ is added to the grandchild example given above with the following content:
         In tag view, items with this tag will be sorted
         after 'now' items
 
-    + assigned to joe for action (assigned joe)
+    + assigned for action (assigned joe)
         In tag view, items with this tag will be sorted
         in a third group and, within that group, by the
         name to whom it was assigned
 
-    + assigned to bob for action (assigned bob)
+    + assigned for action (assigned bob)
         In tag view, items with this tag will be sorted
         in a third group and, within that group, by the
         name to whom it was assigned
@@ -255,9 +255,9 @@ _Tags View_ now appears as
     ├── next 2
     │       + action needed when time permits (next) 2-1
     ├── assigned bob 3
-    │       + assigned to bob for action (assigned bob) 3-1
+    │       + assigned for action (assigned bob) 3-1
     ├── assigned joe 4
-    │       + assigned to joe for action (assigned joe) 4-1
+    │       + assigned for action (assigned joe) 4-1
     ├── blue 5
     │       + note b (blue, green) 5-1
     │       + note c (red, blue) 5-2
