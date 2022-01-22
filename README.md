@@ -268,10 +268,7 @@ With this addition, _Path View_ appears as:
 Sorting in this view is dictionary order for sibling nodes but notes are listed in the order in which they occur in the file. E.g., the siblings "parent" and "tagsort.txt" are in dictionary order but the notes in each file are listed in the order in which they occur in the file.
 
 
-_Tags View_ reflects the _tag_sort_ setting in "cfg.yaml" with
-- first: _now_, _next_ and _assigned_
-- middle: _blue_, _green_ and _red_ in dictionary order
-- last: _someday_, _completed_ and _~_
+_Tags View_ reflects the _tag_sort_ setting in "cfg.yaml" with _now_, _next_ and _assigned_ first, then _blue_, _green_ and _red_ in the middle in dictionary order and finally _someday_, _completed_ and _~_ last:
 
 
     ├── now 1
