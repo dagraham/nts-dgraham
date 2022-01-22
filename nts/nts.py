@@ -67,7 +67,7 @@ help_notes = [
 'g STRING       display note titles that contain a match in the branch nodes leading to the note for the case-insensitive regular expression STRING.',
 'j JOIN         display note titles for notes with tags satisfying JOIN. E.g. if JOIN = "red", then notes containing the tag "RED" would be displayed. If JOIN = "| red, blue" then notes with _either_ the tag "red" _or_ the tag "blue" would be displayed. Finally, if JOIN = "& red, blue", then notes with _both_ the tags "red" _and_ "blue" would be displayed. In general JOIN = [|&] comma-separated list of case-insensitive regular expressions.',
 'i IDENT        if IDENT is the 2-number line identifier for a note, then display the contents of that note. Else if IDENT is the identifier for a ".txt" file, then display the contents of that file. Otherwise limit the display to that part of the outline which starts from the corresponding node. Use IDENT = 0 to start from the root node.',
-'e IDENT        if IDENT corresponds to either a note or a ".txt" file, then open that file for editing and, in the case of a note, scroll to the beginning line of the note.',
+'e IDENT        if IDENT corresponds to either a note or a ".txt" file, then open that file for editing and, in the case of a note, scroll to the beginning line of the note. Note that if the external editor uses the same terminal window, it may be necessary to press "Ctrl-l" to restore the nts display after closing the editor.',
 'a IDENT [NAME] if IDENT corresponds to either a note or a ".txt" file, then open that file for appending a new note. Otherwise, if IDENT corresponds to a directory and NAME is provided, add a child called NAME to that node. If NAME ends with ".txt", a new note file will be created. Otherwise, a new subdirectory called NAME will be added to the node directory. Use "0" as the IDENT to add to the root (data) node.',
 ]
 
@@ -610,11 +610,12 @@ class NodeData(object):
             # we have a starting node
             self.showingNodes = True
             self.setStart(info[0])
-            if info[0] == '.':
-                self.startstr = ""
-            else:
-                startstr = f'starting from {idstr} {info[0]}'
-                self.startstr = f"{startstr}\n{'-'*len(startstr)}"
+            self.startstr = ""
+            # if info[0] == '.':
+            #     self.startstr = ""
+            # else:
+            #     startstr = f'from {info[0]}'
+            #     self.startstr = f"{startstr}\n{'-'*len(startstr)}"
             self.showNodes()
             if not self.sessionMode:
                 for line in self.nodelines:
@@ -624,7 +625,10 @@ class NodeData(object):
             # we have a filename and linenumber
             self.showingNodes = False
             leafstr = info[0].split('data/')[1]
-            leafstr = f'showing {idstr} ./{leafstr}'
+            if '-' in idstr:
+                leafstr = f'{leafstr} note {idstr.split("-")[1]}'
+            else:
+                leafstr = f'{leafstr}'
             leafstr = f"{leafstr}\n{'-'*len(leafstr)}"
             filepath, linenum = info
             self.showNotes(filepath, linenum, leafstr)

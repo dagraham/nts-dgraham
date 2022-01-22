@@ -140,8 +140,8 @@ version check   |  -v              |  v              |  v
 
 - v: Compare the installed version of nts with the latest version on GitHub (requires internet connection) and report the result.
 
-Here is a link to a short video illustrating the workflow in session mode:
-[![workflow](https://raw.githubusercontent.com/dagraham/nts-dgraham/master/workflow.png "Illustrative Workflow")](https://www.youtube.com/watch?v=A93CFbDKi9g)
+Here is a link to a short video illustrating the basic workflow in session mode:
+[![workflow](https://raw.githubusercontent.com/dagraham/nts-dgraham/master/workflow.png "Basic Workflow")](https://www.youtube.com/watch?v=eUDGWMIhszg)
 
 There are no commands in _nts_ to remove either a file or a directory. Please use your favorite file manager for these risky actions and don't forget to restart _nts_ to update its display.
 
@@ -210,7 +210,7 @@ _nts_ implicitly assigns the tag "~" to notes without tags and, because of this 
 
 To illustrate this tag sorting with the default configuration, suppose the file
 
-    ~/nts/data/parent/child/tagsort.txt
+    ~/nts/data/tagsort.txt
 
 is added to the grandchild example given above with the following content:
 
@@ -247,9 +247,33 @@ is added to the grandchild example given above with the following content:
         the implicit tag '~'
     ---------------- tagsort.txt ends -----------------
 
-_Tags View_ now appears as
+With this addition, _Path View_ appears as:
 
-    tags view
+    ├── parent 1
+    │   └── child 2
+    │       └── grandchild.txt 3
+    │               + note a (red, green) 3-1
+    │               + note b (blue, green) 3-2
+    │               + note c (red, blue) 3-3
+    └── tagsort.txt 4
+            + action required as soon as possible (now) 4-1
+            + action needed when time permits (next) 4-2
+            + assigned for action (assigned joe) 4-3
+            + assigned for action (assigned bob) 4-4
+            + review from time to time for action (someday) 4-5
+            + finished but kept for reference (completed) 4-6
+            + a note with no tags 4-7
+
+
+Sorting in this view is dictionary order for sibling nodes but notes are listed in the order in which they occur in the file. E.g., the siblings "parent" and "tagsort.txt" are in dictionary order but the notes in each file are listed in the order in which they occur in the file.
+
+
+_Tags View_ reflects the _tag_sort_ setting in "cfg.yaml" with
+- first: _now_, _next_ and _assigned_
+- middle: _blue_, _green_ and _red_ in dictionary order
+- last: _someday_, _completed_ and _~_
+
+
     ├── now 1
     │       + action required as soon as possible (now) 1-1
     ├── next 2
@@ -274,28 +298,7 @@ _Tags View_ now appears as
     └── ~ 10
             + a note with no tags 10-1
 
-As promised, the sorting reflects the _tag_sort_ setting in "cfg.yaml" with _now_, _next_ and _assigned_ at the top, _blue_, _green_ and _red_ in the middle in dictionary sort order and _someday_, _completed_ and _~_ last. Note also that within the _assigned_ tags the sorting is in dictionary order with _assigned bob_ followed by _assigned joe_ even though _assigned joe_ occured first in the file.
-
-
-With the added file, _Path View_ appears as
-
-    path view
-    └── parent 1
-        └── child 2
-            ├── grandchild.txt 3
-            │       + note a (red, green) 3-1
-            │       + note b (blue, green) 3-2
-            │       + note c (red, blue) 3-3
-            └── tagsort.txt 4
-                    + action required as soon as possible (now) 4-1
-                    + action needed when time permits (next) 4-2
-                    + assigned to joe for action (assigned joe) 4-3
-                    + assigned to bob for action (assigned bob) 4-4
-                    + review from time to time for action (someday) 4-5
-                    + finished but kept for reference (completed) 4-6
-                    + a note with no tags 4-7
-
-Sorting in this view is dictionary order for sibling nodes but notes are listed in the order in which they occur in the file. E.g., the siblings "grandchild.txt" and "tagsort.txt" are in dictionary order but the notes in each of these files are listed in the order in which they occur in the file.
+  Note also that within the _assigned_ tags, the sorting is in dictionary order with _assigned bob_ followed by _assigned joe_ even though _assigned joe_ occured before _assigned bob_ in the file.
 
 
 ### Installation

@@ -101,7 +101,7 @@ def make_grandchild(rootdir):
         fo.write(grandchild)
     print(f"created '{full_path}'")
 
-    tagsort_path = os.path.join(full_path, 'tagsort.txt')
+    tagsort_path = os.path.join(rootdir, 'tagsort.txt')
     with open(tagsort_path, 'w') as fo:
         fo.write(tagsort)
     print(f"created '{full_path}'")
