@@ -1,21 +1,30 @@
-Recent changes as of 2022-01-21T10:00:50.310784-05:00:
-- 0 seconds ago (HEAD -> working, tag: 1.2.3) Daniel Graham
-    03d22ff 2022-01-21 10:00:50 -0500
+Recent changes as of 2022-01-21T21:13:00.803700-05:00:
+- 0 seconds ago (HEAD -> working, tag: 1.2.4) Daniel Graham
+    ddc99ee 2022-01-21 21:13:00 -0500
+    Tagged version 1.2.4.
+
+- 40 seconds ago (master) Daniel Graham
+    af9fd7b 2022-01-21 21:12:20 -0500
+    README tweaks. Changed path for tagsort.txt and uploaded new
+    'basic workflow' video to youtube with link in README.
+
+- 11 hours ago (origin/master) Daniel Graham
+    e2efcdf 2022-01-21 10:00:50 -0500
     Tagged version 1.2.3. Implemented highlighting for find matches
 
-- 2 minutes ago Daniel Graham
+- 11 hours ago Daniel Graham
     0615a9d 2022-01-21 09:59:14 -0500
     Added find highlighting to command mode.
 
-- 20 hours ago Daniel Graham
+- 31 hours ago Daniel Graham
     31397a6 2022-01-20 14:30:07 -0500
     Added highlighting for find and removed line markers.
 
-- 2 days ago Daniel Graham
+- 3 days ago Daniel Graham
     5677232 2022-01-19 09:39:34 -0500
     Removed initial indent from wrap
 
-- 3 days ago (origin/master, master) Daniel Graham
+- 3 days ago Daniel Graham
     cbd74ea 2022-01-18 17:31:00 -0500
     Tagged version 1.2.2. Added linked video illustrating session
     workflow to README.md
@@ -74,11 +83,3 @@ Recent changes as of 2022-01-21T10:00:50.310784-05:00:
 - 5 days ago Daniel Graham
     e02c8ed 2022-01-16 16:59:33 -0500
     Join header fix
-
-- 5 days ago Daniel Graham
-    2ae8ef1 2022-01-16 16:50:50 -0500
-    Fixed bug in displaying headers.
-
-- 5 days ago Daniel Graham
-    8704667 2022-01-16 12:32:46 -0500
-    Tagged version 1.1.8.
