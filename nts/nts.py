@@ -71,16 +71,14 @@ help_notes = [
 'a IDENT [NAME] if IDENT corresponds to either a note or a ".txt" file, then open that file for appending a new note. Otherwise, if IDENT corresponds to a directory and NAME is provided, add a child called NAME to that node. If NAME ends with ".txt", a new note file will be created. Otherwise, a new subdirectory called NAME will be added to the node directory. Use "0" as the IDENT to add to the root (data) node.',
 ]
 
-def get_matches(pattern, line):
-    if not pattern:
+def get_matches(pattern, line, lineno=None):
+    if not pattern or lineno == 0:
         return [("class:plain", line)]
     parts = []
     last_end = 0
-    # logger.debug(f"checking '{line}'")
     for match in re.finditer(pattern, line, re.IGNORECASE):
         s = match.start()
         e = match.end()
-        # logger.debug(f"match for '{pattern}' at {s}:{e} in {line} ")
         if s > last_end:
             parts.append(("class:plain", line[last_end:s]))
         parts.append(("class:highlighted", line[s:e]))
@@ -105,7 +103,7 @@ class NTSLexer(Lexer):
 
         def get_line(lineno):
             line = document.lines[lineno]
-            parts = get_matches(self.regex, line)
+            parts = get_matches(self.regex, line, lineno)
             return parts
 
         return get_line
@@ -279,10 +277,9 @@ class NodeData(object):
         if get is None:
             return (False, "required argument missing")
         get = get.strip()
-        getstr = f'notes for {self.mode} view branches matching "{get}"'
-        self.getstr = f"{getstr}\n{'-'*len(getstr)}"
+        getstr = f'notes for branches matching "{get}"'
+        self.getstr = getstr.center(self.columns - 2)
         self.get = re.compile(r'%s' % get, re.IGNORECASE) if get else None
-        # self.showNodes()
 
 
     def setJoin(self, join=None):
@@ -290,7 +287,7 @@ class NodeData(object):
             return (False, "required argument missing")
         join = join.strip()
         joinstr = f'notes with tags matching "{join}"'
-        self.joinstr = f"{joinstr}\n{'-'*len(joinstr)}"
+        self.joinstr = joinstr.center(self.columns - 2)
         if join.startswith('&'):
             mode = 'and'
             join = join[1:]
@@ -304,7 +301,6 @@ class NodeData(object):
         elif join:
             joinlst = [join]
         self.join = (mode, [re.compile(r'%s' % x, re.IGNORECASE) for x in joinlst]) if join else None
-        # sef.showNodes()
 
 
     def setMaxLevel(self, maxlevel=None):
@@ -492,7 +488,6 @@ class NodeData(object):
                     linenum -= 1
 
                 else:
-                    # id2info[id] = pathstr
                     id2info[(id,)] = (pathstr, None)
                     if id > 0 and self.shownodes:
                         output_lines.append(f"{pre}{node.name}{idstr}")
@@ -505,7 +500,7 @@ class NodeData(object):
     def showNotes(self, filepath, linenum=None, leafstr=""):
         """display the contens of filepath starting with linenum"""
 
-        selfcolumns, self.rows = shutil.get_terminal_size()
+        self.columns, self.rows = shutil.get_terminal_size()
         column_adjust = 2 if self.sessionMode else 1
         output_lines = []
         if leafstr:
@@ -519,7 +514,6 @@ class NodeData(object):
                     output_lines.extend(textwrap.wrap(line,
                         width=self.columns-column_adjust,
                         subsequent_indent="  ",
-                        # initial_indent="  "
                         ))
                 else:
                     output_lines.append("")
@@ -537,7 +531,6 @@ class NodeData(object):
                     output_lines.extend(textwrap.wrap(line,
                         width=self.columns-column_adjust,
                         subsequent_indent="  ",
-                        # initial_indent="  "
                         ))
                 else:
                     output_lines.append("")
@@ -557,6 +550,7 @@ class NodeData(object):
             logger.debug("cancelling find")
             self.findlines = []
             return
+        findstr = f'notes with matches for "{find}"'.center(self.columns - 2)
         regex = re.compile(r'%s' % find, re.IGNORECASE)
         for key, lines in self.notedetails.items():
             match = False
@@ -580,21 +574,21 @@ class NodeData(object):
                             output_lines.extend(textwrap.wrap(line,
                                 width=self.columns-column_adjust,
                                 subsequent_indent="  ",
-                                # initial_indent="  "
                                 ))
                         else:
                             output_lines.append('')
                     output_lines.append('')
             if output_lines and not output_lines[-1]:
                 output_lines = output_lines[:-1]
-        self.findlines = output_lines
+        header_lines = [findstr]
+        self.findlines = header_lines + output_lines
 
 
     def showID(self, idstr=None):
         self.showNodes()
         if idstr in [0, "0", '', None]:
             info = ('.', )
-            self.startstr = ""
+            self.startstr = "."
         else:
             try:
                 idtup = tuple([int(x) for x in idstr.split('-')])
@@ -611,11 +605,10 @@ class NodeData(object):
             self.showingNodes = True
             self.setStart(info[0])
             self.startstr = ""
-            # if info[0] == '.':
-            #     self.startstr = ""
-            # else:
-            #     startstr = f'from {info[0]}'
-            #     self.startstr = f"{startstr}\n{'-'*len(startstr)}"
+            if info[0] == '.':
+                self.startstr = ""
+            else:
+                self.startstr = f"{info[0].center(self.columns - 2)}"
             self.showNodes()
             if not self.sessionMode:
                 for line in self.nodelines:
@@ -629,7 +622,7 @@ class NodeData(object):
                 leafstr = f'{leafstr} note {idstr.split("-")[1]}'
             else:
                 leafstr = f'{leafstr}'
-            leafstr = f"{leafstr}\n{'-'*len(leafstr)}"
+            leafstr = leafstr.center(self.columns - 2)
             filepath, linenum = info
             self.showNotes(filepath, linenum, leafstr)
             if not self.sessionMode:
@@ -652,7 +645,6 @@ class NodeData(object):
         else:
             info[1] += 1
         filepath, linenum = info
-        # hsh = {'filepath': filepath, 'linenum': linenum}
         hsh = {'filepath': filepath, 'linenum': linenum}
         if self.sessionMode:
             editcmd = session_edit.format(**hsh)
@@ -692,7 +684,6 @@ class NodeData(object):
                 # adding a new note file
                 if ext != ".txt":
                     return (False, f"bad file extension {ext}; '.txt' is required")
-                # hsh = {'filepath':  mmyescapeyescape(child)}
                 open(child, 'a').close()
                 return (True, f"created '{child}'")
             else:
@@ -707,7 +698,6 @@ class NodeData(object):
         elif os.path.isfile(info[0]):
             # adding a note to an existing notefile
             filepath, linenum = info
-            # hsh = {'filepath': myescape(filepath)}
             hsh = {'filepath': filepath}
             if self.sessionMode:
                 editcmd = session_add.format(**hsh)
@@ -731,7 +721,6 @@ def session():
             ('class:status', ' nts'),
             ('class:status.key', f' {Data.mode[0]}'),
             ('class:status', f'){Data.mode[1:]} view'),
-            # ('class:status', ' - Press '),
         ]
         return lst
 
@@ -752,7 +741,6 @@ def session():
 
     def get_statusbar_right_text():
         lst = [
-            # ('class:status', 'Press '),
             ('class:status.key', 'h'),
             ('class:status', ')elp '),
         ]
@@ -997,7 +985,6 @@ def session():
                 note_lines.extend(textwrap.wrap(line,
                     width=columns-3,
                     subsequent_indent="               ",
-                    # initial_indent=" "
                     ))
             else:
                 note_lines.append('')
@@ -1129,7 +1116,6 @@ def main():
     columns, rows = shutil.get_terminal_size()
     parser = argparse.ArgumentParser(
             description=f"Note Taking Simplified {nts_version}",
-            # formatter_class=argparse.ArgumentDefaultsHelpFormatter,
             prog='nts')
 
     parser.add_argument("-s",  "--session", help="begin an interactive session", action="store_true")
@@ -1193,15 +1179,17 @@ def main():
             Data.showNodes()
             Data.find(args.find)
             if not (args.add or args.edit or args.id):
+                lineno = 0
                 for line in Data.findlines:
-                    myprint(args.find, line)
-                print("_"*columns)
+                    if lineno == 0:
+                        print(line)
+                    else:
+                        myprint(args.find, line)
+                    lineno += 1
                 return
 
         if args.get:
             Data.setGet(args.get)
-            # print(Data.getstr)
-            # print("-"*len(Data.getstr))
             Data.showNodes()
 
         if args.join:
@@ -1226,7 +1214,6 @@ def main():
             Data.setMode('path')
             Data.showNodes()
             if not showing_details:
-                # print('path view')
                 for line in Data.nodelines:
                     print(line)
                 print('')
@@ -1235,7 +1222,6 @@ def main():
             Data.setMode('tags')
             Data.showNodes()
             if not showing_details:
-                # print('tags view')
                 for line in Data.nodelines:
                     print(line)
                 print('')
@@ -1269,7 +1255,6 @@ if __name__ == "__main__":
         os.makedirs(logdir)
     loglevel = 2 # info
     setup_logging(loglevel, logdir)
-    # print(f"rootdir: {rootdir}, python version: {sys.version_info}")
 
     Data = NodeData(rootdir, logger)
 
