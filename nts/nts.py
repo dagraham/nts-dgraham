@@ -619,9 +619,9 @@ class NodeData(object):
             self.showingNodes = False
             leafstr = info[0].split('data/')[1]
             if '-' in idstr:
-                leafstr = f'{leafstr} note {idstr.split("-")[1]}'
+                leafstr = f'./{leafstr} note {idstr.split("-")[1]}'
             else:
-                leafstr = f'{leafstr}'
+                leafstr = f'./{leafstr}'
             leafstr = leafstr.center(self.columns - 2)
             filepath, linenum = info
             self.showNotes(filepath, linenum, leafstr)
@@ -784,6 +784,7 @@ def session():
         scrollbar=True,
         search_field=search_field,
         lexer=findlexer,
+        style="class:plain"
         )
 
 
