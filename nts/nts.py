@@ -52,7 +52,7 @@ separator = os.path.sep
 
 
 help_notes = [
-'h              show this help message.',
+'h              show t, {}his help message.',
 '^q or F8       quit.',
 'v              compare the installed version of nts with the latest version on GitHub (requires an internet connection).',
 'r              reload data from the files in the data directory to incorporate external changes.',

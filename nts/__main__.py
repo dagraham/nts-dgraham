@@ -238,6 +238,7 @@ d)ark or l)ight terminal background? [Dl] > """)
             default_cfg = default_template + dark
     else:
         has_cfg = False
+        user = {}
         text = prompt(f"""\
 Use color settings for a d)ark or l)ight terminal background? [Dl] > """)
         if text.lower() == 'l':
@@ -273,7 +274,7 @@ Use color settings for a d)ark or l)ight terminal background? [Dl] > """)
                             # a missing user setting component - use the default and update the file
                             changes.append(f"replaced missing setting for style[{k}] with {v}")
 
-                    if user['style'] is not None:
+                    if user and 'style' in user and isinstance(user['style'], dict):
                         for k, v in user['style'].items():
                             if k not in merged['style']:
                                 changes.append(f'removed invalid "{k}" setting for style')
