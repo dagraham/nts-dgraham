@@ -277,7 +277,7 @@ class NodeData(object):
         if get is None:
             return (False, "required argument missing")
         get = get.strip()
-        getstr = f'notes for branches matching "{get}"'
+        getstr = f'notes in branches matching "{get}"'
         self.getstr = getstr.center(self.columns - 2)
         self.get = re.compile(r'%s' % get, re.IGNORECASE) if get else None
 

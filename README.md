@@ -140,8 +140,8 @@ version check   |  -v              |  v              |  v
 
 - v: Compare the installed version of nts with the latest version on GitHub (requires internet connection) and report the result.
 
-Here is a link to a short video illustrating the basic workflow in session mode:
-[![workflow](https://raw.githubusercontent.com/dagraham/nts-dgraham/master/workflow.png "Basic Workflow")](https://www.youtube.com/watch?v=eUDGWMIhszg)
+Here is a link to a series of short videos illustrating basic usage:
+[![workflow](https://raw.githubusercontent.com/dagraham/nts-dgraham/master/workflow.png "nts playlist")](https://www.youtube.com/playlist?list=PLN2WQIqrwSxx5beH7Qn8RC25xdoz-wEHY)
 
 There are no commands in _nts_ to remove either a file or a directory. Please use your favorite file manager for these risky actions and don't forget to restart _nts_ to update its display.
 
@@ -179,20 +179,32 @@ The _nts_ "data" and "logs" directories will be created if necessary as well as 
     command_add: vim -g + {filepath}
     # STYLE
     # session mode hex colors
-    style:
-        status:             '#FFFFFF bg:#696969'
-        status.key:         '#FFAA00'
-        not-searching:      '#888888'
+	style:
+		status:             '#FFFFFF bg:#396060'
+		status.key:         '#FFAA00'
+		not-searching:      '#888888'
+		highlighted:        '#000000 bg:#FFFF75'
+		plain:              '#FAFAFA bg:#1D3030'
     # TAG SORT
     # For listed keys, sort by the corresponding value. E.g. In tag view
     # items with the tag "now" will be sorted as if they had the tag "!".
-    # Replace the keys and values with whatever you find convenient
+    # Replace, remove or add keys and values with whatever you like.
     tag_sort:
         now:        '!'
         next:       '#'
         assigned:   '%'
-        someday:    '{'
+        someday:    '&'
         completed:  '}'
+
+The default STYLE section given above is designed for a terminal with a dark background. If you prefer a light background, you might want to try these settings instead:
+
+	style:
+		status:               '#FFFFFF bg:#437070'
+		status.key:           '#FFAA00'
+		not-searching:        '#888888'
+		highlighted:          '#1D3030 bg:#A1CAF1'
+		plain:                '#000000 bg:#FFF8DC'
+
 
 If you make changes to "cfg.yaml" and would like to restore the defaults just delete the relevant settings from the file and restart _nts_ - the missing settings will be restored with their default values.
 
@@ -268,32 +280,32 @@ With this addition, _Path View_ appears as:
 Sorting in this view is dictionary order for sibling nodes but notes are listed in the order in which they occur in the file. E.g., the siblings "parent" and "tagsort.txt" are in dictionary order but the notes in each file are listed in the order in which they occur in the file.
 
 
-_Tags View_ reflects the _tag_sort_ setting in "cfg.yaml" with _now_, _next_ and _assigned_ first, then _blue_, _green_ and _red_ in the middle in dictionary order and finally _someday_, _completed_ and _~_ last:
+_Tags View_ reflects the _tag_sort_ setting in "cfg.yaml" with _now_, _next_,  _assigned_ and _someday_ first in that order, then _blue_, _green_ and _red_ in the middle in dictionary order and finally _completed_ and _~_ last:
 
 
-    ├── now 1
-    │       + action required as soon as possible (now) 1-1
-    ├── next 2
-    │       + action needed when time permits (next) 2-1
-    ├── assigned bob 3
-    │       + assigned for action (assigned bob) 3-1
-    ├── assigned joe 4
-    │       + assigned for action (assigned joe) 4-1
-    ├── blue 5
-    │       + note b (blue, green) 5-1
-    │       + note c (red, blue) 5-2
-    ├── green 6
-    │       + note a (red, green) 6-1
-    │       + note b (blue, green) 6-2
-    ├── red 7
-    │       + note a (red, green) 7-1
-    │       + note c (red, blue) 7-2
-    ├── someday 8
-    │       + review from time to time for action (someday) 8-1
-    ├── completed 9
-    │       + finished but kept for reference (completed) 9-1
-    └── ~ 10
-            + a note with no tags 10-1
+	├── now 1
+	│       + action required as soon as possible (now) 1-1
+	├── next 2
+	│       + action needed when time permits (next) 2-1
+	├── assigned bob 3
+	│       + assigned for action (assigned bob) 3-1
+	├── assigned joe 4
+	│       + assigned for action (assigned joe) 4-1
+	├── someday 5
+	│       + review from time to time for action (someday) 5-1
+	├── blue 6
+	│       + note b (blue, green) 6-1
+	│       + note c (red, blue) 6-2
+	├── green 7
+	│       + note a (red, green) 7-1
+	│       + note b (blue, green) 7-2
+	├── red 8
+	│       + note a (red, green) 8-1
+	│       + note c (red, blue) 8-2
+	├── completed 9
+	│       + finished but kept for reference (completed) 9-1
+	└── ~ 10
+			+ a note with no tags 10-1
 
   Note also that within the _assigned_ tags, the sorting is in dictionary order with _assigned bob_ followed by _assigned joe_ even though _assigned joe_ occured before _assigned bob_ in the file.
 

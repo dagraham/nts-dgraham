@@ -30,7 +30,6 @@ command_edit: vim -g +{linenum} {filepath}
 # command_add: cmd to edit {filepath} at end of file without waiting
 command_add: vim -g + {filepath}
 # STYLE
-# session mode hex colors
 style:
     status:             '#FFFFFF bg:#396060'
     status.key:         '#FFAA00'
@@ -40,12 +39,12 @@ style:
 # TAG SORT
 # For listed keys, sort by the corresponding value. E.g. In tag view
 # items with the tag "now" will be sorted as if they had the tag "!".
-# Replace the keys and values with whatever you find convenient
+# Replace, remove or add keys and values with whatever you like.
 tag_sort:
     now:        '!'
     next:       '#'
     assigned:   '%'
-    someday:    '{'
+    someday:    '&'
     completed:  '}'
 """
 
