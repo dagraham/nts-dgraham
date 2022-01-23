@@ -160,50 +160,52 @@ Alternatively, if the current working directory doesn't satisfy the requirments 
 
 Finally, if neither of the previous alternatives are satisfied, then *nts* will use "\~/nts" as its _home directory_, creating this directory if necessary.
 
-The _nts_ "data" and "logs" directories will be created if necessary as well as the _nts_ configuration file, "cfg.yaml" using default settings. If "data" needs to be created, the user will additionally be offered the opportunity to populate it with illustrative data. Here are the default contents of this file:
+The _nts_ "data" and "logs" directories will be created if necessary as well as the _nts_ configuration file, "cfg.yaml" using default settings. If "data" needs to be created, the user will additionally be offered the opportunity to populate it with illustrative data. Here are the default contents of this file when the "dark" background option is chosen at installation:
 
 
-    # Changes to this file only take effect when nts is restarted.
-    # EDIT
-    # The following are examples using the editor vim. Tip: to use the
-    # native version of vim under Mac OSX, replace 'vim' in each of
-    # the following commands with:
-    #        '/Applications/MacVim.app/Contents/MacOS/Vim'
-    # session_edit: cmd to edit {filepath} at {linenum} and await completion
-    session_edit: vim -g -f +{linenum} {filepath}
-    # session_add: cmd to edit {filepath} at end of file and await completion
-    session_add: vim -g -f + {filepath}
-    # command_edit: cmd to edit {filepath} at {linenum} without waiting
-    command_edit: vim -g +{linenum} {filepath}
-    # command_add: cmd to edit {filepath} at end of file without waiting
-    command_add: vim -g + {filepath}
-    # STYLE
-    # session mode hex colors
+	# Changes to this file only take effect when nts is restarted.
+	# EDIT
+	# The following are examples using the editor vim. Tip: to use the
+	# native version of vim under Mac OSX, replace 'vim' in each of
+	# the following commands with:
+	#        '/Applications/MacVim.app/Contents/MacOS/Vim'
+	# session_edit: cmd to edit {filepath} at {linenum} and await completion
+	session_edit: vim -g -f +{linenum} {filepath}
+	# session_add: cmd to edit {filepath} at end of file and await completion
+	session_add: vim -g -f + {filepath}
+	# command_edit: cmd to edit {filepath} at {linenum} without waiting
+	command_edit: vim -g +{linenum} {filepath}
+	# command_add: cmd to edit {filepath} at end of file without waiting
+	command_add: vim -g + {filepath}
+	# STYLE
+	light_background: false
 	style:
-		status:             '#FFFFFF bg:#396060'
-		status.key:         '#FFAA00'
-		not-searching:      '#888888'
-		highlighted:        '#000000 bg:#FFFF75'
-		plain:              '#FAFAFA bg:#1D3030'
-    # TAG SORT
-    # For listed keys, sort by the corresponding value. E.g. In tag view
-    # items with the tag "now" will be sorted as if they had the tag "!".
-    # Replace, remove or add keys and values with whatever you like.
-    tag_sort:
-        now:        '!'
-        next:       '#'
-        assigned:   '%'
-        someday:    '&'
-        completed:  '}'
+		status:			'#FFFFFF bg:#396060'
+		status.key:		'#FFAA00'
+		not-searching:	'#888888'
+		highlighted:	'#000000 bg:#FFFF75'
+		plain:			'#FAFAFA bg:#1D3030'
+	# TAG SORT
+	# For listed keys, sort by the corresponding value. E.g. In tag view
+	# items with the tag "now" will be sorted as if they had the tag "!".
+	# Replace, remove or add keys and values with whatever you like.
+	tag_sort:
+		now:			'!'
+		next:			'#'
+		assigned:		'%'
+		someday:		'&'
+		completed:		'}'
 
-The default STYLE section given above is designed for a terminal with a dark background. If you prefer a light background, you might want to try these settings instead:
 
+When the "light" background option is chosen the relevant lines are changed to these:
+
+	light_background: true
 	style:
-		status:               '#FFFFFF bg:#437070'
-		status.key:           '#FFAA00'
-		not-searching:        '#888888'
-		highlighted:          '#1D3030 bg:#A1CAF1'
-		plain:                '#000000 bg:#FFF8DC'
+		status:         '#FFFFFF bg:#437070'
+		status.key:     '#FFAA00'
+		not-searching:  '#888888'
+		highlighted:    '#1D3030 bg:#A1CAF1'
+		plain:          '#000000 bg:#FFF8DC'
 
 
 If you make changes to "cfg.yaml" and would like to restore the defaults just delete the relevant settings from the file and restart _nts_ - the missing settings will be restored with their default values.

@@ -14,28 +14,47 @@ import ruamel.yaml
 yaml = ruamel.yaml.YAML()
 
 # for nts.yaml
-default_cfg = """\
-# Changes to this file only take effect when nts is restarted.
-# EDIT
-# The following are examples using the editor vim. Tip: to use the
-# native version of vim under Mac OSX, replace 'vim' in each of
-# the following commands with:
-#        '/Applications/MacVim.app/Contents/MacOS/Vim'
-# session_edit: cmd to edit {filepath} at {linenum} and await completion
-session_edit: vim -g -f +{linenum} {filepath}
-# session_add: cmd to edit {filepath} at end of file and await completion
-session_add: vim -g -f + {filepath}
-# command_edit: cmd to edit {filepath} at {linenum} without waiting
-command_edit: vim -g +{linenum} {filepath}
-# command_add: cmd to edit {filepath} at end of file without waiting
-command_add: vim -g + {filepath}
-# STYLE
+
+dark = """\
+light_background: false
 style:
     status:             '#FFFFFF bg:#396060'
     status.key:         '#FFAA00'
     not-searching:      '#888888'
     highlighted:        '#000000 bg:#FFFF75'
     plain:              '#FAFAFA bg:#1D3030'
+"""
+
+light = """\
+light_background: true
+style:
+    status:               '#FFFFFF bg:#437070'
+    status.key:           '#FFAA00'
+    not-searching:        '#888888'
+    highlighted:          '#1D3030 bg:#A1CAF1'
+    plain:                '#000000 bg:#FFF8DC'
+"""
+
+default_template= """\
+# Changes to this file only take effect when nts is restarted.
+# EDIT
+# The following are examples using the editor vim. Tip: to use the
+# native version of vim under Mac OSX, replace 'vim' in edit_command
+# with:
+#        /Applications/MacVim.app/Contents/MacOS/Vim
+edit_command: vim
+# session_edit_args: arguments to edit {filepath} at {linenum} in
+# session mode and await completion
+session_edit_args: -g -f +{linenum} {filepath}
+# session_add: arguments to edit {filepath} at end of file in session
+# mode and await completion
+session_add_args: -g -f + {filepath}
+# command_edit_args: arguments to edit {filepath} at {linenum} in
+# command mode without waiting
+command_edit_args:  +{linenum} {filepath}
+# command_add_args: arguments to edit {filepath} at end of file
+# in command mode without waiting
+command_add_args: + {filepath}
 # TAG SORT
 # For listed keys, sort by the corresponding value. E.g. In tag view
 # items with the tag "now" will be sorted as if they had the tag "!".
@@ -46,7 +65,11 @@ tag_sort:
     assigned:   '%'
     someday:    '&'
     completed:  '}'
+# STYLE
+# color settings for session mode
 """
+
+
 
 def make_grandchild(rootdir):
     grandchild = """\
@@ -191,7 +214,37 @@ def main():
         else:
             print("cancelled")
             return
+
     cfg_path = os.path.join(ntshome, 'cfg.yaml')
+    if os.path.isfile(cfg_path):
+        has_cfg = True
+        with open(cfg_path, 'r') as fn:
+            try:
+                user = yaml.load(fn)
+            except Exception as e:
+                error = f"This exception was raised when loading settings:\n---\n{e}---\nPlease correct the error in {cfg_path} or remove it and restart nts.\n"
+                logger.critical(error)
+                sys.exit()
+        if 'light_background' not in user:
+            text = prompt(f"""\
+d)ark or l)ight terminal background? [Dl] > """)
+            if text.lower() == 'l':
+                default_cfg = default_template + light
+            else:
+                default_cfg = default_template + dark
+        elif user['light_background']:
+            default_cfg = default_template + light
+        else:
+            default_cfg = default_template + dark
+    else:
+        has_cfg = False
+        text = prompt(f"""\
+Use color settings for a d)ark or l)ight terminal background? [Dl] > """)
+        if text.lower() == 'l':
+            default_cfg = default_template + light
+        else:
+            default_cfg = default_template + dark
+
 
     defaults = ruamel.yaml.load(default_cfg, ruamel.yaml.RoundTripLoader)
     # ruamel.yaml.dump(defaults, sys.stdout, Dumper=ruamel.yaml.RoundTripDumper)
@@ -207,29 +260,23 @@ def main():
 
     setup_logging(loglevel, logdir)
     logger.debug(f"nts home directory: '{ntshome}'")
-    if os.path.isfile(cfg_path):
-        with open(cfg_path, 'r') as fn:
-            try:
-                user = yaml.load(fn)
-            except Exception as e:
-                error = f"This exception was raised when loading settings:\n---\n{e}---\nPlease correct the error in {cfg_path} or remove it and restart nts.\n"
-                logger.critical(error)
-                sys.exit()
+    if has_cfg:
         changes = []
         for key, value in defaults.items():
             # if there is a user setting, use it - else use the default
             if key in user:
                 if key == 'style':
                     for k, v in defaults['style'].items():
-                        if k in user['style']:
+                        if user['style'] is not None and k in user['style']:
                             merged['style'][k] = user['style'][k]
                         else:
                             # a missing user setting component - use the default and update the file
                             changes.append(f"replaced missing setting for style[{k}] with {v}")
 
-                    for k, v in user['style'].items():
-                        if k not in merged['style']:
-                            changes.append(f'removed invalid "{k}" setting for style')
+                    if user['style'] is not None:
+                        for k, v in user['style'].items():
+                            if k not in merged['style']:
+                                changes.append(f'removed invalid "{k}" setting for style')
                 else:
                     merged[key] = user[key]
             else:
@@ -265,10 +312,14 @@ def main():
     if os.path.isfile(cfg_path):
         with open(cfg_path, 'r') as fo:
             yaml_data = yaml.load(fo)
-        nts.session_edit= yaml_data['session_edit']
-        nts.session_add= yaml_data['session_add']
-        nts.command_edit= yaml_data['command_edit']
-        nts.command_add= yaml_data['command_add']
+        session_edit = f"{yaml_data['edit_command']} {yaml_data['session_edit_args']}"
+        nts.session_edit = session_edit
+        session_add = f"{yaml_data['edit_command']} {yaml_data['session_add_args']}"
+        nts.session_add = session_add
+        command_edit = f"{yaml_data['edit_command']} {yaml_data['command_edit_args']}"
+        nts.command_edit = command_edit
+        command_add = f"{yaml_data['edit_command']} {yaml_data['command_add_args']}"
+        nts.command_add = command_add
         user_style = yaml_data['style']
         style_obj = Style.from_dict(user_style)
         nts.style_obj = style_obj

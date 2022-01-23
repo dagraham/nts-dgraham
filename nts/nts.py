@@ -713,6 +713,8 @@ class NodeData(object):
 def session():
     columns, rows = shutil.get_terminal_size()
     Data.sessionMode = True
+    logger.debug(f"session_edit: {session_edit}")
+    logger.debug(f"session_add: {session_edit}")
 
     active_key = 'start'
 
