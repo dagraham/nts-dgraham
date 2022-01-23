@@ -177,14 +177,6 @@ The _nts_ "data" and "logs" directories will be created if necessary as well as 
 	command_edit: vim -g +{linenum} {filepath}
 	# command_add: cmd to edit {filepath} at end of file without waiting
 	command_add: vim -g + {filepath}
-	# STYLE
-	light_background: false
-	style:
-		status:			'#FFFFFF bg:#396060'
-		status.key:		'#FFAA00'
-		not-searching:	'#888888'
-		highlighted:	'#000000 bg:#FFFF75'
-		plain:			'#FAFAFA bg:#1D3030'
 	# TAG SORT
 	# For listed keys, sort by the corresponding value. E.g. In tag view
 	# items with the tag "now" will be sorted as if they had the tag "!".
@@ -195,6 +187,14 @@ The _nts_ "data" and "logs" directories will be created if necessary as well as 
 		assigned:		'%'
 		someday:		'&'
 		completed:		'}'
+	# STYLE
+	light_background: false
+	style:
+		status:			'#FFFFFF bg:#396060'
+		status.key:		'#FFAA00'
+		not-searching:	'#888888'
+		highlighted:	'#000000 bg:#FFFF75'
+		plain:			'#FAFAFA bg:#1D3030'
 
 
 When the "light" background option is chosen the relevant lines are changed to these:
