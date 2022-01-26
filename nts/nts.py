@@ -14,6 +14,8 @@ from prompt_toolkit.layout.layout import Layout
 from prompt_toolkit.layout.controls import FormattedTextControl
 from prompt_toolkit.layout.dimension import LayoutDimension as D
 from prompt_toolkit.lexers import Lexer
+from prompt_toolkit.completion import Completer, Completion
+from prompt_toolkit.auto_suggest import AutoSuggest, Suggestion
 
 from prompt_toolkit import PromptSession
 from prompt_toolkit import shortcuts
@@ -47,6 +49,7 @@ import nts.__version__ as version
 nts_version = version.version
 
 note_regex = re.compile(r'^[\+#]\s+([^\(]+)\s*(\(([^\)]*)\))?\s*$')
+ident_regex = re.compile(r'\d+(-\d+)?\s*$')
 
 separator = os.path.sep
 
@@ -97,7 +100,7 @@ class NTSLexer(Lexer):
             self.regex = None
         else:
             self.regex = regex
-        logger.debug(f"lexer regex: '{self.regex}'")
+        # logger.debug(f"lexer regex: '{self.regex}'")
 
     def lex_document(self, document):
 
@@ -253,7 +256,7 @@ class NodeData(object):
 
     def set_findregex(self, regex):
         self.findregex = regex if regex else None
-        logger.debug(f"findregex: '{self.findregex}'")
+        # logger.debug(f"findregex: '{self.findregex}'")
 
     def setlimits(self):
         msg = []
@@ -447,7 +450,7 @@ class NodeData(object):
                             # ok = True
                             for r in regxs:
                                 if r.search(line[1]):
-                                    logger.debug(f"match in {line[1]}")
+                                    # logger.debug(f"match in {line[1]}")
                                     ok = True
                                     if mode in ['or', None]:
                                         break
@@ -539,7 +542,7 @@ class NodeData(object):
 
 
     def find(self, find=None):
-        logger.debug(f"find: '{find}'")
+        # logger.debug(f"find: '{find}'")
         matching_keys = []
         output_lines = []
         self.find_lines = []
@@ -547,7 +550,7 @@ class NodeData(object):
         find = find.strip()
         self.set_findregex(find)
         if not find:
-            logger.debug("cancelling find")
+            # logger.debug("cancelling find")
             self.findlines = []
             return
         findstr = f'notes with matches for "{find}"'.center(self.columns - 2)
@@ -557,7 +560,7 @@ class NodeData(object):
             for line in lines:
                 match = regex.search(line)
                 if match:
-                    logger.debug(f"match: {match}")
+                    # logger.debug(f"match: {match}")
                     break
             if match:
                 matching_keys.append(key)
@@ -619,7 +622,7 @@ class NodeData(object):
             self.showingNodes = False
             leafstr = info[0].split('data/')[1]
             if '-' in idstr:
-                leafstr = f'./{leafstr} note {idstr.split("-")[1]}'
+                leafstr = f'./{leafstr} {idstr}'
             else:
                 leafstr = f'./{leafstr}'
             leafstr = leafstr.center(self.columns - 2)
@@ -713,10 +716,11 @@ class NodeData(object):
 def session():
     columns, rows = shutil.get_terminal_size()
     Data.sessionMode = True
-    logger.debug(f"session_edit: {session_edit}")
-    logger.debug(f"session_add: {session_edit}")
+    # logger.debug(f"session_edit: {session_edit}")
+    # logger.debug(f"session_add: {session_edit}")
 
     active_key = 'start'
+
 
     def get_statusbar_text():
         lst = [
@@ -797,13 +801,47 @@ def session():
 
     msg_window = Window(BufferControl(buffer=msg_buffer, focusable=False), height=1, style='class:status')
 
-
-
     ask_buffer = Buffer()
 
     ask_window = Window(BufferControl(buffer=ask_buffer, focusable=False), height=1, style='class:status')
 
-    query_window = TextArea(
+
+    class IdentCompleter(Completer):
+
+        def get_idents(self):
+            idents = []
+            keys = Data.id2info.keys()
+            idents = []
+            for x in keys:
+                if len(x) == 1:
+                    idents.append(f"{x[0]}")
+                else:
+                    idents.append(f"{x[0]}-{x[1]}")
+            # logger.debug(f"idents: {idents}")
+            return idents
+
+
+        def get_completions(self, document, complete_event):
+            text_before_cursor = document.text_before_cursor
+            m = ident_regex.search(text_area.document.current_line)
+            if m and m.group(0).startswith(text_before_cursor):
+                # logger.debug(f"suggestion: {m.group(0)}")
+                yield Completion(
+                        m.group(0),
+                        start_position=-len(text_before_cursor),
+                        )
+            else:
+                for x in self.get_idents():
+                    if x.startswith(text_before_cursor):
+                        yield Completion(
+                                x,
+                                start_position=-len(text_before_cursor),
+                                )
+
+
+    entry_window = TextArea(
+        completer=IdentCompleter(),
+        # auto_suggest=IdentSuggester(),
         style='class:status',
         multiline=False,
         focusable=True,
@@ -815,9 +853,9 @@ def session():
 
     def accept(buf):
         global active_key
-        arg = query_window.text
+        arg = entry_window.text
         ret = dispatch[active_key][1](arg)
-        logger.debug(f"active_key: {active_key}; showingNodes: {Data.showingNodes}")
+        # logger.debug(f"active_key: {active_key}; showingNodes: {Data.showingNodes}")
         if ret and not ret[0]:
             set_text(f"\n {ret[1]} ")
         else:
@@ -833,11 +871,11 @@ def session():
         application.layout.focus(text_area)
 
 
-    query_window.accept_handler = accept
+    entry_window.accept_handler = accept
 
     entry_area = HSplit([
         ask_window,
-        query_window,
+        entry_window,
         ], style='class:entry')
 
 
@@ -857,7 +895,7 @@ def session():
     def show_find(regex):
         if regex:
             Data.find(regex)
-            logger.debug(f"findlines: {Data.findlines}")
+            # logger.debug(f"findlines: {Data.findlines}")
             if Data.findlines:
                 findlexer.set_regex(regex)
                 text = "\n".join(Data.findlines)
@@ -1067,8 +1105,15 @@ def session():
         "toggle entry_area"
         key = event.key_sequence[0].key
         active_key = key
+        # logger.debug(f"event row: {text_area.document.cursor_position_row}")
+        # logger.debug(f"event line: {text_area.document.current_line}")
+        # logger.debug(f"event ident: {ident_regex.search(text_area.document.current_line).group(0)}")
         instruction, command = dispatch.get(key, (None, None))
         if instruction:
+            if active_key in ['a', 'i', 'e']:
+                m = ident_regex.search(text_area.document.current_line)
+                if m and m.group(0) != '1':
+                    entry_window.text = m.group(0)
             ask_buffer.text = instruction
             application.layout.focus(entry_area)
         else:

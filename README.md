@@ -89,7 +89,7 @@ The numeric identifiers appended to the lines in both views are provided by _nts
 
         $ nts -s
 
-    This begins a session in which data is loaded into memory and remains available for subsequent interaction. In this mode, *nts* assumes command of the terminal window. Then, e.g., pressing `p` would display the path view. Session mode adds several features not available in command mode, e.g., scrolling and incremental search.
+    This begins a session in which data is loaded into memory and remains available for subsequent interaction. In this mode, *nts* assumes command of the terminal window. Then, e.g., pressing `p` would display the path view. Session mode adds several features not available in command mode, e.g., scrolling, incremental search, auto-completion and auto-suggestion.
 
 #### Command Summary
 
@@ -145,6 +145,28 @@ Here is a link to a series of short videos illustrating basic usage:
 
 There are no commands in _nts_ to remove either a file or a directory. Please use your favorite file manager for these risky actions and don't forget to restart _nts_ to update its display.
 
+#### Auto completion and auto suggestion
+
+In session mode, if one of the IDENT commands (a, e or i) is invoked when the cursor is on a line ending with an IDENT, then that IDENT will automatically be entered for the command. Otherwise, when manually entering an IDENT, pressing the tab key will cycle through IDENTs that complete the current entry.
+
+As an illustration of auto-suggestion, a common workflow is to examine a note and then, perhaps, edit it.  In the screenshot above I clicked on the word "action" in the line that ends with `4-4` as its IDENT. Pressing "i", would then prompt for the IDENT:
+
+    > 4-4
+
+with `4-4` already entered. Pressing "return" would then display the details for this note as:
+
+                        ./tagsort.txt 4-4
+    + assigned for action (assigned bob)
+        In tag view, items with this tag will be sorted
+        in a third group and, within that group, by the
+        name to whom it was assigned
+
+With the cursor still on the top line ending with the same `4-4` IDENT, pressing "e" would prompt for the IDENT:
+
+    > 4-4
+
+with the `4-4` already entered. Pressing "return" would then open this same note in the external editor. Note that just five actions were involved: one mouse click and four key presses: "i", "return", "e" and "return".
+
 
 ### Configuration
 
@@ -163,49 +185,54 @@ Finally, if neither of the previous alternatives are satisfied, then *nts* will 
 The _nts_ "data" and "logs" directories will be created if necessary as well as the _nts_ configuration file, "cfg.yaml" using default settings. If "data" needs to be created, the user will additionally be offered the opportunity to populate it with illustrative data. Here are the default contents of this file when the "dark" background option is chosen at installation:
 
 
-	# Changes to this file only take effect when nts is restarted.
-	# EDIT
-	# The following are examples using the editor vim. Tip: to use the
-	# native version of vim under Mac OSX, replace 'vim' in each of
-	# the following commands with:
-	#        '/Applications/MacVim.app/Contents/MacOS/Vim'
-	# session_edit: cmd to edit {filepath} at {linenum} and await completion
-	session_edit: vim -g -f +{linenum} {filepath}
-	# session_add: cmd to edit {filepath} at end of file and await completion
-	session_add: vim -g -f + {filepath}
-	# command_edit: cmd to edit {filepath} at {linenum} without waiting
-	command_edit: vim -g +{linenum} {filepath}
-	# command_add: cmd to edit {filepath} at end of file without waiting
-	command_add: vim -g + {filepath}
-	# TAG SORT
-	# For listed keys, sort by the corresponding value. E.g. In tag view
-	# items with the tag "now" will be sorted as if they had the tag "!".
-	# Replace, remove or add keys and values with whatever you like.
-	tag_sort:
-		now:			'!'
-		next:			'#'
-		assigned:		'%'
-		someday:		'&'
-		completed:		'}'
-	# STYLE
-	light_background: false
-	style:
-		status:			'#FFFFFF bg:#396060'
-		status.key:		'#FFAA00'
-		not-searching:	'#888888'
-		highlighted:	'#000000 bg:#FFFF75'
-		plain:			'#FAFAFA bg:#1D3030'
 
+    # Changes to this file only take effect when nts is restarted.
+    # EDIT
+    # The following are examples using the editor vim. Tip: to use the
+    # native version of vim under Mac OSX, replace 'vim' in edit_command
+    # with:
+    #        /Applications/MacVim.app/Contents/MacOS/Vim
+    edit_command: vim
+    # session_edit_args: arguments to edit {filepath} at {linenum} in
+    # session mode and await completion
+    session_edit_args: -g -f +{linenum} {filepath}
+    # session_add: arguments to edit {filepath} at end of file in session
+    # mode and await completion
+    session_add_args: -g -f + {filepath}
+    # command_edit_args: arguments to edit {filepath} at {linenum} in
+    # command mode without waiting
+    command_edit_args:  +{linenum} {filepath}
+    # command_add_args: arguments to edit {filepath} at end of file
+    # in command mode without waiting
+    command_add_args: + {filepath}
+    # TAG SORT
+    # For listed keys, sort by the corresponding value. E.g. In tag view
+    # items with the tag "now" will be sorted as if they had the tag "!".
+    # Replace, remove or add keys and values with whatever you like.
+    tag_sort:
+        now:            '!'
+        next:           '#'
+        assigned:       '%'
+        someday:        '&'
+        completed:      '('
+    # STYLE
+    light_background: false
+    style:
+        status:         '#FFFFFF bg:#396060'
+        status.key:     '#FFAA00'
+        not-searching:  '#888888'
+        highlighted:    '#000000 bg:#FFFF75'
+        plain:          '#FAFAFA bg:#1D3030'
 
 When the "light" background option is chosen the relevant lines are changed to these:
 
-	light_background: true
-	style:
-		status:         '#FFFFFF bg:#437070'
-		status.key:     '#FFAA00'
-		not-searching:  '#888888'
-		highlighted:    '#1D3030 bg:#A1CAF1'
-		plain:          '#000000 bg:#FFF8DC'
+    light_background: true
+    style:
+        status:         '#FFFFFF bg:#437070'
+        status.key:     '#FFAA00'
+        not-searching:  '#888888'
+        highlighted:    '#1D3030 bg:#A1CAF1'
+        plain:          '#000000 bg:#FFF8DC'
 
 
 If you make changes to "cfg.yaml" and would like to restore the defaults just delete the relevant settings from the file and restart _nts_ - the missing settings will be restored with their default values.
@@ -282,32 +309,32 @@ With this addition, _Path View_ appears as:
 Sorting in this view is dictionary order for sibling nodes but notes are listed in the order in which they occur in the file. E.g., the siblings "parent" and "tagsort.txt" are in dictionary order but the notes in each file are listed in the order in which they occur in the file.
 
 
-_Tags View_ reflects the _tag_sort_ setting in "cfg.yaml" with _now_, _next_,  _assigned_ and _someday_ first in that order, then _blue_, _green_ and _red_ in the middle in dictionary order and finally _completed_ and _~_ last:
+_Tags View_ reflects the _tag_sort_ setting in "cfg.yaml" with the _Getting Things Done_ tags _now_, _next_,  _assigned_, _someday_ and _completed_ first in that order, then _blue_, _green_ and _red_ in the middle in dictionary order and finally _~_ (no tags) last:
 
 
-	├── now 1
-	│       + action required as soon as possible (now) 1-1
-	├── next 2
-	│       + action needed when time permits (next) 2-1
-	├── assigned bob 3
-	│       + assigned for action (assigned bob) 3-1
-	├── assigned joe 4
-	│       + assigned for action (assigned joe) 4-1
-	├── someday 5
-	│       + review from time to time for action (someday) 5-1
-	├── blue 6
-	│       + note b (blue, green) 6-1
-	│       + note c (red, blue) 6-2
-	├── green 7
-	│       + note a (red, green) 7-1
-	│       + note b (blue, green) 7-2
-	├── red 8
-	│       + note a (red, green) 8-1
-	│       + note c (red, blue) 8-2
-	├── completed 9
-	│       + finished but kept for reference (completed) 9-1
-	└── ~ 10
-			+ a note with no tags 10-1
+    ├── now 1
+    │       + action required as soon as possible (now) 1-1
+    ├── next 2
+    │       + action needed when time permits (next) 2-1
+    ├── assigned bob 3
+    │       + assigned for action (assigned bob) 3-1
+    ├── assigned joe 4
+    │       + assigned for action (assigned joe) 4-1
+    ├── someday 5
+    │       + review from time to time for action (someday) 5-1
+    ├── completed 6
+    │       + finished but kept for reference (completed) 6-1
+    ├── blue 7
+    │       + note b (blue, green) 7-1
+    │       + note c (red, blue) 7-2
+    ├── green 8
+    │       + note a (red, green) 8-1
+    │       + note b (blue, green) 8-2
+    ├── red 9
+    │       + note a (red, green) 9-1
+    │       + note c (red, blue) 9-2
+    └── ~ 10
+            + a note with no tags 10-1
 
   Note also that within the _assigned_ tags, the sorting is in dictionary order with _assigned bob_ followed by _assigned joe_ even though _assigned joe_ occured before _assigned bob_ in the file.
 

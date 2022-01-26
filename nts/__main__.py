@@ -64,7 +64,7 @@ tag_sort:
     next:       '#'
     assigned:   '%'
     someday:    '&'
-    completed:  '}'
+    completed:  '('
 # STYLE
 # color settings for session mode
 """
