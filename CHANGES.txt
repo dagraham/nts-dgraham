@@ -1,88 +1,90 @@
-Recent changes as of 2022-01-23T11:39:09.731813-05:00:
-- 0 seconds ago (HEAD -> working, tag: 1.3.1) Daniel Graham
-    31ce28b 2022-01-23 11:39:09 -0500
+Recent changes as of 2022-01-26T16:21:36.358650-05:00:
+- 0 seconds ago (HEAD -> working, tag: 1.3.2) Daniel Graham
+    6630c50 2022-01-26 16:21:36 -0500
+    Tagged version 1.3.2. Implemented auto-suggest and auto-complete
+    for a, e and i commands in session mode.
+
+- 77 seconds ago Daniel Graham
+    fcb3b26 2022-01-26 16:20:19 -0500
+    Implemented auto-suggest and auto-complete for the IDENT commands
+    a, e and i in session mode with documentation in README.
+
+- 3 days ago (master) Daniel Graham
+    dcddcc3 2022-01-23 12:44:12 -0500
+    README tweaks
+
+- 3 days ago (origin/master) Daniel Graham
+    8d49958 2022-01-23 11:39:09 -0500
     Tagged version 1.3.1.
 
-- 18 seconds ago Daniel Graham
+- 3 days ago Daniel Graham
     7358c30 2022-01-23 11:38:51 -0500
     Fixed bug in setting cfg.yaml.
 
-- 26 minutes ago (origin/master, master) Daniel Graham
+- 3 days ago Daniel Graham
     37d22e9 2022-01-23 11:12:42 -0500
     Tagged version 1.3.0. Changed cfg.yaml to support dark or light
     background option.
 
-- 28 minutes ago Daniel Graham
+- 3 days ago Daniel Graham
     23488a1 2022-01-23 11:11:06 -0500
     Added option to choose dark or light background settings in
     initial setup or when style settings are missing. Simplified
     cfg.yaml.
 
-- 14 hours ago Daniel Graham
+- 4 days ago Daniel Graham
     fccaced 2022-01-22 21:57:19 -0500
     Added suggestions for light style settings to README. Moved
     someday to & to place it in the first group in tag view.
 
-- 20 hours ago Daniel Graham
+- 4 days ago Daniel Graham
     1c984c9 2022-01-22 15:12:29 -0500
     Implemented the etm status and textarea colors including the plain
     style for both foreground and background colors.
 
-- 23 hours ago Daniel Graham
+- 4 days ago Daniel Graham
     fef4687 2022-01-22 12:19:56 -0500
     Tagged version 1.2.5.
 
-- 23 hours ago Daniel Graham
+- 4 days ago Daniel Graham
     3568346 2022-01-22 12:18:02 -0500
     README fixes.
 
-- 24 hours ago Daniel Graham
+- 4 days ago Daniel Graham
     ae292d1 2022-01-22 11:35:24 -0500
     Cleaned up and centered 'headers'. Cleaned up comments and
     logger.debugs. Don't highlight find match in header.
 
-- 2 days ago Daniel Graham
+- 5 days ago Daniel Graham
     0994ebb 2022-01-21 21:13:00 -0500
     Tagged version 1.2.4.
 
-- 2 days ago Daniel Graham
+- 5 days ago Daniel Graham
     af9fd7b 2022-01-21 21:12:20 -0500
     README tweaks. Changed path for tagsort.txt and uploaded new
     'basic workflow' video to youtube with link in README.
 
-- 2 days ago Daniel Graham
+- 5 days ago Daniel Graham
     e2efcdf 2022-01-21 10:00:50 -0500
     Tagged version 1.2.3. Implemented highlighting for find matches
 
-- 2 days ago Daniel Graham
+- 5 days ago Daniel Graham
     0615a9d 2022-01-21 09:59:14 -0500
     Added find highlighting to command mode.
 
-- 3 days ago Daniel Graham
+- 6 days ago Daniel Graham
     31397a6 2022-01-20 14:30:07 -0500
     Added highlighting for find and removed line markers.
 
-- 4 days ago Daniel Graham
+- 7 days ago Daniel Graham
     5677232 2022-01-19 09:39:34 -0500
     Removed initial indent from wrap
 
-- 5 days ago Daniel Graham
+- 8 days ago Daniel Graham
     cbd74ea 2022-01-18 17:31:00 -0500
     Tagged version 1.2.2. Added linked video illustrating session
     workflow to README.md
 
-- 5 days ago Daniel Graham
+- 8 days ago Daniel Graham
     0403f01 2022-01-18 17:06:06 -0500
     Reduced size of workflow.png
-
-- 5 days ago Daniel Graham
-    2dd8ac0 2022-01-18 17:04:26 -0500
-    Reduced size of workflow.png
-
-- 5 days ago Daniel Graham
-    be54d47 2022-01-18 16:52:44 -0500
-    Added workflow.png (github) as link to workflow video (youtube).
-
-- 5 days ago Daniel Graham
-    78c9292 2022-01-18 16:20:28 -0500
-    removed workflow video
