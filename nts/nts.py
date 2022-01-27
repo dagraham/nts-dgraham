@@ -45,9 +45,6 @@ import pyperclip
 
 import argparse
 
-import nts.__version__ as version
-nts_version = version.version
-
 note_regex = re.compile(r'^[\+#]\s+([^\(]+)\s*(\(([^\)]*)\))?\s*$')
 ident_regex = re.compile(r'\d+(-\d+)?\s*$')
 
@@ -64,6 +61,7 @@ help_notes = [
 'l              toggle showing leaves in the outline views.',
 'b              toggle showing branches in the outline views.',
 'c              copy the active view to the system clipboard.',
+'y              open cfg.yaml in the external editor and then incorporate any modifications into the active session.',
 'm INTEGER      limit the diplay of nodes in the outline views to INTEGER levels below the starting node. Use INTEGER = 0 to display all levels.',
 '/|? STRING     start a case-insensitive, incremental search forward (/) or backward (?) for STRING. When the search is active, press "n" to continue the search in the same or "N" reverse direction, ",," (two commas successively) to clear the search or ".." to apply the search to the complete notes of the active view.',
 'f STRING       display complete notes that contain a match in the title, tags or body for the case-insensitive regular expression STRING. Press ".." to clear the search highlighting.',
@@ -1087,6 +1085,7 @@ def session():
     @bindings.add('b', filter=is_not_typing)
     @bindings.add('v', filter=is_not_typing)
     @bindings.add('r', filter=is_not_typing)
+    @bindings.add('y', filter=is_not_typing)
     def _(event):
         key = event.key_sequence[0].key
         execute[key]()
@@ -1157,10 +1156,30 @@ def session():
         full_screen=True)
 
 
+    def yaml_edit(application=application):
+        global session_edit, session_add, style_obj, tag_sort
+
+        hsh = {'filepath': cfg_path, 'linenum': '0'}
+        editcmd = session_edit.format(**hsh)
+        editcmd = [x.strip() for x in editcmd.split(" ") if x.strip()]
+        subprocess.call(editcmd)
+
+        # finished edit - load yaml_data
+        yaml_data = get_yaml_data(cfg_path)
+        session_edit = f"{yaml_data['edit_command']} {yaml_data['session_edit_args']}"
+        session_add = f"{yaml_data['edit_command']} {yaml_data['session_add_args']}"
+        user_style = yaml_data['style']
+        style_obj = Style.from_dict(user_style)
+        tag_sort = yaml_data.get('tag_sort', {})
+        application.style = style_obj
+
+    execute['y'] = yaml_edit
+
     application.run()
 
 
 def main():
+
     columns, rows = shutil.get_terminal_size()
     parser = argparse.ArgumentParser(
             description=f"Note Taking Simplified {nts_version}",
@@ -1286,26 +1305,6 @@ def main():
             if not ok:
                 print(res)
 
-
-if __name__ == "__main__":
-    MIN_PYTHON = (3, 7, 3)
-    if sys.version_info < MIN_PYTHON:
-        mv = ".".join([str(x) for x in MIN_PYTHON])
-        sys.exit(f"Python {mv} or later is required.\n")
-
-    columns, rows = shutil.get_terminal_size()
-    rootdir = os.path.join(os.path.expanduser('~'), 'nts', 'data')
-    logging.getLogger('asyncio').setLevel(logging.WARNING)
-    logger = logging.getLogger()
-    ntsdir = os.path.join(os.path.expanduser('~'), 'nts')
-    logdir = os.path.normpath(os.path.join(ntsdir, 'logs'))
-    if not os.path.isdir(logdir):
-        os.makedirs(logdir)
-    loglevel = 2 # info
-    setup_logging(loglevel, logdir)
-
-    Data = NodeData(rootdir, logger)
-
-    main()
-
+if __name__ == '__main__':
+    sys.exit('nts.py should only be imported')
 

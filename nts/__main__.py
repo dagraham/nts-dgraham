@@ -13,9 +13,10 @@ from copy import deepcopy
 import ruamel.yaml
 yaml = ruamel.yaml.YAML()
 
-# for nts.yaml
+# for cfg.yaml
 
-dark = """\
+def get_yaml_data(cfg_path):
+    dark = """\
 light_background: false
 style:
     status:             '#FFFFFF bg:#396060'
@@ -25,7 +26,7 @@ style:
     plain:              '#FAFAFA bg:#1D3030'
 """
 
-light = """\
+    light = """\
 light_background: true
 style:
     status:               '#FFFFFF bg:#437070'
@@ -35,7 +36,7 @@ style:
     plain:                '#000000 bg:#FFF8DC'
 """
 
-default_template= """\
+    default_template= """\
 # Changes to this file only take effect when nts is restarted.
 # EDIT
 # The following are examples using the editor vim. Tip: to use the
@@ -69,6 +70,79 @@ tag_sort:
 # color settings for session mode
 """
 
+    if os.path.isfile(cfg_path):
+        has_cfg = True
+        with open(cfg_path, 'r') as fn:
+            try:
+                user = yaml.load(fn)
+            except Exception as e:
+                error = f"This exception was raised when loading settings:\n---\n{e}---\nPlease correct the error in {cfg_path} or remove it and restart nts.\n"
+                logger.critical(error)
+                sys.exit()
+        if 'light_background' not in user:
+            text = prompt(f"""\
+d)ark or l)ight terminal background? [Dl] > """)
+            if text.lower() == 'l':
+                default_cfg = default_template + light
+            else:
+                default_cfg = default_template + dark
+        elif user['light_background']:
+            default_cfg = default_template + light
+        else:
+            default_cfg = default_template + dark
+    else:
+        has_cfg = False
+        user = {}
+        text = prompt(f"""\
+Use color settings for a d)ark or l)ight terminal background? [Dl] > """)
+        if text.lower() == 'l':
+            default_cfg = default_template + light
+        else:
+            default_cfg = default_template + dark
+
+
+    defaults = ruamel.yaml.load(default_cfg, ruamel.yaml.RoundTripLoader)
+    merged = deepcopy(defaults)
+
+    if has_cfg:
+        changes = []
+        for key, value in defaults.items():
+            # if there is a user setting, use it - else use the default
+            if key in user:
+                if key == 'style':
+                    for k, v in defaults['style'].items():
+                        if user['style'] is not None and k in user['style']:
+                            merged['style'][k] = user['style'][k]
+                        else:
+                            # a missing user setting component - use the default and update the file
+                            changes.append(f"replaced missing setting for style[{k}] with {v}")
+
+                    if user and 'style' in user and isinstance(user['style'], dict):
+                        for k, v in user['style'].items():
+                            if k not in merged['style']:
+                                changes.append(f'removed invalid "{k}" setting for style')
+                else:
+                    merged[key] = user[key]
+            else:
+                # a missing user setting - use the default and update the file
+                changes.append(f"replaced missing setting for {key} with {value}")
+
+        for key, value in user.items():
+            if key not in merged:
+                changes.append(f'removed invalid "{key}" setting')
+        if changes:
+            with open(cfg_path, 'w', encoding='utf-8') as fn:
+                yaml.dump(merged, fn)
+            logger.info(f"updated {cfg_path}: {', '.join(changes)}")
+
+    else:
+        with open(cfg_path, 'w', encoding='utf-8') as fn:
+            yaml.dump(merged, fn)
+
+    with open(cfg_path, 'r') as fo:
+        yaml_data = yaml.load(fo)
+
+    return yaml_data
 
 
 def make_grandchild(rootdir):
@@ -185,6 +259,9 @@ def setup_logging(level, ntsdir, file=None):
 
 def main():
     import nts
+    import nts.__version__ as version
+    nts_version = version.version
+
     logging.getLogger('asyncio').setLevel(logging.WARNING)
     logger = logging.getLogger()
     MIN_PYTHON = (3, 7, 3)
@@ -215,42 +292,6 @@ def main():
             print("cancelled")
             return
 
-    cfg_path = os.path.join(ntshome, 'cfg.yaml')
-    if os.path.isfile(cfg_path):
-        has_cfg = True
-        with open(cfg_path, 'r') as fn:
-            try:
-                user = yaml.load(fn)
-            except Exception as e:
-                error = f"This exception was raised when loading settings:\n---\n{e}---\nPlease correct the error in {cfg_path} or remove it and restart nts.\n"
-                logger.critical(error)
-                sys.exit()
-        if 'light_background' not in user:
-            text = prompt(f"""\
-d)ark or l)ight terminal background? [Dl] > """)
-            if text.lower() == 'l':
-                default_cfg = default_template + light
-            else:
-                default_cfg = default_template + dark
-        elif user['light_background']:
-            default_cfg = default_template + light
-        else:
-            default_cfg = default_template + dark
-    else:
-        has_cfg = False
-        user = {}
-        text = prompt(f"""\
-Use color settings for a d)ark or l)ight terminal background? [Dl] > """)
-        if text.lower() == 'l':
-            default_cfg = default_template + light
-        else:
-            default_cfg = default_template + dark
-
-
-    defaults = ruamel.yaml.load(default_cfg, ruamel.yaml.RoundTripLoader)
-    # ruamel.yaml.dump(defaults, sys.stdout, Dumper=ruamel.yaml.RoundTripDumper)
-    merged = deepcopy(defaults)
-
     logdir = os.path.normpath(os.path.join(ntshome, 'logs'))
     if not os.path.isdir(logdir):
         os.makedirs(logdir)
@@ -261,42 +302,6 @@ Use color settings for a d)ark or l)ight terminal background? [Dl] > """)
 
     setup_logging(loglevel, logdir)
     logger.debug(f"nts home directory: '{ntshome}'")
-    if has_cfg:
-        changes = []
-        for key, value in defaults.items():
-            # if there is a user setting, use it - else use the default
-            if key in user:
-                if key == 'style':
-                    for k, v in defaults['style'].items():
-                        if user['style'] is not None and k in user['style']:
-                            merged['style'][k] = user['style'][k]
-                        else:
-                            # a missing user setting component - use the default and update the file
-                            changes.append(f"replaced missing setting for style[{k}] with {v}")
-
-                    if user and 'style' in user and isinstance(user['style'], dict):
-                        for k, v in user['style'].items():
-                            if k not in merged['style']:
-                                changes.append(f'removed invalid "{k}" setting for style')
-                else:
-                    merged[key] = user[key]
-            else:
-                # a missing user setting - use the default and update the file
-                changes.append(f"replaced missing setting for {key} with {value}")
-
-        for key, value in user.items():
-            if key not in merged:
-                changes.append(f'removed invalid "{key}" setting')
-        if changes:
-            with open(cfg_path, 'w', encoding='utf-8') as fn:
-                yaml.dump(merged, fn)
-            logger.info(f"updated {cfg_path}: {', '.join(changes)}")
-
-    else:
-        with open(cfg_path, 'w', encoding='utf-8') as fn:
-            yaml.dump(merged, fn)
-
-
 
     rootdir = os.path.join(ntshome, 'data')
     if not os.path.isdir(rootdir):
@@ -306,13 +311,19 @@ Use color settings for a d)ark or l)ight terminal background? [Dl] > """)
         if text.lower().strip() == 'y':
             make_grandchild(rootdir)
             logger.info("added example data")
+
+    cfg_path = os.path.join(ntshome, 'cfg.yaml')
+
     import nts.nts as nts
     nts.logger = logger
     Data = nts.NodeData(rootdir)
     nts.Data = Data
-    if os.path.isfile(cfg_path):
-        with open(cfg_path, 'r') as fo:
-            yaml_data = yaml.load(fo)
+    nts.nts_version = nts_version
+    nts.get_yaml_data = get_yaml_data
+    nts.cfg_path = cfg_path
+
+    yaml_data = get_yaml_data(cfg_path)
+    if yaml_data:
         session_edit = f"{yaml_data['edit_command']} {yaml_data['session_edit_args']}"
         nts.session_edit = session_edit
         session_add = f"{yaml_data['edit_command']} {yaml_data['session_add_args']}"

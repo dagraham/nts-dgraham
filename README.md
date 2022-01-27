@@ -112,6 +112,7 @@ inspect IDENT   |  -i IDENT        |  i IDENT        |  i
 edit IDENT      |  -e IDENT        |  e IDENT        |  e
 add to IDENT    |  -a IDENT [NAME] |  a IDENT [NAME] |  a
 refresh         |   ~              |  r              |  r
+edit cfg.yaml   |   ~              |  y              |  y
 version check   |  -v              |  v              |  v
 
 - l: Suppress showing leaves in the outline. In session mode this toggles the display of leaves off and on.
@@ -137,6 +138,8 @@ version check   |  -v              |  v              |  v
 - a: If IDENT corresponds to either a note or a ".txt" file, then open that file for appending a new note. Otherwise, if IDENT corresponds to a directory and NAME is provided, add a child called NAME to that node. If NAME ends with ".txt", a new note file will be created. Otherwise, a new subdirectory called NAME will be added to the node directory. Use "0" as the IDENT to add to the root (data) node. In command mode, "IDENT NAME" should be wrapped in quotes.
 
 - r: reload data from the files in the data directory to incorporate external changes.
+
+- y: open cfg.yaml in the external editor and then incorporate any modifications into the active session.
 
 - v: Compare the installed version of nts with the latest version on GitHub (requires internet connection) and report the result.
 
