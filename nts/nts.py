@@ -52,24 +52,24 @@ separator = os.path.sep
 
 
 help_notes = [
-'h              show t, {}his help message.',
-'^q or F8       quit.',
-'v              compare the installed version of nts with the latest version on GitHub (requires an internet connection).',
-'r              reload data from the files in the data directory to incorporate external changes.',
-'p              display path view.',
-'t              display tags view.',
-'l              toggle showing leaves in the outline views.',
-'b              toggle showing branches in the outline views.',
-'c              copy the active view to the system clipboard.',
-'y              open cfg.yaml in the external editor and then incorporate any modifications into the active session.',
-'m INTEGER      limit the diplay of nodes in the outline views to INTEGER levels below the starting node. Use INTEGER = 0 to display all levels.',
-'/|? STRING     start a case-insensitive, incremental search forward (/) or backward (?) for STRING. When the search is active, press "n" to continue the search in the same or "N" reverse direction, ",," (two commas successively) to clear the search or ".." to apply the search to the complete notes of the active view.',
-'f STRING       display complete notes that contain a match in the title, tags or body for the case-insensitive regular expression STRING. Press ".." to clear the search highlighting.',
-'g STRING       display note titles that contain a match in the branch nodes leading to the note for the case-insensitive regular expression STRING.',
-'j JOIN         display note titles for notes with tags satisfying JOIN. E.g. if JOIN = "red", then notes containing the tag "RED" would be displayed. If JOIN = "| red, blue" then notes with _either_ the tag "red" _or_ the tag "blue" would be displayed. Finally, if JOIN = "& red, blue", then notes with _both_ the tags "red" _and_ "blue" would be displayed. In general JOIN = [|&] comma-separated list of case-insensitive regular expressions.',
-'i IDENT        if IDENT is the 2-number line identifier for a note, then display the contents of that note. Else if IDENT is the identifier for a ".txt" file, then display the contents of that file. Otherwise limit the display to that part of the outline which starts from the corresponding node. Use IDENT = 0 to start from the root node.',
-'e IDENT        if IDENT corresponds to either a note or a ".txt" file, then open that file for editing and, in the case of a note, scroll to the beginning line of the note. Note that if the external editor uses the same terminal window, it may be necessary to press "Ctrl-l" to restore the nts display after closing the editor.',
-'a IDENT [NAME] if IDENT corresponds to either a note or a ".txt" file, then open that file for appending a new note. Otherwise, if IDENT corresponds to a directory and NAME is provided, add a child called NAME to that node. If NAME ends with ".txt", a new note file will be created. Otherwise, a new subdirectory called NAME will be added to the node directory. Use "0" as the IDENT to add to the root (data) node.',
+' h              show this help message.',
+' ^q or F8       quit.',
+' v              compare the installed version of nts with the latest version on GitHub (requires an internet connection).',
+' r              reload data from the files in the data directory to incorporate external changes.',
+' p              display path view.',
+' t              display tags view.',
+' l              toggle showing leaves in the outline views.',
+' b              toggle showing branches in the outline views.',
+' c              copy the active view to the system clipboard.',
+' y              open cfg.yaml in the external editor and, when the editor is closed,  incorporate any modifications into the active session.',
+' m INTEGER      limit the diplay of nodes in the outline views to INTEGER levels below the starting node. Use INTEGER = 0 to display all levels.',
+' /|? STRING     start a case-insensitive, incremental search forward (/) or backward (?) for STRING. When the search is active, press "n" to continue the search in the same or "N" reverse direction, ",," (two commas successively) to clear the search or ".." to apply the search to the complete notes of the active view.',
+' f STRING       display complete notes that contain a match in the title, tags or body for the case-insensitive regular expression STRING. Press ".." to clear the search highlighting.',
+' g STRING       display note titles that contain a match in the branch nodes leading to the note for the case-insensitive regular expression STRING.',
+' j JOIN         display note titles for notes with tags satisfying JOIN. E.g. if JOIN = "red", then notes containing the tag "RED" would be displayed. If JOIN = "| red, blue" then notes with _either_ the tag "red" _or_ the tag "blue" would be displayed. Finally, if JOIN = "& red, blue", then notes with _both_ the tags "red" _and_ "blue" would be displayed. In general JOIN = [|&] comma-separated list of case-insensitive regular expressions.',
+' i IDENT        if IDENT is the 2-number line identifier for a note, then display the contents of that note. Else if IDENT is the identifier for a ".txt" file, then display the contents of that file. Otherwise limit the display to that part of the outline which starts from the corresponding node. Use IDENT = 0 to start from the root node.',
+' e IDENT        if IDENT corresponds to either a note or a ".txt" file, then open that file for editing and, in the case of a note, scroll to the beginning line of the note. Note that if the external editor uses the same terminal window, it may be necessary to press "Ctrl-l" to restore the nts display after closing the editor.',
+' a IDENT [NAME] if IDENT corresponds to either a note or a ".txt" file, then open that file for appending a new note. Otherwise, if IDENT corresponds to a directory and NAME is provided, add a child called NAME to that node. If NAME ends with ".txt", a new note file will be created. Otherwise, a new subdirectory called NAME will be added to the node directory. Use "0" as the IDENT to add to the root (data) node.',
 ]
 
 def get_matches(pattern, line, lineno=None):
@@ -1023,7 +1023,7 @@ def session():
             if line:
                 note_lines.extend(textwrap.wrap(line,
                     width=columns-3,
-                    subsequent_indent="               ",
+                    subsequent_indent="                ",
                     ))
             else:
                 note_lines.append('')

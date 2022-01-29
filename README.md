@@ -139,7 +139,7 @@ version check   |  -v              |  v              |  v
 
 - r: reload data from the files in the data directory to incorporate external changes.
 
-- y: open cfg.yaml in the external editor and then incorporate any modifications into the active session.
+- y: open cfg.yaml in the external editor and, when the editor is closed,  incorporate any modifications into the active session.
 
 - v: Compare the installed version of nts with the latest version on GitHub (requires internet connection) and report the result.
 
@@ -147,6 +147,8 @@ Here is a link to a series of short videos illustrating basic usage:
 [![workflow](https://raw.githubusercontent.com/dagraham/nts-dgraham/master/workflow.png "nts playlist")](https://www.youtube.com/playlist?list=PLN2WQIqrwSxx5beH7Qn8RC25xdoz-wEHY)
 
 There are no commands in _nts_ to remove either a file or a directory. Please use your favorite file manager for these risky actions and don't forget to restart _nts_ to update its display.
+
+Note: when your configuraton settings specify that the external editor should open in the same terminal as _nts_, it may be necessary to press "Ctrl-L" to restore the display after closing the editor.
 
 #### Auto completion and auto suggestion
 
